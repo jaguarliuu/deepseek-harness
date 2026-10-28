@@ -208,6 +208,7 @@ function scriptedFace(overrides: {
         { provider: 'broken', displayName: 'broken', settingsNs: 'llm-pi-ai', settingsPath: ['nope', 'x'], active: false },
         { provider: 'plain', displayName: 'plain', settingsNs: 'llm-plain', settingsPath: ['profiles', 'plain'], active: false },
       ].map(({ active: _active, ...entry }) => entry)))),
+      testConnection: async () => undefined,
       discoverModels: vi.fn(() => Promise.resolve(remoteOk([]))),
     },
     settings: {
@@ -313,7 +314,7 @@ function cardSeatCalls(
     ])
 }
 
-async function mountFace(scripted: ReturnType<typeof scriptedFace>) {
+async function mountFace(scripted: ReturnType<typeof scriptedFace>, preferCustomProvider = false) {
   const { face, update, mutate, set, unset } = scripted
   const ctx = ctxWith(face)
   const mirror = new SettingsDescribeMirror(ctx)
@@ -321,6 +322,7 @@ async function mountFace(scripted: ReturnType<typeof scriptedFace>) {
   await controller.load()
   const renderSlot = stubRenderSlot()
   const injected: ModelsSectionProps = {
+    preferCustomProvider,
     controller,
     useSnapshot: bindSnapshotSelector(controller.store),
     operations: operationsWith(face),
@@ -1753,6 +1755,15 @@ describe('ModelsSection', () => {
     fireEvent.click(screen.getByText(en.cancel))
     expect(screen.queryAllByLabelText(en.keyInput)).toHaveLength(0)
     expect(mutate).not.toHaveBeenCalled()
+  })
+
+  it('opens private model settings on OpenAI-compatible configuration', async () => {
+    await mountFace(scriptedFace(), true)
+    fireEvent.click(screen.getByRole('button', { name: en.add }))
+    expect(screen.getByRole('tab', { name: en.addCustom }).getAttribute('aria-selected')).toBe('true')
+    expect(screen.getByRole<HTMLSelectElement>('combobox', { name: en.customApi }).value).toBe('openai-completions')
+    expect(screen.getByRole('textbox', { name: en.baseUrl })).toBeTruthy()
+    expect(screen.getByRole('button', { name: en.addModel })).toBeTruthy()
   })
 
   it('opens the add card on the catalog mode with both modes offered', async () => {

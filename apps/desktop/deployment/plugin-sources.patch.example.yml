@@ -1,0 +1,10 @@
+# Replace reserved .invalid addresses before merging into the profile user patch.
+# A patch replaces a row's complete config; preserve any existing custom limits.
+# This configures package operations, not a network firewall or detail CDN policy.
+- id: plugin-manager
+  config:
+    registry: https://npm.company.invalid/
+    fallbackRegistries: []
+- id: ui-plugin-manager
+  config:
+    registryProbeEnabled: false

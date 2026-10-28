@@ -981,7 +981,9 @@ export class PluginManagerController {
     if (!this.currentRegistryRead(read) || !install.open || !answer.ok) return
     const remembered = this.registryMemory.getSnapshot()
     const untouched = install.registry === read.choice && (install.phase === 'idle' || install.phase === 'checking')
-    if (untouched) read.choice = reconciled(remembered, answer.value)
+    if (untouched) read.choice = !this.transientRegistry && answer.value.registry !== null
+      ? { kind: 'offered', registry: answer.value.registry }
+      : reconciled(remembered, answer.value)
     this.patchInstall({ registries: answer.value, ...untouched ? { registry: read.choice } : {} })
     const mirror = eligibleMirror(answer.value)
     if (!untouched || remembered !== null || mirror === undefined) return

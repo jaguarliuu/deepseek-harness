@@ -82,7 +82,7 @@ describe('ui-settings-models apply', () => {
       for (const row of rows) if (row.kind === 'global') vi.stubGlobal(row.name, row.value)
       const plugin = ctx.plugin({ inject: [...inject], apply })
       await plugin.await()
-      expect(slots.entries('settings.onboarding').map(entry => entry.options.id)).toEqual(['welcome-notice', 'deepseek-official'])
+      expect(slots.entries('settings.onboarding').map(entry => entry.options.id)).toEqual(['deepseek-official'])
       const onboarding = slots.entries('settings.onboarding').find(entry => entry.options.id === 'deepseek-official')!
       expect((onboarding.inject as () => { automatic: boolean })().automatic).toBe(false)
       expect(slots.entries('settings.section').map(entry => entry.options.id)).toEqual(['models'])
@@ -175,6 +175,7 @@ describe('ui-settings-models apply', () => {
     expect(resolveSlotLabel(b.slots.entries('settings.section')[0]!.options.label)).toBe('Models')
     const injected = b.slots.entries('settings.section')[0]!.inject as unknown as () => import('../src/client/ModelsSection.tsx').ModelsSectionInjected
     expect(injected().t('deleteTitle')).toBe('Delete {provider}?')
+    expect(injected().preferCustomProvider).toBe(true)
     b.locale.setLocale('zh')
     expect(resolveSlotLabel(b.slots.entries('settings.section')[0]!.options.label)).toBe('模型')
     expect(injected().t('deleteTitle')).toBe('删除 {provider}？')

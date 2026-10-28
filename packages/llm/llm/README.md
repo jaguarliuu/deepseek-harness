@@ -7,6 +7,8 @@ kind: "package-reference"
 
 English | [中文](README.zh.md)
 
+Adapters register draft inference checks through `registerConnectionTest(settingsNs, handler)`. The `llm.testConnection` Remote accepts unsaved endpoint, protocol, model and authentication inputs, combines caller cancellation with a 30-second deadline, and returns without persisting them.
+
 ## Summary
 
 Use `@deepseek-ai/dsh-llm` to stream model calls through configured provider adapters, discover models, and resolve model capabilities and call defaults. Callers must keep all model-visible input reconstructable from the session log. Loop-built requests arrive deep-frozen, so extensions and adapters cannot rewrite them. Each stream is one provider attempt: provider-specific translation stays with its adapter, while the optional `@deepseek-ai/dsh-llm-retry` package re-runs failed requests. Streams always end with a terminal result, so callers can handle success, failure, and cancellation consistently.

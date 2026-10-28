@@ -1,0 +1,6 @@
+# Optional extra Python dependencies only; bundled Office wheels need no pip download.
+# Point the installing process's PIP_CONFIG_FILE at the deployed absolute filename.
+# Remove conflicting extra-index-url/PIP_EXTRA_INDEX_URL settings in that process.
+[global]
+index-url = https://pypi.company.invalid/simple/
+disable-pip-version-check = true

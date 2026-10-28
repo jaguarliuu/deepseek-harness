@@ -31,6 +31,7 @@ import {
 } from './DeepSeekModelsEditor.tsx'
 import type { DeepSeekModelsValidationFailure } from './DeepSeekModelsEditor.tsx'
 import { apiKeyFailure } from './apiKey.ts'
+import { ConnectionTest } from './ConnectionTest.tsx'
 import { EditorFooter } from './EditorFooter.tsx'
 import { ModelListEditor } from './ModelListEditor.tsx'
 import { validateReasoningEfforts } from './ModelReasoningEfforts.tsx'
@@ -182,8 +183,9 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
   const [keyDraft, setKeyDraft] = useState('')
   const [busy, setBusy] = useState(false)
   const [listBusy, setListBusy] = useState(false)
+  const [testBusy, setTestBusy] = useState(false)
   const { onBusyChange } = props
-  useEffect(() => { onBusyChange?.(busy || listBusy) }, [busy, listBusy, onBusyChange])
+  useEffect(() => { onBusyChange?.(busy || listBusy || testBusy) }, [busy, listBusy, testBusy, onBusyChange])
   const [failure, setFailure] = useState<string | undefined>(undefined)
   // A settings success advances both retry baselines immediately. Keeping the
   // derived fields in the draft prevents a pushed namespace refresh from
@@ -195,8 +197,9 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
   const root = useMemo(() => schema.rehydrate(namespace.schema), [namespace.schema, schema])
   const node = useMemo(() => schema.nodeAtPath(root, settingsPath), [root, schema, settingsPath])
   const fallback = schema.getPath(namespace.value, settingsPath)
-  const disabled = props.readOnly || busy
+  const disabled = props.readOnly || busy || testBusy
   const layout = layoutOf(namespace.ns)
+  const noAuth = schema.getPath(draft, ['noAuth']) === true
   const keyRef = refFor(schema, namespace, settingsPath, props.provider)
   // The same schema read the create card makes, so the choices offered here
   // and there cannot drift apart: both come from the adapter's own `Config`.
@@ -235,12 +238,12 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
   const validateModels = (value: unknown): DeepSeekModelsValidationFailure | ReasoningEffortsFailure | undefined =>
     validateDeepSeekModels(value) ?? (editsReasoning ? validateReasoningEfforts(value) : undefined)
   const modelFailure = validateModels(schema.getPath(draft, ['models']))
-  const keyFailure = apiKeyFailure(keyDraft)
+  const keyFailure = noAuth ? undefined : apiKeyFailure(keyDraft)
   // What a probe or a write must carry: the typed key with paste whitespace
   // removed. A blank field yields an empty string, which both call sites read
   // as "no key supplied" rather than as a key — that is how a card whose
   // provider already has a stored key is edited without re-entering it.
-  const keyValue = keyDraft.trim()
+  const keyValue = noAuth ? '' : keyDraft.trim()
   const credentialRequiredFailure = props.credentialRequired === true
     && keyDraft.length > 0 && keyValue.length === 0
     ? 'keyRequired' as const
@@ -252,6 +255,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
   const probeBaseURL = stringAt(draft, 'baseURL') ?? stringAt(fallback, 'baseURL')
   const probe = {
     settingsNs: namespace.ns,
+    ...noAuth ? { noAuth: true } : {},
     // Naming the route lets an adapter that already describes it answer from
     // its own registry — better metadata, no network call, no endpoint needed.
     provider: props.provider,
@@ -384,7 +388,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
     const detectedVisibleRef = detectedRef === undefined || !visibleRefs.includes(detectedRef) ? undefined : detectedRef
     const missingRefs = checkedRefs.length > 0 && checkedRefs.every(([, info]) => info?.configured === false)
     const savedCredential = detected?.[1]?.source === 'file'
-    const credentialHint = keyDraft.length > 0 || savedCredential || keyHint === undefined || props.credentialRequired === true
+    const credentialHint = noAuth || keyDraft.length > 0 || savedCredential || keyHint === undefined || props.credentialRequired === true
       ? undefined
       : t(detectedRef === undefined ? missingRefs ? 'keyFallbackMissing' : 'keyFallbackUnchecked'
         : detectedVisibleRef === undefined ? 'keyFallbackDetectedHidden' : 'keyFallbackDetected')
@@ -431,12 +435,20 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
               aria-describedby={credentialHint === undefined ? undefined : `${props.provider}-credential-hint`}
               required={props.credentialRequired === true}
               autoFocus={props.autoFocusCredential === true}
-              disabled={disabled}
+              disabled={disabled || noAuth}
               onChange={(event) => { setKeyDraft(event.target.value) }}
             />
             {credentialHint === undefined ? null : <p id={`${props.provider}-credential-hint`} className={styles[missingRefs ? 'notice' : detectedRef === undefined ? 'advancedHint' : 'savedNotice']}>{credentialHint}</p>}
             {shownKeyFailure === undefined ? null : <p className={styles['error']}>{t(shownKeyFailure)}</p>}
           </div>}
+        {ownsIdentity ? <label className={styles['field']}>
+          <span><input className={styles['noAuthCheckbox']} type="checkbox" checked={noAuth} disabled={disabled}
+            onChange={(event) => { setDraft(current => schema.setPath(current, ['noAuth'], event.target.checked)) }} /> {t('noAuth')}</span>
+          <span className={styles['advancedHint']}>{t('noAuthHint')}</span>
+        </label> : null}
+        {ownsIdentity ? <ConnectionTest operations={operations} t={t} settingsNs={namespace.ns}
+          request={{ provider: props.provider, baseURL: baseURL ?? '', api: stringAt(draft, 'api') ?? stringAt(fallback, 'api') ?? 'openai-completions', model: typeof models[0]?.id === 'string' ? models[0].id : '', noAuth, ...keyValue ? { apiKey: keyValue } : {} }}
+          models={models.flatMap(model => typeof model.id === 'string' ? [model.id] : [])} disabled={busy || listBusy || shownKeyFailure !== undefined} onBusyChange={setTestBusy} /> : null}
         {props.credentialOnly === true ? null : <details className={styles['customized']}>
           <summary className={styles['customizedSummary']}>{t('customized')}</summary>
           <div className={styles['customizedBody']}>
@@ -567,7 +579,7 @@ export function ProviderEditor(props: ProviderEditorProps): ReactNode {
         )}
       <EditorFooter
         t={t}
-        busy={busy}
+        busy={busy || testBusy}
         submitDisabled={disabled || layout === 'unknown'
           || (props.credentialOnly !== true && modelFailure !== undefined)
           || shownKeyFailure !== undefined

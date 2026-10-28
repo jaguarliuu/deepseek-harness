@@ -42,6 +42,8 @@
 
     - id: session-log-deepseek
       name: '@deepseek-ai/dsh-session-log-deepseek'
+      config:
+        enabled: !!js "ctx.get('profileContext')?.name !== 'desktop'"
 
     - id: typert
       name: '@deepseek-ai/dsh-typert-registry'
@@ -218,7 +220,7 @@
     - id: session-telemetry-otel
       name: '@deepseek-ai/dsh-session-telemetry-otel'
       config:
-        mode: !!js process.env.DSH_TELEMETRY_MODE || 'FEEDBACK_ONLY'
+        mode: !!js "process.env.DSH_TELEMETRY_MODE || (ctx.get('profileContext')?.name === 'desktop' ? 'DISABLED' : 'FEEDBACK_ONLY')"
         shutdownTimeoutMillis: 3000
         maxRequestBytes: 4000000
         exporter:

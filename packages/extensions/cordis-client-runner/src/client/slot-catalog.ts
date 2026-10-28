@@ -899,8 +899,10 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     hookContext: '',
     slotInject: '',
     declaredBy: 'factory \'conversation.content\' (client-ui-conversation), so it exists while that definition is registered',
-    occupants: [],
-    replaceRisk: 'none',
+    occupants: [
+      'client-ui-brand-official OfficialBrandMark',
+    ],
+    replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'conversation.hero.brand.mark\', () => ctx.slots.register(\n      { name: \'conversation.hero.brand.mark\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
     source: 'packages/client/ui-conversation/src/client/contract/slots.ts:284',
   },
@@ -2358,7 +2360,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'plugins.add.actions\', () => ctx.slots.register(\n      { name: \'plugins.add.actions\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:118',
+    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:127',
   },
   {
     key: 'plugins.bundle.activation',
@@ -2399,7 +2401,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'plugins.bundle.activation\', () => ctx.slots.register(\n      { name: \'plugins.bundle.activation\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:126',
+    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:135',
   },
   {
     key: 'plugins.bundle.config',
@@ -2443,7 +2445,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'shadows-shipped-ui',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'plugins.bundle.config\', () => ctx.slots.register(\n      { name: \'plugins.bundle.config\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:142',
+    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:151',
   },
   {
     key: 'plugins.detail.actions',
@@ -2495,7 +2497,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     occupants: [],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'plugins.detail.actions\', () => ctx.slots.register(\n      { name: \'plugins.detail.actions\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:156',
+    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:165',
   },
   {
     key: 'plugins.detail.badge',
@@ -2547,7 +2549,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     occupants: [],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'plugins.detail.badge\', () => ctx.slots.register(\n      { name: \'plugins.detail.badge\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:161',
+    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:170',
   },
   {
     key: 'plugins.detail.section',
@@ -2599,7 +2601,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     occupants: [],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'plugins.detail.section\', () => ctx.slots.register(\n      { name: \'plugins.detail.section\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:168',
+    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:177',
   },
   {
     key: 'plugins.item',
@@ -2656,7 +2658,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'plugins.item\', () => ctx.slots.register(\n      { name: \'plugins.item\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:136',
+    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:145',
   },
   {
     key: 'plugins.row.config',
@@ -2696,7 +2698,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     occupants: [],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'plugins.row.config\', () => ctx.slots.register(\n      { name: \'plugins.row.config\', key: \'<one key the owner dispatches>\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:150',
+    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:159',
   },
   {
     key: 'plugins.tab',
@@ -2725,9 +2727,10 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       },
     ],
     ownerProps: [
-      '/** Owner props of a page tab another plugin contributes, such as Discover. */\nexport interface PluginTabProps {\n  /**\n   * Install an exact version the person already confirmed: the page\'s install dialog opens at its check and progress\n   * screens, without the spec form, and names the plugin and version above the spec.\n   * @param target - the spec, optional registry, and display text.\n   */\n  readonly install: (target: PluginTabInstall) => void\n  /**\n   * Switch to the Installed tab and open a bundle\'s page, whose back button returns to the calling tab.\n   * @param packageName - npm package name of the bundle.\n   */\n  readonly openPackage: (packageName: string) => void\n}',
+      '/** Owner props of a page tab another plugin contributes, such as Discover. */\nexport interface PluginTabProps {\n  /** Host-owned catalog metadata, localized by the management page; no registry request from the renderer. */\n  readonly catalog?: readonly (PluginPackageRef & {\n    readonly title: string\n    readonly description: string\n    readonly installTarget?: { readonly spec: string; readonly version: string }\n  })[]\n  /** Loading and failure state of the shared catalog. */\n  readonly catalogStatus?: string\n\n  /**\n   * Install an exact version the person already confirmed: the page\'s install dialog opens at its check and progress\n   * screens, without the spec form, and names the plugin and version above the spec.\n   * @param target - the spec, optional registry, and display text.\n   */\n  readonly install: (target: PluginTabInstall) => void\n  /**\n   * Switch to the Installed tab and open a bundle\'s page, whose back button returns to the calling tab.\n   * @param packageName - npm package name of the bundle.\n   */\n  readonly openPackage: (packageName: string) => void\n}',
     ],
     ownerPropsReferences: [
+      'PluginPackageRef',
       'PluginTabInstall',
     ],
     standardProps: [
@@ -2747,10 +2750,11 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     declaredBy: 'an entry in \'main\' (client-ui-plugin-manager), so it exists while that entry is mounted',
     occupants: [
       'client-ui-plugin-market DiscoverSection id \'discover\'',
+      'client-ui-skill CapabilityCenter id \'capabilities\'',
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'plugins.tab\', () => ctx.slots.register(\n      { name: \'plugins.tab\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',
-    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:124',
+    source: 'packages/client/ui-plugin-manager/src/client/slot-contract.ts:133',
   },
   {
     key: 'rightbar',
@@ -3350,10 +3354,12 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     declaredBy: 'an entry in \'sidebar.settings\' (client-ui-settings-general), so it exists while that entry is mounted',
     occupants: [
       'client-ui-agent-preset AgentPresetSection id \'agent-presets\'',
+      'client-ui-plugin-manager SourceSettingsPage id \'intranet-sources\'',
       'client-ui-settings-account AccountSection id \'account\'',
       'client-ui-settings-general GeneralSection id \'general\'',
       'client-ui-settings-models ModelsSection id \'models\'',
       'client-ui-settings-plugins PluginsSettingsSection id \'plugins\'',
+      'client-ui-skill SkillsSection id \'skills\'',
     ],
     replaceRisk: 'none',
     example: 'return {\n  inject: [\'slots\'],\n  apply(ctx) {\n    ctx.slots.inject(\'settings.section\', () => ctx.slots.register(\n      { name: \'settings.section\', id: \'my-entry\', order: 100, label: \'My entry\' },\n      () => React.createElement(\'div\', null, \'hello\'),\n    ))\n  },\n}',

@@ -48,6 +48,11 @@ import type {} from '@deepseek-ai/dsh-client-locale/client'
 // Type-only: pulls the SlotRegistry service merge (ctx.slots).
 import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
+import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
+import type {} from '@deepseek-ai/dsh-client-resources/client'
+import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
+import { CapabilityCenter } from './CapabilityCenter.tsx'
+import { SkillsSection } from './SkillsSection.tsx'
 import { SkillRow } from './SkillRow.tsx'
 import { SkillReference, type SkillReferenceInjected } from './SkillReference.tsx'
 import { skillReferenceRule } from './user-text-rules.ts'
@@ -62,6 +67,7 @@ declare module '@deepseek-ai/dsh-api-session-controller/client' {
 }
 
 declare module '@deepseek-ai/dsh-client-ui-slots' {
+  interface ResourceProtocolMap { skillcatalog: { skills: readonly SkillEntry[]; unavailable?: boolean } }
   interface LocaleNamespaceMap {
     /** The dedicated skill tool row's copy. */
     skill: SkillKey
@@ -77,7 +83,7 @@ interface CatalogFetch {
 }
 
 /** Required services: reference source faces plus the tool-row and locale registries. */
-export const inject = ['inputTriggers', 'sessions', 'slots', 'locale', 'remote', 'remote.skills', 'sidebarRight', 'uiConversation']
+export const inject = ['resources', 'inputTriggers', 'sessions', 'slots', 'locale', 'remote', 'remote.skills', 'sidebarRight', 'uiConversation']
 
 /**
  * Client plugin body: register the '/' source, dictionaries, and keyed tool row.
@@ -85,6 +91,30 @@ export const inject = ['inputTriggers', 'sessions', 'slots', 'locale', 'remote',
  */
 export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en, ja, es, fr, de, ru, pt }), 'ui-skill: dictionaries')
+  ctx.effect(() => ctx.resources.register<'skillcatalog'>({
+    protocol: 'skillcatalog',
+    async *open(address, { signal }) {
+      const sessionId = ctx.sessions.list.getSnapshot().ids.find(id => id === new URL(address).pathname.slice(1))
+      if (sessionId === undefined) {
+        yield { ok: true as const, value: { skills: [], unavailable: true } }
+        return
+      }
+      try {
+        yield await ctx.sessions.using(sessionId, { source: 'skillCatalog', signal }, () => ctx.remote.skills.list({ sessionId }, signal))
+      } catch {
+        if (signal.aborted) return
+        yield { ok: true as const, value: { skills: [], unavailable: true } }
+      }
+    },
+  }), 'ui-skill: settings catalog')
+  ctx.slots.inject('plugins.tab', () => ctx.slots.register({
+    name: 'plugins.tab', id: 'capabilities', order: -10,
+    label: () => ctx.locale.bind(NS)('center.browse'), locale: NS,
+  }, CapabilityCenter))
+  ctx.slots.inject('settings.section', () => ctx.slots.register({
+    name: 'settings.section', id: 'skills', order: 16,
+    label: () => ctx.locale.bind(NS)('page.title'), locale: NS,
+  }, SkillsSection))
   ctx.uiConversation.userText.register(skillReferenceRule)
   ctx.slots.inject('tool.call.toolview', () => ctx.slots.register(
     { name: 'tool.call.toolview', key: 'skill', locale: NS },

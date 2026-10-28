@@ -172,6 +172,7 @@
 }
 
 .pageTitle {
+  color: var(--dsw-alias-brand-text);
   margin: 0;
   font-size: 20px;
   font-weight: 500;
@@ -357,14 +358,16 @@
 .cards {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 12px;
 }
 
 .card {
   min-width: 0;
   /* The hover surface reaches 8px past the content on both sides while the
      row's content stays aligned with the page header. */
-  margin: 0 -8px;
+  margin: 0;
+  border: 1px solid var(--dsw-alias-border-l3);
+  background: var(--dsw-alias-bg-layer-2);
   border-radius: var(--dsw-radius-xl);
   /* The page itself scrolls on the base surface. Anything that scrolls inside
      a card draws the l2 thumb (ui-theme styles/scrollbar.css rebinding contract). */
@@ -376,7 +379,7 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 8px;
+  padding: 16px;
 }
 
 .cardIcon {

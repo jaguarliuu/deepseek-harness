@@ -710,6 +710,18 @@ The model-facing `ToolSchema` is the wire type; the registered `ToolDefinition` 
 A provider a surface is still drafting has no route and no catalog, so interrogation is described separately: the request carries the draft the user is editing, and the reply is candidates a surface may adopt rather than a catalog it must serve.
 
 ```ts type-equiv
+/** Draft inference request; credentials are used once and never persisted. */
+interface LlmConnectionTestRequest {
+  provider?: string
+  baseURL: string
+  api: string
+  model: string
+  apiKey?: string
+  noAuth?: boolean
+}
+```
+
+```ts type-equiv
 /**
  * One interrogation of a provider endpoint that configuration has not stored
  * yet. Configuration surfaces send the draft a user is still editing, so the
@@ -717,6 +729,8 @@ A provider a surface is still drafting has no route and no catalog, so interroga
  * route: a provider being added has no route to name.
  */
 interface LlmModelDiscoveryRequest {
+  /** Explicitly suppress stored credentials for a private endpoint. */
+  noAuth?: boolean
   /**
    * Route the draft is editing, when it edits an existing one. A route whose
    * adapter already knows its models answers from that knowledge instead of
@@ -1011,6 +1025,23 @@ registerConfigurableProviders(entries: readonly LlmConfigurableProvider[]): Dire
  * @returns detached directory entries in declaration order.
  */
 @Remote listConfigurableProviders(): LlmConfigurableProvider[]
+
+/**
+ * Register draft inference testing for an adapter's settings namespace.
+ * @param settingsNs - owning settings namespace.
+ * @param test - one-shot request handler honoring cancellation.
+ * @returns the registration disposer.
+ */
+registerConnectionTest(settingsNs: string, test: (request: LlmConnectionTestRequest, signal: AbortSignal) => Promise<void>): () => void
+
+/**
+ * Test an unsaved provider draft without changing settings or credentials.
+ * @param settingsNs - namespace owning the provider adapter.
+ * @param request - unsaved endpoint, model, and authentication inputs.
+ * @param signal - Remote carrier cancellation.
+ * @returns once the selected model has responded successfully.
+ */
+@Remote('testConnection') async remoteTestConnection(settingsNs: string, request: LlmConnectionTestRequest, signal: AbortSignal): Promise<void>
 
 /**
  * Offer to interrogate provider endpoints on behalf of the settings

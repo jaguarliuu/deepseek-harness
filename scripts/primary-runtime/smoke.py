@@ -19,6 +19,8 @@ from docx.shared import Inches as DocxInches
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 from PIL import Image
+from pypdf import PdfReader, PdfWriter
+from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
 from pptx import Presentation
 from pptx.chart.data import CategoryChartData
 from pptx.enum.chart import XL_CHART_TYPE
@@ -81,6 +83,31 @@ def main():
         Image.new("RGB", (80, 40), "#2878bc").save(image)
         with Image.open(image) as restored:
             assert restored.size == (80, 40)
+
+        pdf = PdfWriter()
+        page = pdf.add_blank_page(width=612, height=792)
+        font = DictionaryObject({NameObject("/Type"): NameObject("/Font"),
+                                 NameObject("/Subtype"): NameObject("/Type1"),
+                                 NameObject("/BaseFont"): NameObject("/Helvetica")})
+        page[NameObject("/Resources")] = DictionaryObject({NameObject("/Font"):
+            DictionaryObject({NameObject("/F1"): font})})
+        stream = DecodedStreamObject()
+        stream.set_data(b"BT /F1 12 Tf 72 720 Td (Offline PDF ready) Tj ET")
+        page[NameObject("/Contents")] = stream
+        pdf.write(root / "source.pdf")
+        assert "Offline PDF ready" in PdfReader(root / "source.pdf").pages[0].extract_text()
+        merged = PdfWriter()
+        merged.append(root / "source.pdf")
+        merged.append(root / "source.pdf")
+        merged.write(root / "merged.pdf")
+        reader = PdfReader(root / "merged.pdf")
+        assert len(reader.pages) == 2
+        selected = PdfWriter()
+        selected.add_page(reader.pages[1])
+        selected.write(root / "selected.pdf")
+        restored_pdf = PdfReader(root / "selected.pdf")
+        assert len(restored_pdf.pages) == 1
+        assert "Offline PDF ready" in restored_pdf.pages[0].extract_text()
 
         document = Document()
         document.add_heading("Office 文档", 0)

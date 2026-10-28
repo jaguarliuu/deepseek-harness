@@ -12,6 +12,7 @@ document.add_paragraph("Desktop Office conversion 42")
 document.save(root / "input.docx")
 workbook = Workbook()
 workbook.active.append(["Desktop Office conversion", 42])
+workbook.active.column_dimensions["A"].width = 36
 workbook.save(root / "input.xlsx")
 workbook.close()
 presentation = Presentation()

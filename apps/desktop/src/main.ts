@@ -190,7 +190,7 @@ function developmentHostInspectPort(enabled: boolean): number | undefined {
  * @returns the sidebar fill hex for the active system color scheme.
  */
 function chromeFallbackFill(): string {
-  return nativeTheme.shouldUseDarkColors ? '#1b1b1c' : '#f9fafb'
+  return nativeTheme.shouldUseDarkColors ? '#14221c' : '#f5f9f7'
 }
 
 /**
@@ -217,7 +217,7 @@ function createWindow(preload: string, show = false, primary = false): BrowserWi
     ...(process.platform === 'win32' && primary ? {
       titleBarStyle: 'hidden' as const,
       titleBarOverlay: { height: WINDOWS_TITLEBAR_HEIGHT, color: chromeFallbackFill(),
-        symbolColor: nativeTheme.shouldUseDarkColors ? '#f9fafb' : '#0f1115' },
+        symbolColor: nativeTheme.shouldUseDarkColors ? '#f5f9f7' : '#11271e' },
     } : {}),
     // hiddenInset places traffic lights inside the sidebar; sidebar vibrancy
     // needs a transparent window background to show through the page.
@@ -962,7 +962,7 @@ async function main(): Promise<void> {
   const applicationIconPath = development ? join(app.getAppPath(), 'resources', 'icon-windows.png')
     : join(process.resourcesPath, 'icon.png')
   app.setAboutPanelOptions({
-    applicationName: 'DeepSeek Harness',
+    applicationName: '智维小 C',
     applicationVersion: app.getVersion(),
     // The release has no separate build number; omit Electron's bundle version.
     version: '',
@@ -1012,7 +1012,7 @@ async function main(): Promise<void> {
   ]
   const refreshApplicationMenu = (): void => {
     Menu.setApplicationMenu(Menu.buildFromTemplate(process.platform === 'win32' ? devToolsItems : [{
-      label: darwin ? app.name : currentDesktopLocale().messages.application,
+      label: darwin ? currentDesktopLocale().messages.aboutProduct : currentDesktopLocale().messages.application,
       submenu: [...applicationItems(), ...devToolsItems],
     }, ...platformMenus()]))
     tray?.relabel()

@@ -634,7 +634,7 @@ export type OnboardingProcess = 'compact' | 'standard' | 'detailed'
 ```ts config-catalog
 /** Onboarding options after schema defaults are applied. */
 export interface Config {
-  /** Offer the browser API-key step when no native shell owns credential onboarding. */
+  /** Offer the browser notice and automatic API-key step when no native shell owns onboarding. */
   credentialOnboarding: boolean
 }
 ```
@@ -1843,7 +1843,7 @@ export interface Config extends ProtocolConfig, ModelListingConfig {
 
 - `inject`: `llm`
 - `refs`: `Api` (`@earendil-works/pi-ai`) · `CacheRetention` (`@earendil-works/pi-ai`) · `Model` (`@earendil-works/pi-ai`) · `ModelThinkingLevel` (`@earendil-works/pi-ai`) · `OpenAICompletionsCompat` (`@earendil-works/pi-ai`) · [`RetryPolicyConfig`](../packages/llm/llm/src/index.ts) · `ThinkingBudgets` (`@earendil-works/pi-ai`) · `Transport` (`@earendil-works/pi-ai`) · `Volatile` (`@deepseek-ai/cordis`)
-- `source`: [`packages/llm/llm-pi-ai/src/config.ts:222`](../packages/llm/llm-pi-ai/src/config.ts)
+- `source`: [`packages/llm/llm-pi-ai/src/config.ts:224`](../packages/llm/llm-pi-ai/src/config.ts)
 
 ```ts config-catalog
 /** Plugin configuration: the provider routes this instance owns. */
@@ -1858,6 +1858,8 @@ export interface Config {
 
 /** Configuration for one pi-ai provider route; the `providers` dict key IS the route. */
 export interface PiAiProviderProfile {
+  /** Explicitly omit authentication for a private compatible endpoint. */
+  noAuth?: boolean
   /** Credential reference (environment-variable name) resolved per request through `ctx.credentials`. */
   apiKeyEnv?: string
   /** Name shown by configuration surfaces; defaults to the route key. */
@@ -2489,10 +2491,18 @@ export interface PlanModeConfig {
 ## `@deepseek-ai/dsh-plugin-manager`
 
 - `inject`: `loader` · `profileContext`
-- `refs`: [`NpmFileSource`](subsystems/boot.md)
-- `source`: [`packages/boot/plugin-manager/src/index.ts:52`](../packages/boot/plugin-manager/src/index.ts)
+- `refs`: [`NpmFileSource`](subsystems/boot.md) · `Volatile` (`@deepseek-ai/cordis`)
+- `source`: [`packages/boot/plugin-manager/src/index.ts:287`](../packages/boot/plugin-manager/src/index.ts)
 
 ```ts config-catalog
+/** Resolved configuration with live registry selection. */
+interface ResolvedConfig extends Omit<Config, 'registry' | 'fallbackRegistries'> {
+  /** Registry used by subsequent package operations; omission uses pnpm configuration. */
+  registry: Volatile<string | undefined>
+  /** Ordered fallback registries; an empty list disables registry fallback. */
+  fallbackRegistries: Volatile<string[]>
+}
+
 /** The pnpm executable, registries, and limits for diagnostics, lookups and connection checks. */
 export interface Config {
   /** The pnpm executable name or path; resolved through `PATH` like the `dsh plugin` command. */
@@ -3641,6 +3651,23 @@ export interface Config {
 }
 ```
 <!-- END GENERATED config-catalog:@deepseek-ai/dsh-subagent-spawn-in-process -->
+
+<!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-subprocess-local -->
+<a id="deepseek-aidsh-subprocess-local"></a>
+
+## `@deepseek-ai/dsh-subprocess-local`
+
+- `refs`: `Volatile` (`@deepseek-ai/cordis`)
+- `source`: [`packages/subprocess/subprocess-local/src/index.ts:58`](../packages/subprocess/subprocess-local/src/index.ts)
+
+```ts config-catalog
+/** Live defaults for newly launched local processes and terminals. */
+export interface Config {
+  /** Environment defaults; explicit request entries take precedence. */
+  environment: Volatile<Record<string, string>>
+}
+```
+<!-- END GENERATED config-catalog:@deepseek-ai/dsh-subprocess-local -->
 
 <!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-system-prompt -->
 <a id="deepseek-aidsh-system-prompt"></a>
@@ -4799,7 +4826,6 @@ These load from a `cordis.yml` entry with no `config:` block; they declare no co
 | `@deepseek-ai/dsh-settings` | `configEditor` · `profileContext` | [`packages/settings/settings/src/index.ts`](../packages/settings/settings/src/index.ts) |
 | `@deepseek-ai/dsh-skill-badge` | `skills` | [`packages/experimental/skill-badge/src/index.ts`](../packages/experimental/skill-badge/src/index.ts) |
 | `@deepseek-ai/dsh-storage` | — | [`packages/storage/storage/src/index.ts`](../packages/storage/storage/src/index.ts) |
-| `@deepseek-ai/dsh-subprocess-local` | — | [`packages/subprocess/subprocess-local/src/index.ts`](../packages/subprocess/subprocess-local/src/index.ts) |
 | `@deepseek-ai/dsh-subprocess-ssh` | `ssh` | [`packages/ssh/subprocess-ssh/src/index.ts`](../packages/ssh/subprocess-ssh/src/index.ts) |
 | `@deepseek-ai/dsh-terminal` | — | [`packages/terminal/terminal/src/index.ts`](../packages/terminal/terminal/src/index.ts) |
 | `@deepseek-ai/dsh-tool-call-timeout-policy` | `tools` | [`packages/guard/timeout-policy/src/index.ts`](../packages/guard/timeout-policy/src/index.ts) |

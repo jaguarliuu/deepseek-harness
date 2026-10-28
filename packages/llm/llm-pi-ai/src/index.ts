@@ -70,6 +70,7 @@ import { catalogProvider, catalogProviderIds } from './catalog.ts'
 import { assertServiceable, Config, resolveProfiles } from './config.ts'
 import type { ResolvedPiAiProviderProfile } from './config.ts'
 import { discoverModels } from './discovery.ts'
+import { testConnection } from './connection-test.ts'
 import type { StoredModelDiscoveryProfile } from './discovery.ts'
 import { registerPiAiFlows } from './login.ts'
 import { providerDefaultsOf } from './provider-data.ts'
@@ -277,6 +278,10 @@ export function apply(ctx: Context, config: Config): void {
   // except the stored credential and deployment-owned headers: the curated UI
   // accepts neither, so an already-configured route supplies both inside the
   // Host rather than widening the discovery request.
+  ctx.llm.registerConnectionTest(settingsNs, async (request, signal) => {
+    const stored = storedDiscoveryProfile(request.provider)
+    await testConnection(request, signal, request.noAuth === true ? undefined : request.apiKey ?? await stored?.resolveApiKey())
+  })
   ctx.llm.registerModelDiscovery(settingsNs, (request, signal) => discoverModels(
     { ...request, ...signal === undefined ? {} : { signal } },
     () => storedDiscoveryProfile(request.provider),

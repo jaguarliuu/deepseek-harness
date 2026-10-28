@@ -30,6 +30,7 @@ import type { ReactNode } from 'react'
 import type { JsonValue } from '@deepseek-ai/dsh-util-values'
 import { apiKeyFailure } from './apiKey.ts'
 import { ApiKeyInput } from './ApiKeyInput.tsx'
+import { ConnectionTest } from './ConnectionTest.tsx'
 import { EditorFooter } from './EditorFooter.tsx'
 import { validateDeepSeekModels } from './DeepSeekModelsEditor.tsx'
 import { ModelListEditor } from './ModelListEditor.tsx'
@@ -104,12 +105,14 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
   const [route, setRoute] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [baseURL, setBaseURL] = useState('')
-  const [protocol, setProtocol] = useState(protocols[0] ?? '')
+  const [protocol, setProtocol] = useState(protocols.includes('openai-completions') ? 'openai-completions' : protocols[0] ?? '')
   const [keyDraft, setKeyDraft] = useState('')
+  const [noAuth, setNoAuth] = useState(false)
+  const [testBusy, setTestBusy] = useState(false)
   const [models, setModels] = useState<readonly ModelDraft[]>([])
   const [busy, setBusy] = useState(false)
   const [listBusy, setListBusy] = useState(false)
-  useEffect(() => { onBusyChange?.(busy || listBusy) }, [busy, listBusy, onBusyChange])
+  useEffect(() => { onBusyChange?.(busy || listBusy || testBusy) }, [busy, listBusy, testBusy, onBusyChange])
   const [failure, setFailure] = useState<string | undefined>(undefined)
   /**
    * The profile write landed. Only the key write can still be outstanding, so
@@ -117,7 +120,7 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
    * the credential alone.
    */
   const [committed, setCommitted] = useState(false)
-  const disabled = props.readOnly || busy
+  const disabled = props.readOnly || busy || testBusy
   /** Everything but the key stops being editable once the provider exists. */
   const profileDisabled = disabled || committed
 
@@ -130,11 +133,11 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
   // fallbacks; what a route cannot default is at least one model. Every row of
   // this hand-declared route edits its reasoning levels, so they are checked too.
   const modelFailure = validateDeepSeekModels(models) ?? validateReasoningEfforts(models)
-  const keyFailure = apiKeyFailure(keyDraft)
+  const keyFailure = noAuth ? undefined : apiKeyFailure(keyDraft)
   // The typed key with paste whitespace removed. A blank field yields an empty
   // string, which the create path reads as "no key supplied" — a route may
   // legitimately authenticate through the provider's own ambient discovery.
-  const keyValue = keyDraft.trim()
+  const keyValue = noAuth ? '' : keyDraft.trim()
   const ready = route.length > 0 && !routeInvalid && !routeTaken
     && normalizedBaseURL.length > 0 && !baseUrlInvalid && models.length > 0 && modelFailure === undefined
     && keyFailure === undefined
@@ -162,6 +165,7 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
     const storesKey = keyValue.length > 0
     if (!committed) {
       const profile = {
+        ...noAuth ? { noAuth: true } : {},
         ...displayName.length === 0 ? {} : { displayName },
         // The profile names the conventional reference only when this card is
         // about to store a key, matching the editor: a route declared with the
@@ -272,6 +276,10 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
           {protocols.map(choice => <option key={choice} value={choice}>{protocolLabel(t, choice)}</option>)}
         </select>
       </div>
+      <label className={styles['field']}>
+        <span><input className={styles['noAuthCheckbox']} type="checkbox" checked={noAuth} disabled={profileDisabled} onChange={(event) => { setNoAuth(event.target.checked) }} /> {t('noAuth')}</span>
+        <span className={styles['advancedHint']}>{t('noAuthHint')}</span>
+      </label>
       <div className={styles['field']}>
         <span className={styles['fieldLabel']}>{t('keyInput')}</span>
         <ApiKeyInput
@@ -279,7 +287,7 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
           value={keyDraft}
           placeholder={t('keyPlaceholder')}
           aria-label={t('keyInput')}
-          disabled={disabled}
+          disabled={disabled || noAuth}
           onChange={(event) => { setKeyDraft(event.target.value) }}
         />
         {/* A create card has no stored key to keep, so the blank case says
@@ -297,6 +305,7 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
           settingsNs: NS,
           baseURL: normalizedBaseURL,
           api: protocol,
+          ...noAuth ? { noAuth: true } : {},
           ...keyValue.length === 0 ? {} : { apiKey: keyValue },
         }}
         probeBlocked={baseUrlInvalid
@@ -311,9 +320,13 @@ export function CustomProviderCard(props: CustomProviderCardProps): ReactNode {
       {/* Only the gates with something to say render; the route-id gate has its
           own field-level hint, so its blocked state would print an empty line. */}
       {hint === undefined ? null : <p className={styles['advancedHint']}>{hint}</p>}
+      <ConnectionTest operations={operations} t={t} settingsNs={NS}
+        request={{ baseURL: normalizedBaseURL, api: protocol, model: typeof models[0]?.id === 'string' ? models[0].id : '', noAuth, ...keyValue ? { apiKey: keyValue } : {} }}
+        models={models.flatMap(model => typeof model.id === 'string' ? [model.id] : [])} disabled={busy || listBusy || keyFailure !== undefined}
+        onBusyChange={setTestBusy} />
       <EditorFooter
         t={t}
-        busy={busy}
+        busy={busy || testBusy}
         submitDisabled={disabled || !ready}
         submitLabelKey="create"
         submitBusyLabelKey="creating"

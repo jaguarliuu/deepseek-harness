@@ -181,10 +181,10 @@ describe('desktop welcome window', () => {
   })
 
   it('shows the entry after logout only without a separately configured API key', () => {
-    expect(needsWelcome({ loggedIn: true, hasApiKey: false })).toBe(false)
-    expect(needsWelcome({ loggedIn: false, hasApiKey: false })).toBe(true)
-    expect(needsWelcome({ loggedIn: false, hasApiKey: true })).toBe(false)
-    expect(needsWelcome({ loggedIn: true, hasApiKey: true })).toBe(false)
+    expect(needsWelcome({ loggedIn: true, hasApiKey: false }, true)).toBe(false)
+    expect(needsWelcome({ loggedIn: false, hasApiKey: false }, true)).toBe(true)
+    expect(needsWelcome({ loggedIn: false, hasApiKey: true }, true)).toBe(false)
+    expect(needsWelcome({ loggedIn: true, hasApiKey: true }, true)).toBe(false)
   })
 })
 
@@ -207,4 +207,8 @@ it('accepts only permitted event fields and reads the current policy over IPC', 
   await expect(report(own, 'auth_page_view', null)).rejects.toThrow('invalid analytics')
   await report(own, 'api_key_save_click', {})
   expect(analytics).toHaveBeenLastCalledWith('api_key_save_click', {})
+})
+
+it.each([false, true])('enters the internal workspace without an account entry (API key=%s)', (hasApiKey) => {
+  expect(needsWelcome({ loggedIn: false, hasApiKey })).toBe(false)
 })

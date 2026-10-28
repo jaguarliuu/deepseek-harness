@@ -1,0 +1,10 @@
+# Reference only: excluded from the first intranet release; future voice uses company ASR.
+# Alternative to voice-mirror: replace paths with OS-specific deployed absolute paths.
+# Copy and verify model.int8.onnx, tokens.txt and silero_vad.onnx before deployment.
+# Explicit local paths do not download missing files; deployment owns hash verification.
+- id: speech-to-text-sensevoice
+  config:
+    dataRoot: !!js dshHomePath('speech-to-text', 'sensevoice')
+    precision: int8
+    modelDirectory: /REPLACE_WITH_DEPLOYED_PATH/sensevoice
+    vadModelPath: /REPLACE_WITH_DEPLOYED_PATH/silero_vad.onnx

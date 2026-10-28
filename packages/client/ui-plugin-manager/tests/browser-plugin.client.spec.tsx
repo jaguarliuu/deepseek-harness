@@ -115,7 +115,7 @@ describe('ui-plugin-manager browser plugin', () => {
     const entry = b.slots.entries('main')[0]!
     assert(entry.store && 'create' in entry.store)
     const navigation = entry.store.create()
-    expect(navigation.getSnapshot()).toEqual({ tab: 'installed', view: { kind: 'list' } })
+    expect(navigation.getSnapshot()).toEqual({ tab: '', view: { kind: 'list' } })
     b.ctx.pluginNavigation.openBundle('dsh-navigation-test')
     expect(b.panelInfo.getSnapshot().activePanelId).toBe(PANEL_ID)
     expect(navigation.getSnapshot()).toEqual({ tab: 'installed', view: { kind: 'package', name: 'dsh-navigation-test' } })
@@ -257,7 +257,7 @@ describe('ui-plugin-manager browser plugin', () => {
     expect(glyph.container.querySelector('svg')?.getAttribute('width')).toBe('18')
     expect(icon.options).toMatchObject({ id: PANEL_ID, order: 0 })
     expect(icon.locale).toBe(NS)
-    expect(resolveSlotLabel(icon.options.label)).toBe('插件')
+    expect(resolveSlotLabel(icon.options.label)).toBe('能力中心')
     // The page declares the slots a plugin's configuration arrives through, and binds their projection beside its state.
     expect(b.slots.spec('plugins.add.actions')).toMatchObject({ kind: 'list', scope: 'root' })
     expect(b.slots.spec('plugins.item')).toMatchObject({ kind: 'list', scope: 'root' })

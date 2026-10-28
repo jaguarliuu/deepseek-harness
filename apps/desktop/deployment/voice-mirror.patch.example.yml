@@ -1,0 +1,10 @@
+# Reference only: excluded from the first intranet release; future voice uses company ASR.
+# Apply only when the voice bundle is installed and its rows are composed.
+# Retain the pinned repository paths and bytes from runtime/assets.json on this mirror.
+- id: speech-to-text-sensevoice
+  config:
+    dataRoot: !!js dshHomePath('speech-to-text', 'sensevoice')
+    precision: int8
+    modelOrigin: https://models.company.invalid
+    modelOrigins:
+      - https://models.company.invalid

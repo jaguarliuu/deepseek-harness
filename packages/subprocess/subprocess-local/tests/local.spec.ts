@@ -59,6 +59,25 @@ function spec(command: string, overrides: Partial<SubprocessSpawnSpec> = {}): Su
 }
 
 describe('LocalSubprocessRuntime', () => {
+  it('applies configured package sources to real children while retaining explicit caller overrides', async () => {
+    const ctx = new Context()
+    const fiber = ctx.plugin(LocalSubprocessRuntime, { environment: { PIP_INDEX_URL: 'https://pypi.example/simple/' } })
+    await fiber.await()
+    try {
+      const read = async (env?: Record<string, string>): Promise<string> => {
+        const handle = ctx.subprocess.spawn(spec('true', {
+          argv: [process.execPath, '-e', 'process.stdout.write(process.env.PIP_INDEX_URL || "")'],
+          ...(env === undefined ? {} : { env }),
+        }))
+        expect((await handle.done).exitCode).toBe(0)
+        await handle.waitForExit()
+        return handle.collected.stdout!.readFrom(0).text
+      }
+      expect(await read()).toBe('https://pypi.example/simple/')
+      expect(await read({ PIP_INDEX_URL: 'https://explicit.example/simple/' })).toBe('https://explicit.example/simple/')
+    } finally { await fiber.dispose() }
+  })
+
   it('discovers the platform shell without inventing a missing default and honors cancellation', async () => {
     let loginShell: string | null = '/account/shell'
     const userInfo = vi.spyOn(os, 'userInfo').mockImplementation(() => ({

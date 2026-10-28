@@ -68,8 +68,9 @@ export interface WelcomeAuthentication {
 /**
  * Decide whether a startup or sign-out requires the welcome entry.
  * @param authentication - current account and independently stored API-key facts.
- * @returns true only when neither authentication route is configured.
+ * @param accountEntryEnabled - distribution opt-in to the upstream account entry.
+ * @returns true only when the entry is enabled and neither authentication route is configured.
  */
-export function needsWelcome(authentication: WelcomeAuthentication): boolean {
-  return !authentication.loggedIn && !authentication.hasApiKey
+export function needsWelcome(authentication: WelcomeAuthentication, accountEntryEnabled = false): boolean {
+  return accountEntryEnabled && !authentication.loggedIn && !authentication.hasApiKey
 }

@@ -1,5 +1,9 @@
 vi.mock('../src/web-document.ts', () => ({ authenticateWebHost: async () => 'test-cookie', serveWebDocument: vi.fn(), forwardWebRequest: vi.fn() }))
-/** Welcome startup uses the Host before transitioning to the workspace. */
+// Keep coverage for the optional upstream welcome flow. The internal distribution disables it.
+vi.mock('../src/welcome-api.ts', async (importOriginal) => {
+  const original = await importOriginal<typeof import('../src/welcome-api.ts')>()
+  return { ...original, needsWelcome: (authentication: import('../src/welcome-api.ts').WelcomeAuthentication) => original.needsWelcome(authentication, state.accountEntryEnabled) }
+})
 
 import { afterEach, expect, it, vi } from 'vitest'
 import type { BrowserWindowConstructorOptions } from 'electron'
@@ -9,6 +13,7 @@ import type { WelcomeOperations } from '../src/welcome-api.ts'
 import { DESKTOP_IPC } from '../src/ipc.ts'
 
 const state = vi.hoisted(() => ({
+  accountEntryEnabled: true,
   appListeners: new Map<string, (...args: unknown[]) => void>(),
   dialogLocale: undefined as (() => DesktopLocale) | undefined,
   beforeRead: vi.fn(async () => {}),
@@ -170,6 +175,7 @@ afterEach(() => {
   vi.unstubAllEnvs()
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
+  state.accountEntryEnabled = true
 })
 
 it.each([false, true])('starts welcome onboarding without carrying update focus into login or skip (Windows update=%s)', async (updated) => {
@@ -299,4 +305,27 @@ it.each([false, true])('starts welcome onboarding without carrying update focus 
   expect(state.showWorkspace).toHaveBeenCalledOnce()
   expect(state.focusWorkspace).toHaveBeenCalledOnce()
 
+})
+
+
+it('opens the internal workspace without credentials and stays there after account expiry', async () => {
+  vi.resetModules()
+  vi.clearAllMocks()
+  state.accountEntryEnabled = false
+  vi.stubEnv('DSH_CLIENT_VERSION', '1.2.3')
+  state.hasApiKey = false
+  state.operations = undefined
+  state.beforeRead.mockResolvedValue(undefined)
+  vi.stubEnv('DSH_DESKTOP_DEV_PROJECT_DIR', '/development-profile')
+  vi.stubEnv('DSH_DESKTOP_NODE_BINARY', '/runtime/node')
+  vi.stubEnv('DSH_DESKTOP_PNPM_ENTRY', '/runtime/pnpm')
+  vi.stubEnv('DSH_DESKTOP_DSH_DIR', '/runtime/dsh')
+  vi.stubEnv('DSH_DESKTOP_PRIMARY_RUNTIME_DIR', '/runtime/primary-runtime')
+  vi.stubEnv('DSH_DESKTOP_OPEN_DEVTOOLS', '0')
+  await import('../src/main.ts')
+  await vi.waitFor(() => { expect(state.showWorkspace).toHaveBeenCalled() })
+  expect(state.operations).toBeUndefined()
+  state.expiryListener!()
+  await vi.waitFor(() => { expect(state.beforeRead).toHaveBeenCalledTimes(2) })
+  expect(state.beforeWelcome).not.toHaveBeenCalled()
 })

@@ -39,6 +39,8 @@ import styles from './ModelsSection.module.css'
 
 /** Injected dependencies of {@link ModelsSection} (slot `inject`). */
 export interface ModelsSectionInjected {
+  /** Start the add flow with private endpoints instead of the public provider catalog. */
+  preferCustomProvider?: boolean
   /** The page store (loaded on mount, refreshed on pushed invalidations). */
   controller: ModelsSettingsStore
   hooks: {
@@ -236,12 +238,12 @@ export function providerCopy(template: string, target: ProviderIdentity): string
  * @returns the section, or null while the shell has not injected yet.
  */
 export function ModelsSection(props: ModelsSectionProps): ReactNode {
-  const { controller, useSnapshot, operations, schema, t, renderSlot } = props
+  const { controller, useSnapshot, operations, schema, t, renderSlot, preferCustomProvider = false } = props
   if (
     controller === undefined || useSnapshot === undefined || operations === undefined
     || schema === undefined || t === undefined
   ) return null
-  return <Loaded injected={{ controller, useSnapshot, operations, schema, t }} renderSlot={renderSlot} />
+  return <Loaded injected={{ controller, useSnapshot, operations, schema, t, preferCustomProvider }} renderSlot={renderSlot} />
 }
 
 function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderSlot: ModelsRenderSlot }): ReactNode {
@@ -255,7 +257,7 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
   if (state.status === 'error' && hasReadySnapshot) setHasReadySnapshot(false)
   const [editing, setEditing] = useState<EditorTarget | undefined>(undefined)
   const [addOpen, setAddOpen] = useState(false)
-  const [addMode, setAddMode] = useState<AddMode>('catalog')
+  const [addMode, setAddMode] = useState<AddMode>(injected.preferCustomProvider ? 'custom' : 'catalog')
   /** The modes shown since the add card opened; each keeps its panel mounted. */
   const [visited, setVisited] = useState<ReadonlySet<AddMode>>(() => new Set())
   /** Whether each add panel has a write or an interrogation in flight. */
@@ -702,7 +704,7 @@ function Loaded({ injected, renderSlot }: { injected: ModelsSectionFace; renderS
                   onClick={() => {
                     if (controller.store.getSnapshot().status !== 'ready') return
                     const first = addable[0]
-                    const initial: AddMode = catalogEnabled ? 'catalog' : 'custom'
+                    const initial: AddMode = customEnabled && (injected.preferCustomProvider || !catalogEnabled) ? 'custom' : 'catalog'
                     setSavedTarget(undefined)
                     setEditing(first === undefined ? undefined : targetOf(first.row))
                     setAddMode(initial)

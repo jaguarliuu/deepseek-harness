@@ -34,7 +34,7 @@ export const de = {
   'collapse': 'Einklappen',
   'expand': 'Ausklappen',
   'back': 'Zurück',
-  'brand.localBuild': 'Lokaler DSH-Build',
+  'brand.localBuild': '智维小 C',
   'workspace.defaultName': 'Standardarbeitsbereich',
   'unknown': 'Unbekannt',
   'none': 'Keine',

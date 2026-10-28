@@ -1601,6 +1601,18 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'detached directory entries in declaration order.',
       },
       {
+        signature: 'registerConnectionTest(settingsNs: string, test: (request: LlmConnectionTestRequest, signal: AbortSignal) => Promise<void>): () => void',
+        description: 'Register draft inference testing for an adapter\'s settings namespace.',
+        parameters: [{ name: 'settingsNs', description: 'owning settings namespace.' }, { name: 'test', description: 'one-shot request handler honoring cancellation.' }],
+        returns: 'the registration disposer.',
+      },
+      {
+        signature: '@Remote(\'testConnection\') async remoteTestConnection(settingsNs: string, request: LlmConnectionTestRequest, signal: AbortSignal): Promise<void>',
+        description: 'Test an unsaved provider draft without changing settings or credentials.',
+        parameters: [{ name: 'settingsNs', description: 'namespace owning the provider adapter.' }, { name: 'request', description: 'unsaved endpoint, model, and authentication inputs.' }, { name: 'signal', description: 'Remote carrier cancellation.' }],
+        returns: 'once the selected model has responded successfully.',
+      },
+      {
         signature: 'registerModelDiscovery( settingsNs: string, discover: ( request: LlmModelDiscoveryRequest, signal?: AbortSignal, ) => Promise<readonly LlmDiscoveredModel[]>, ): () => void',
         description: 'Offer to interrogate provider endpoints on behalf of the settings namespace this plugin owns. The namespace is the key because that is what a configuration surface already holds from the configurable-provider directory, and because a provider being *added* has no route to name yet. Disposed with the fiber.',
         parameters: [{ name: 'settingsNs', description: 'the namespace whose profiles this discovery serves.' }, { name: 'discover', description: 'interrogates one endpoint and must honor the supplied signal.' }],
@@ -6233,6 +6245,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface LlmConfigurableProvider {\n    provider: string;\n    displayName: string;\n    settingsNs: string;\n    settingsPath: readonly string[];\n    declared?: boolean;\n    defaultBaseURL?: string;\n    baseURLEnv?: readonly string[];\n    nativeAuth?: LlmNativeAuth;\n    error?: string;\n}',
   },
   {
+    name: 'LlmConnectionTestRequest',
+    declaration: 'export interface LlmConnectionTestRequest {\n    provider?: string;\n    baseURL: string;\n    api: string;\n    model: string;\n    apiKey?: string;\n    noAuth?: boolean;\n}',
+  },
+  {
     name: 'LlmDiscoveredModel',
     declaration: 'export interface LlmDiscoveredModel {\n    id: string;\n    name?: string;\n    contextWindow?: number;\n    maxTokens?: number;\n    inputModalities?: readonly ModelModality[];\n}',
   },
@@ -6254,7 +6270,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'LlmModelDiscoveryRequest',
-    declaration: 'export interface LlmModelDiscoveryRequest {\n    provider?: string;\n    baseURL?: string;\n    api?: string;\n    apiKey?: string;\n}',
+    declaration: 'export interface LlmModelDiscoveryRequest {\n    noAuth?: boolean;\n    provider?: string;\n    baseURL?: string;\n    api?: string;\n    apiKey?: string;\n}',
   },
   {
     name: 'LlmModelInfo',
@@ -6282,7 +6298,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'LlmRuntime',
-    declaration: 'export class LlmRuntime extends TypertRemoteService {\n    constructor(ctx: Context);\n    registerAdapter(providers: string[], adapter: LlmAdapter): AdapterRegistrationHandle;\n    @Remote\n    listProviders(): LlmProviderInfo[];\n    registerConfigurableProviders(entries: readonly LlmConfigurableProvider[]): DirectoryRegistrationHandle;\n    @Remote\n    listConfigurableProviders(): LlmConfigurableProvider[];\n    registerModelDiscovery(settingsNs: string, discover: (request: LlmModelDiscoveryRequest, signal?: AbortSignal) => Promise<readonly LlmDiscoveredModel[]>): () => void;\n    async discoverModels(settingsNs: string, request: LlmModelDiscoveryRequest, signal?: AbortSignal): Promise<LlmDiscoveredModel[]>;\n    @Remote(\'discoverModels\')\n    async remoteDiscoverModels(settingsNs: string, request: LlmModelDiscoveryRequest, signal: AbortSignal): Promise<LlmDiscoveredModel[]>;\n    providerRetryPolicy(provider: string): ResolvedRetryPolicy;\n    imageRequestPricing(provider: string, model: string): LlmImageRequestPricing | undefined;\n    imageRequestTarget(provider: string, model: string, image: ImageAttachmentRef): ImageRequestTarget;\n    fileRequestText(ref: FileAttachmentRef): string;\n    async listModels(provider: string): Promise<LlmModelInfo[]>;\n    async resolveModelInfo(provider: string, model: string, signal?: AbortSignal): Promise<LlmResolvedModelInfo>;\n    async resolveCallConfig(config: LlmCallConfig, signal?: AbortSignal): Promise<LlmCallConfig>;\n    async prepareCall(conf /* …truncated — full shape in source */',
+    declaration: 'export class LlmRuntime extends TypertRemoteService {\n    constructor(ctx: Context);\n    registerAdapter(providers: string[], adapter: LlmAdapter): AdapterRegistrationHandle;\n    @Remote\n    listProviders(): LlmProviderInfo[];\n    registerConfigurableProviders(entries: readonly LlmConfigurableProvider[]): DirectoryRegistrationHandle;\n    @Remote\n    listConfigurableProviders(): LlmConfigurableProvider[];\n    registerConnectionTest(settingsNs: string, test: (request: LlmConnectionTestRequest, signal: AbortSignal) => Promise<void>): () => void;\n    @Remote(\'testConnection\')\n    async remoteTestConnection(settingsNs: string, request: LlmConnectionTestRequest, signal: AbortSignal): Promise<void>;\n    registerModelDiscovery(settingsNs: string, discover: (request: LlmModelDiscoveryRequest, signal?: AbortSignal) => Promise<readonly LlmDiscoveredModel[]>): () => void;\n    async discoverModels(settingsNs: string, request: LlmModelDiscoveryRequest, signal?: AbortSignal): Promise<LlmDiscoveredModel[]>;\n    @Remote(\'discoverModels\')\n    async remoteDiscoverModels(settingsNs: string, request: LlmModelDiscoveryRequest, signal: AbortSignal): Promise<LlmDiscoveredModel[]>;\n    providerRetryPolicy(provider: string): ResolvedRetryPolicy;\n    imageRequestPricing(provider: string, model: string): LlmImageRequestPricing | undefined;\n    imageRequestTarget(provider: string, model: string, image: ImageAttachmentRef): ImageRequestTarget;\n    fileRequestText(ref: FileAttachmentRef): string;\n    async /* …truncated — full shape in source */',
   },
   {
     name: 'LocalAtInput',

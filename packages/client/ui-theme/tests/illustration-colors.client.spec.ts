@@ -66,33 +66,33 @@ function expectConsumerColors(source: string, palette: Map<string, string>): voi
 }
 
 const lightColors = {
-  background: [245, 247, 250],
-  backing: [202, 210, 219],
-  detail: [202, 210, 219],
-  inset: [237, 240, 244],
-  shadow: [237, 240, 244],
-  surface: [237, 240, 244],
+  background: [240, 246, 243],
+  backing: [189, 207, 195],
+  detail: [189, 207, 195],
+  inset: [232, 240, 236],
+  shadow: [232, 240, 236],
+  surface: [232, 240, 236],
 }
 
-it('preserves the original light artwork colors, including surface-colored insets and shadows', () => {
+it('uses the green-grey light artwork palette, including surface-colored insets and shadows', () => {
   expect(illustrationColors(definitions(false))).toEqual(lightColors)
 })
 
-it.each([false, true])('defines the approved light static steps in the dark=%s palette', (dark) => {
+it.each([false, true])('defines the light static steps in the dark=%s palette', (dark) => {
   const palette = definitions(dark)
-  expect(resolveColor(palette, '--dsw-static-neutral-bluish-55')).toEqual([245, 247, 250])
-  expect(resolveColor(palette, '--dsw-static-neutral-bluish-90')).toEqual([237, 240, 244])
-  expect(resolveColor(palette, '--dsw-static-neutral-bluish-310')).toEqual([202, 210, 219])
+  expect(resolveColor(palette, '--dsw-static-neutral-bluish-55')).toEqual([240, 246, 243])
+  expect(resolveColor(palette, '--dsw-static-neutral-bluish-90')).toEqual([232, 240, 236])
+  expect(resolveColor(palette, '--dsw-static-neutral-bluish-310')).toEqual([189, 207, 195])
 })
 
 it('resolves the dark artwork colors through the actual static palette', () => {
   expect(illustrationColors(definitions(true))).toEqual({
-    background: [44, 44, 46],
-    backing: [67, 69, 74],
-    detail: [129, 133, 140],
-    inset: [67, 69, 74],
-    shadow: [67, 69, 74],
-    surface: [97, 102, 107],
+    background: [33, 52, 43],
+    backing: [52, 75, 64],
+    detail: [97, 124, 110],
+    inset: [52, 75, 64],
+    shadow: [52, 75, 64],
+    surface: [73, 99, 87],
   })
 })
 

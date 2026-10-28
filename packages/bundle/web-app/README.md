@@ -11,6 +11,8 @@ Desktop analytics follows the [product collection policy](../../client/product-a
 
 Desktop analytics schedules partial batches every 30 seconds, with a 15-second exporter timeout and a 20-second processor timeout. Shutdown allows 2 seconds to drain, then cancels pending requests and retry waits so telemetry does not keep the Host alive. Pending events may be lost on exit.
 
+The internal `desktop` profile disables the account UI plugin and defaults coding view to off. The ordinary Settings launcher, Models, Plugins and Skills remain available; saved coding-view preferences take precedence. The `web` profile keeps its account UI and coding-view defaults.
+
 ## Summary
 
 Run `dsh --profile web` for browser chat, model and settings management, and session history, with the same model access, tools, and safety defaults as other dsh surfaces. Startup prints a tokenized URL and normally opens the default browser; SSH sessions and `--no-open` require manual opening. You can change the port, allow extra authorities, bind one concrete local IP, and serve HTTPS from a certificate you supply; wildcard addresses are rejected. Remote access uses an advertised HTTP(S) URL behind a prefix-stripping proxy, listener TLS, or plain HTTP on a non-loopback bind. Use the headless profile for one-shot command-line tasks.
@@ -40,9 +42,9 @@ dsh --profile web --no-open --port 8080
 
 After startup you see a `dsh web:` line whose root URL carries a fresh process token. Unless `--no-open` or an SSH session suppresses it, the default browser opens that URL, receives a signed cookie, and redirects to the same directory without the token. You know it worked when the page loads and you can chat with the agent. Two failures to expect: if the frontend is not built, startup stops with a build hint (`pnpm run build` in a checkout); if the browser cannot be opened, a credential-free diagnostic prints to stderr while the server keeps running — open the printed startup URL yourself.
 
-**Settings → Models** displays **DeepSeek**, using `DEEPSEEK_API_KEY`. The default is `deepseek-official` / `deepseek-flash` (DeepSeek-V4.1-Flash). The [DeepSeek plugin](../../llm/llm-deepseek/README.md#endpoint-and-wire-format) uses the Messages API.
+**Settings → Models → Add model provider** opens the private model form with OpenAI Chat Completions selected. Enter the internal base URL, model ID and the credential required by your service. The GUI starts in the workspace without credential onboarding or a preselected public model; the two DeepSeek adapters are disabled in this bundle.
 
-Saved model selections override the composition default. The settings card accepts a Messages-compatible API address and a credential reference.
+Saved model selections override the composition default. Existing private-provider settings remain unchanged; choose the configured model from the conversation model selector before sending a task.
 
 ### Configuration
 

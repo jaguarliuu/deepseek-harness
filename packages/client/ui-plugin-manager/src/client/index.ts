@@ -23,6 +23,9 @@ import type {} from '@deepseek-ai/dsh-api-remotes/client'
 // Type-only: the forwarded events' own declaration (`$on`'s key face resolves
 // through the owning package's client-safe types subpath).
 import type {} from '@deepseek-ai/dsh-plugin-manager/types'
+import { SourceSettingsPage } from './SourceSettings.tsx'
+import { sourceForm, type SourceSettings } from './source-settings.ts'
+import { sourceEn, sourceZh, type SourceKey } from './source-locales.ts'
 import { PluginManagerPage } from './PluginManagerPage.tsx'
 import { createPluginHeaderRef } from './header-scroll.ts'
 import { PluginRefreshToast, type PluginRefreshToastFace } from './PluginRefreshToast.tsx'
@@ -73,6 +76,7 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface LocaleNamespaceMap {
     /** Plugin manager tab copy. */
     'pluginManager': PluginManagerLocaleKey
+    'settings.sources': SourceKey
   }
 }
 
@@ -94,6 +98,19 @@ export const inject = ['slots', 'locale', 'remote', 'remote.pluginManager', 'rem
 export function apply(ctx: ClientContext): void {
   ctx.effect(() => ctx.locale.register(NS, { zh, en, ja, es, fr, de, ru, pt }), 'ui-plugin-manager: dictionaries')
   const t = ctx.locale.bind(NS)
+  ctx.effect(() => ctx.locale.register('settings.sources', { en: sourceEn, zh: sourceZh, ja: sourceEn, es: sourceEn, fr: sourceEn, de: sourceEn, ru: sourceEn, pt: sourceEn }), 'intranet source copy')
+  const npmScope = ctx.configForms.get<SourceSettings>('plugin-manager')
+  const pythonScope = ctx.configForms.get<SourceSettings>('subprocess')
+  const npmForm = sourceForm(npmScope, 'npm')
+  const pythonForm = sourceForm(pythonScope, 'python')
+  const npmSource = npmForm.bind(() => ({ ...npmForm.shell(), field: npmForm.field('registry'), effective: npmScope.getSnapshot().value?.registry ?? '' }))
+  const pythonSource = pythonForm.bind(() => ({ ...pythonForm.shell(), field: pythonForm.field('registry'), effective: pythonScope.getSnapshot().value?.environment?.PIP_INDEX_URL ?? '' }))
+  ctx.effect(() => () => { npmForm.dispose(); pythonForm.dispose() }, 'intranet source forms')
+  ctx.slots.inject('settings.section', () => ctx.slots.register({
+    name: 'settings.section', id: 'intranet-sources', order: 17, locale: 'settings.sources',
+    label: () => ctx.locale.bind('settings.sources')('title'),
+    inject: () => ({ hooks: { npmSource, pythonSource }, npmActions: npmForm.actions(), pythonActions: pythonForm.actions() }),
+  }, SourceSettingsPage))
   const controller = new PluginManagerController(ctx)
   ctx.effect(() => () => { controller.dispose() }, 'ui-plugin-manager: controller')
   ctx.provide('pluginChanges', { bundle: packageName => controller.observeChanges(packageName) })

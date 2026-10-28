@@ -716,6 +716,18 @@ interface ToolSchema {
 界面正在起草的提供方既没有路由也没有 catalog，因此询问被单独描述：请求携带用户正在编辑的草稿，回复是界面可以采纳的候选，而不是它必须服务的 catalog。
 
 ```ts type-equiv
+/** Draft inference request; credentials are used once and never persisted. */
+interface LlmConnectionTestRequest {
+  provider?: string
+  baseURL: string
+  api: string
+  model: string
+  apiKey?: string
+  noAuth?: boolean
+}
+```
+
+```ts type-equiv
 /**
  * One interrogation of a provider endpoint that configuration has not stored
  * yet. Configuration surfaces send the draft a user is still editing, so the
@@ -723,6 +735,8 @@ interface ToolSchema {
  * route: a provider being added has no route to name.
  */
 interface LlmModelDiscoveryRequest {
+  /** Explicitly suppress stored credentials for a private endpoint. */
+  noAuth?: boolean
   /**
    * Route the draft is editing, when it edits an existing one. A route whose
    * adapter already knows its models answers from that knowledge instead of
@@ -1017,6 +1031,23 @@ registerConfigurableProviders(entries: readonly LlmConfigurableProvider[]): Dire
  * @returns detached directory entries in declaration order.
  */
 @Remote listConfigurableProviders(): LlmConfigurableProvider[]
+
+/**
+ * Register draft inference testing for an adapter's settings namespace.
+ * @param settingsNs - owning settings namespace.
+ * @param test - one-shot request handler honoring cancellation.
+ * @returns the registration disposer.
+ */
+registerConnectionTest(settingsNs: string, test: (request: LlmConnectionTestRequest, signal: AbortSignal) => Promise<void>): () => void
+
+/**
+ * Test an unsaved provider draft without changing settings or credentials.
+ * @param settingsNs - namespace owning the provider adapter.
+ * @param request - unsaved endpoint, model, and authentication inputs.
+ * @param signal - Remote carrier cancellation.
+ * @returns once the selected model has responded successfully.
+ */
+@Remote('testConnection') async remoteTestConnection(settingsNs: string, request: LlmConnectionTestRequest, signal: AbortSignal): Promise<void>
 
 /**
  * Offer to interrogate provider endpoints on behalf of the settings

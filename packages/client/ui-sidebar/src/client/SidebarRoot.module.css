@@ -63,6 +63,7 @@
 }
 
 :global([data-windows-titlebar]) .brandMark {
+  color: var(--dsw-alias-brand-text);
   transform: translateX(1px);
 }
 
@@ -274,6 +275,7 @@
 }
 
 .brandMark {
+  color: var(--dsw-alias-brand-text);
   flex: none;
   display: inline-flex;
   align-items: center;

@@ -1,0 +1,4 @@
+# Save as .npmrc in the managed profile after replacing the address.
+# Check user/global scoped registry overrides and existing lockfile tarball URLs too.
+registry=https://npm.company.invalid/
+@deepseek-ai:registry=https://npm.company.invalid/

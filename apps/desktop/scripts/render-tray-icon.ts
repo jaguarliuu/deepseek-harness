@@ -1,11 +1,10 @@
 /**
- * Render the Windows tray icon with an enlarged whale from `resources/icon-windows.svg`.
+ * Render the Windows tray icon from the product PNG or a vector source.
  *
  * The tray shows the icon at 16 logical pixels, so Windows picks one of the
- * bundled bitmaps by display scale. Each size is rasterized from the vector
- * source separately instead of downscaling one large bitmap, which keeps edges
- * crisp at every scale. The committed `resources/tray-windows.ico` is the output;
- * rerun `pnpm run render:tray-icon` in `apps/desktop` after changing the vector source.
+ * bundled bitmaps by display scale. Each size is rendered separately from the master artwork.
+ * The committed `resources/tray-windows.ico` is the output;
+ * rerun `pnpm run render:tray-icon` in `apps/desktop` after changing the artwork.
  */
 
 import { readFile, writeFile } from 'node:fs/promises'
@@ -18,7 +17,7 @@ export const TRAY_ICON_SIZES = [16, 20, 24, 32, 40, 48, 64] as const
 
 /** Vector source and committed output of the tray icon. */
 export const TRAY_ICON_PATHS = {
-  source: fileURLToPath(new URL('../resources/icon-windows.svg', import.meta.url)),
+  source: fileURLToPath(new URL('../resources/icon-windows.png', import.meta.url)),
   output: fileURLToPath(new URL('../resources/tray-windows.ico', import.meta.url)),
 } as const
 
@@ -92,12 +91,15 @@ export function unpackIco(ico: Buffer): IcoEntry[] {
 }
 
 /**
- * Rasterize the vector source at each tray size.
- * @param svg - SVG document with a 1024-unit square viewBox and a `tray-glyph` group.
+ * Render the source artwork at each tray size.
+ * @param svg - PNG artwork or SVG with a 1024-unit viewBox and a `tray-glyph` group.
  * @param sizes - Bitmap edges to render.
  * @returns PNG entries in the given order.
  */
 export async function renderTrayIconEntries(svg: Buffer, sizes: readonly number[] = TRAY_ICON_SIZES): Promise<IcoEntry[]> {
+  if (svg.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE)) {
+    return Promise.all(sizes.map(async size => ({ size, png: await sharp(svg).resize(size, size).png().toBuffer() })))
+  }
   const source = svg.toString('utf8')
   const glyph = '<g id="tray-glyph"'
   if (!source.includes(glyph)) throw new Error('tray icon: SVG requires a tray-glyph group')

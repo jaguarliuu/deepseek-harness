@@ -1,0 +1,21 @@
+{
+  "repository": "https://github.com/dataelement/dsh-desktop",
+  "commit": "a8b05bf8af18ded0851a74da2c98bc250a7287ed",
+  "source": "packages/dsh-desktop-office/business-skills",
+  "skills": [
+    "gov-doc-writing",
+    "meeting-recap",
+    "work-report-writer",
+    "dataset-health-audit",
+    "data-viz-gen"
+  ],
+  "license": "DATAELEMENT-LICENSE",
+  "modifications": [
+    "meeting-recap and work-report-writer use user-supplied templates instead of unavailable office_template.",
+    "Script workflows use the bundled Python interpreter and do not install dependencies at runtime."
+  ],
+  "deferred": [
+    "PPT template runtime and gallery",
+    "office_template tool"
+  ]
+}

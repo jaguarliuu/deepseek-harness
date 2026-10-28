@@ -387,6 +387,7 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   LlmProviderInfo: 'llm-streaming.md',
   LlmConfigurableProvider: 'llm-streaming.md',
   LlmNativeAuth: 'llm-streaming.md',
+  LlmConnectionTestRequest: 'llm-streaming.md',
   LlmModelDiscoveryRequest: 'llm-streaming.md',
   LlmDiscoveredModel: 'llm-streaming.md',
   ResolvedRetryPolicy: 'llm-streaming.md',

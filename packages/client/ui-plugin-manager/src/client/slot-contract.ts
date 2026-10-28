@@ -93,6 +93,15 @@ export interface PluginTabInstall {
 
 /** Owner props of a page tab another plugin contributes, such as Discover. */
 export interface PluginTabProps {
+  /** Host-owned catalog metadata, localized by the management page; no registry request from the renderer. */
+  readonly catalog?: readonly (PluginPackageRef & {
+    readonly title: string
+    readonly description: string
+    readonly installTarget?: { readonly spec: string; readonly version: string }
+  })[]
+  /** Loading and failure state of the shared catalog. */
+  readonly catalogStatus?: string
+
   /**
    * Install an exact version the person already confirmed: the page's install dialog opens at its check and progress
    * screens, without the spec form, and names the plugin and version above the spec.

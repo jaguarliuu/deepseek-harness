@@ -381,7 +381,7 @@ export class PiAiAdapter extends LlmAdapter {
       model,
       options.reasoningEffort ?? profile.reasoning,
     )
-    const apiKey = await this.config.resolveApiKey(options.provider, profile)
+    const apiKey = profile.noAuth === true ? 'unused' : await this.config.resolveApiKey(options.provider, profile)
 
     const consumer = new AbortController()
     const upstream = options.signal === undefined
@@ -421,7 +421,7 @@ export class PiAiAdapter extends LlmAdapter {
         signal: watchdog.signal,
         // Profile headers are deployment-owned; attribution names are
         // Harness-owned and therefore win collisions.
-        headers: requestHeaders(profile.headers),
+        headers: { ...requestHeaders(profile.headers), ...profile.noAuth === true ? { authorization: null, 'x-api-key': null, 'api-key': null } : {} },
       })
       const iterator = toStreamChunks(events, model.contextWindow, options.signal, model.id)[Symbol.asyncIterator]()
       let exhausted = false

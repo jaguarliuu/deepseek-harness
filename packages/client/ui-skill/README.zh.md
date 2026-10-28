@@ -25,6 +25,8 @@ kind: "package-reference"
 <a id="use-this-package"></a>
 ## 使用本包
 
+内部能力中心统一展示 Host 提供的插件元信息与所选会话的 Skills 目录，支持搜索、类型与办公场景筛选、完整说明和技能指令复制。插件操作沿用官方管理器；安装精确 npm 版本前需要确认。初始来源为应用目录，尚未连接远端公司目录或公网来源。Anywhere Labs 署名和适配记录在 `THIRD-PARTY-NOTICES.json`。
+
 在编辑器中输入 `/` 并从建议中选择 skill，或直接键入 `/name`；发出的消息携带字面文本，宿主对菜单 pick 与手动键入的 token 以同样方式加载 skill。与宿主命令同名的名称仍解析为命令——裁决在客户端把该行认领走，它根本不会成为提示词。
 
 ### source 提供什么

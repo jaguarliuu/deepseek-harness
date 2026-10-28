@@ -131,6 +131,7 @@ function scriptedFace(options: {
           declared: options.declaredRoutes?.includes(provider) ?? false,
         })),
       ))),
+      testConnection: async () => undefined,
       discoverModels: discover,
     },
     settings: {
@@ -974,6 +975,11 @@ describe('hand-declared providers', () => {
     )
     return { ...scripted, onClose }
   }
+
+  it('defaults to OpenAI-compatible chat even when the protocol catalog is reordered', () => {
+    mountCard({ protocols: ['anthropic-messages', 'openai-responses', 'openai-completions'] })
+    expect(screen.getByLabelText<HTMLSelectElement>(en.customApi).value).toBe('openai-completions')
+  })
 
   it('creates a custom provider without changing the default model', async () => {
     const { face, mutate, set, onClose } = mountCard()

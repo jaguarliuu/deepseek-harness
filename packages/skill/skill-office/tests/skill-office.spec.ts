@@ -14,7 +14,7 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('node:sea', () => ({ isSea: vi.fn(() => false) }))
 
 const assets = fileURLToPath(new URL('../assets/', import.meta.url))
-const names = ['office', 'office-docx', 'office-export-pdf', 'office-pptx', 'office-recalculate', 'office-render', 'office-xlsx']
+const names = ['office', 'office-docx', 'office-export-pdf', 'office-pptx', 'office-recalculate', 'office-render', 'office-xlsx', 'office-pdf', 'gov-doc-writing', 'meeting-recap', 'work-report-writer', 'dataset-health-audit', 'data-viz-gen'].sort()
 
 describe('bundled Office skills', () => {
   it('keeps routing and authoring within the progressive context budgets', async () => {

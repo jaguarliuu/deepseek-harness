@@ -1,7 +1,7 @@
 /** macOS development bundle that loads the current workspace through Electron. */
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { copyFileSync, existsSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 
 /** Workspace and runtime settings captured for Launch Services cold starts. */
@@ -26,25 +26,28 @@ function quote(value: string): string { return `'${value.replaceAll("'", "'\\''"
  */
 export function prepareDevelopmentApp(options: DevelopmentAppOptions): string {
   const source = dirname(dirname(dirname(options.electron)))
-  const bundle = join(options.directory, 'Harness Dev.app')
+  const bundle = join(options.directory, '智维小 C.app')
   const executable = join(bundle, 'Contents', 'MacOS', 'HarnessDev')
   const stamp = join(bundle, 'Contents', 'Resources', 'dsh-development.json')
   const launcher = developmentLauncher(options, bundle)
-  const identity = JSON.stringify({ ...options, launcher, plist: readFileSync(join(source, 'Contents', 'Info.plist'), 'utf8') })
+  const icon = join(options.appRoot, 'resources', 'icon-macos.icns')
+  const identity = JSON.stringify({ ...options, launcher, iconHash: createHash('sha256').update(readFileSync(icon)).digest('hex'), plist: readFileSync(join(source, 'Contents', 'Info.plist'), 'utf8') })
   if (!existsSync(stamp) || readFileSync(stamp, 'utf8') !== identity) {
     rmSync(bundle, { recursive: true, force: true })
     execFileSync('/usr/bin/ditto', [source, bundle])
     const plist = join(bundle, 'Contents', 'Info.plist')
     const values = {
       CFBundleIdentifier: `com.deepseek.harness.dev.${createHash('sha256').update(options.appRoot).digest('hex').slice(0, 12)}`,
-      CFBundleName: 'Harness Dev',
-      CFBundleDisplayName: 'Harness Dev',
+      CFBundleName: '智维小 C',
+      CFBundleDisplayName: '智维小 C',
       CFBundleExecutable: 'HarnessDev',
-      CFBundleURLTypes: [{ CFBundleURLName: 'DeepSeek Harness', CFBundleURLSchemes: ['dsh'], CFBundleTypeRole: 'Viewer' }],
+      CFBundleIconFile: 'zhiwei.icns',
+      CFBundleURLTypes: [{ CFBundleURLName: '智维小 C', CFBundleURLSchemes: ['dsh'], CFBundleTypeRole: 'Viewer' }],
     }
     for (const [key, value] of Object.entries(values)) {
       execFileSync('/usr/bin/plutil', ['-replace', key, '-json', JSON.stringify(value), plist])
     }
+    copyFileSync(icon, join(bundle, 'Contents', 'Resources', 'zhiwei.icns'))
     writeFileSync(executable, launcher, { mode: 0o755 })
     writeFileSync(stamp, identity, { mode: 0o600 })
     execFileSync('/usr/bin/codesign', ['--force', '--deep', '--sign', '-', bundle], { stdio: 'pipe' })

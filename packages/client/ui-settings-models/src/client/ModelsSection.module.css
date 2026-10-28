@@ -12,11 +12,12 @@
 }
 
 .title {
+  padding-bottom: 4px;
   margin: 0;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 22px;
+  line-height: 30px;
   font-weight: 500;
-  color: var(--dsw-alias-label-primary);
+  color: var(--dsw-alias-brand-text);
 }
 
 .intro {
@@ -55,7 +56,7 @@
   border: 0.5px solid var(--dsw-alias-settings-card-stroke);
   background: var(--dsw-alias-settings-card-fill);
   border-radius: var(--dsw-radius-xl);
-  padding: 12px 14px;
+  padding: 18px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -916,4 +917,8 @@ select.input {
   font-size: 13px;
   line-height: 20px;
   text-align: center;
+}
+
+.noAuthCheckbox {
+  accent-color: var(--dsw-alias-button-primary-fill);
 }

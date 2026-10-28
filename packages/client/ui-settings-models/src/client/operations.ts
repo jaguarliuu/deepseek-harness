@@ -7,7 +7,7 @@
 
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import type {
-  LlmDiscoveredModel, LlmModelDiscoveryRequest,
+  LlmConnectionTestRequest, LlmDiscoveredModel, LlmModelDiscoveryRequest,
   SettingsNamespaceView, SettingsPathOpView,
 } from '@deepseek-ai/dsh-api-remotes/client'
 
@@ -32,6 +32,8 @@ export type ModelDiscoveryOutcome =
 
 /** The Host operations the Models page and its cards invoke. */
 export interface ModelsOperations {
+  /** Test an unsaved inference request; return a safe refusal or undefined on success. */
+  testConnection(settingsNs: string, request: LlmConnectionTestRequest): Promise<string | undefined>
   /**
    * Store one credential literal under its reference.
    * @param ref - credential reference name.
@@ -75,6 +77,10 @@ export interface ModelsOperations {
  */
 export function createModelsOperations(ctx: ClientContext): ModelsOperations {
   return {
+    testConnection: async (settingsNs, request) => {
+      const response = await ctx.remote.llm.testConnection(settingsNs, request)
+      return response.ok ? undefined : response.error.message
+    },
     storeCredential: async (ref, value) => {
       const response = await ctx.remote.credentials.set(ref, value)
       return response.ok ? undefined : response.error.message

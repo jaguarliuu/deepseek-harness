@@ -110,6 +110,7 @@ function harness(options: {
             settingsPath: [],
           }],
       )),
+      testConnection: async () => undefined,
       discoverModels: () => Promise.resolve(remoteOk([])),
     },
     settings: {

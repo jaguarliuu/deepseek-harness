@@ -11,6 +11,8 @@ English | [中文](README.zh.md)
 
 `dsh-client-ui-theme` lets Web GUI users choose `light`, `dark`, or `system`, and set the font and font size of text, code, and the terminal separately in Settings. Every authenticated browser stores these values in the `ui-theme` settings namespace, which the local provider persists in `$DSH_HOME/cordis.patch.yml` by default. The plugin resolves `system` through `prefers-color-scheme` and publishes immutable `ThemeSnapshot`s; ui-layout applies each snapshot to the document. The package also ships the `--dsw-*` token stylesheets and injects a synchronous bootstrap so the selected palette, font size, and fonts apply before the shell loads. Third-party themes can register alias-token overrides through `ctx.theme`.
 
+The internal distribution uses a State Grid-inspired green screen palette: `#008578` for light-mode actions, brighter mint accents on dark green-grey surfaces, and matching sidebar, menu, selection, link and dialog colors. Legacy token names remain stable for upstream plugins. Red errors, amber warnings, code syntax and third-party artwork retain their distinct meanings. The palette is a UI adaptation, pending calibration against the organization’s own VI assets.
+
 ## Table of Contents
 
 - [Use this package](#use-this-package)

@@ -1,0 +1,12 @@
+{
+  "source": "https://github.com/anywhere-labs/dsh-desktop",
+  "commit": "77b01d15361d7112e7163f53c85e601ed82d6320",
+  "license": "ANYWHERE-LABS-LICENSE",
+  "adaptedSource": "dsh-community-market/src/install/service.ts",
+  "localFiles": ["src/client/capability-catalog.ts"],
+  "changes": [
+    "Retain npm package identity validation; admit only Host-provided exact versions including the installed upstream prerelease.",
+    "Use the official plugin manager for installation and management, and the session skill catalog for Skills.",
+    "Use the application catalog as the initial internal source; public providers, latest-version resolution and remote source management are not enabled."
+  ]
+}

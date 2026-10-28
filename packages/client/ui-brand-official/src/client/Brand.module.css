@@ -1,0 +1,13 @@
+.mark {
+  display: inline-block;
+  flex: none;
+  border-radius: var(--dsw-radius-sm);
+  background: url('./assets/app-icon.png') center / contain no-repeat;
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--dsw-alias-brand-text);
+}

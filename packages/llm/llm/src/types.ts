@@ -285,6 +285,16 @@ export interface LlmNativeAuth {
   oauth: boolean
 }
 
+/** Draft inference request; credentials are used once and never persisted. */
+export interface LlmConnectionTestRequest {
+  provider?: string
+  baseURL: string
+  api: string
+  model: string
+  apiKey?: string
+  noAuth?: boolean
+}
+
 /**
  * One interrogation of a provider endpoint that configuration has not stored
  * yet. Configuration surfaces send the draft a user is still editing, so the
@@ -292,6 +302,8 @@ export interface LlmNativeAuth {
  * route: a provider being added has no route to name.
  */
 export interface LlmModelDiscoveryRequest {
+  /** Explicitly suppress stored credentials for a private endpoint. */
+  noAuth?: boolean
   /**
    * Route the draft is editing, when it edits an existing one. A route whose
    * adapter already knows its models answers from that knowledge instead of
@@ -319,6 +331,7 @@ export interface LlmModelDiscoveryOperation extends LlmModelDiscoveryRequest {
 declare module '@deepseek-ai/dsh-typert-protocol' {
   interface RemoteErrorDetailsMap {
     /** A draft provider interrogation refused or failed. */
+    'llm/connection-test-rejected': { readonly settingsNs: string }
     'llm/model-discovery-rejected': {
       readonly settingsNs: string
       readonly baseURL?: string

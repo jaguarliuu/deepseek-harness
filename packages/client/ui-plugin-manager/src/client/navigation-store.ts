@@ -25,7 +25,7 @@ type NavigationActions = {
  */
 export function createNavigationStore(): EngineStoreHandle<NavigationState, NavigationActions> {
   return defineStore({
-    init: (): NavigationState => ({ view: { kind: 'list' }, tab: 'installed' }),
+    init: (): NavigationState => ({ view: { kind: 'list' }, tab: '' }),
     actions: {
       setView: (draft, view: View) => { draft.view = view },
       setTab: (draft, tab: string) => { draft.tab = tab },

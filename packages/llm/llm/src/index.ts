@@ -18,6 +18,7 @@ import type {
   LlmImageRequestPricing,
   LlmModelContext,
   LlmModelDiscoveryRequest,
+  LlmConnectionTestRequest,
   LlmModelInfo,
   LlmResolvedModelInfo,
   LlmProviderInfo,
@@ -354,6 +355,7 @@ export interface DirectoryRegistrationHandle {
 export class LlmRuntime extends TypertRemoteService {
   private adapters = new Map<string, AdapterRegistration>()
   private directory = new Map<string, LlmConfigurableProvider>()
+  private connectionTests = new Map<string, (request: LlmConnectionTestRequest, signal: AbortSignal) => Promise<void>>()
   private discoveries = new Map<
     string,
     (request: LlmModelDiscoveryRequest, signal?: AbortSignal) => Promise<readonly LlmDiscoveredModel[]>
@@ -554,6 +556,39 @@ export class LlmRuntime extends TypertRemoteService {
   @Remote
   listConfigurableProviders(): LlmConfigurableProvider[] {
     return [...this.directory.values()].map(detachDirectoryEntry)
+  }
+
+  /**
+   * Register draft inference testing for an adapter's settings namespace.
+   * @param settingsNs - owning settings namespace.
+   * @param test - one-shot request handler honoring cancellation.
+   * @returns the registration disposer.
+   */
+  registerConnectionTest(settingsNs: string, test: (request: LlmConnectionTestRequest, signal: AbortSignal) => Promise<void>): () => void {
+    const dispose = this.ctx.effect(function* (this: LlmRuntime) {
+      if (this.connectionTests.has(settingsNs)) throw new LlmError('connection test already registered', 'DUPLICATE_TEST')
+      this.connectionTests.set(settingsNs, test)
+      yield () => { this.connectionTests.delete(settingsNs) }
+    }.bind(this), 'llm.registerConnectionTest()')
+    return () => void dispose()
+  }
+
+  /**
+   * Test an unsaved provider draft without changing settings or credentials.
+   * @param settingsNs - namespace owning the provider adapter.
+   * @param request - unsaved endpoint, model, and authentication inputs.
+   * @param signal - Remote carrier cancellation.
+   * @returns once the selected model has responded successfully.
+   */
+  @Remote('testConnection')
+  async remoteTestConnection(settingsNs: string, request: LlmConnectionTestRequest, signal: AbortSignal): Promise<void> {
+    try {
+      const test = this.connectionTests.get(settingsNs)
+      if (test === undefined) throw new LlmError('Connection testing is unavailable for this provider', 'NO_TEST')
+      await test(request, AbortSignal.any([signal, AbortSignal.timeout(30_000)]))
+    } catch (error: unknown) {
+      throw new RemoteError('llm/connection-test-rejected', error instanceof Error ? error.message : 'Connection failed', { settingsNs })
+    }
   }
 
   /**

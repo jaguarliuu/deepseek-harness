@@ -5,7 +5,7 @@ import { readFile, rm } from 'node:fs/promises'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { withFileLock, writeFileAtomic } from '@deepseek-ai/dsh-atomic-write'
-import { Context } from '@deepseek-ai/cordis'
+import { Context, type Volatile } from '@deepseek-ai/cordis'
 import type { EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
 import type { PatchOptions } from '@deepseek-ai/cordis-plugin-include'
 import z from '@deepseek-ai/schemastery'
@@ -283,10 +283,18 @@ declare module '@deepseek-ai/cordis' {
   }
 }
 
+/** Resolved configuration with live registry selection. */
+interface ResolvedConfig extends Omit<Config, 'registry' | 'fallbackRegistries'> {
+  /** Registry used by subsequent package operations; omission uses pnpm configuration. */
+  registry: Volatile<string | undefined>
+  /** Ordered fallback registries; an empty list disables registry fallback. */
+  fallbackRegistries: Volatile<string[]>
+}
+
 /** Manage profile files and apply their declared reload lifecycle. */
 export class PluginManager extends TypertRemoteService {
   static inject = ['loader', 'profileContext']
-  static Config: z<Config> = z.object({
+  static Config: z<Config, ResolvedConfig> = z.object({
     pnpmCommand: z.string().default('pnpm'),
     outputBytes: z.number().step(1).min(1).default(16384),
     lockWaitMs: z.number().step(1).min(0).default(120000),
@@ -294,8 +302,8 @@ export class PluginManager extends TypertRemoteService {
     githubConnectionTimeoutMs: z.number().step(1).min(1000).default(5000),
     gitTransportTimeoutMs: z.number().step(1).min(1000).default(5000),
     idleTimeoutMs: z.number().step(1).min(1000).default(600000),
-    registry: z.string().pattern(REGISTRY_URL),
-    fallbackRegistries: z.array(z.string().pattern(REGISTRY_URL)).default([NPMMIRROR_REGISTRY]),
+    registry: z.string().pattern(REGISTRY_URL).volatile(),
+    fallbackRegistries: z.array(z.string().pattern(REGISTRY_URL)).default([NPMMIRROR_REGISTRY]).volatile(),
     versionListLimit: z.number().step(1).min(1).default(20),
     versionLookupConcurrency: z.number().step(1).min(1).default(4),
     detailMaxBytes: z.natural().min(1).default(1024 * 1024),
@@ -322,33 +330,35 @@ export class PluginManager extends TypertRemoteService {
   private readonly pnpmCommand: string
   private readonly versionListLimit: number
   private readonly versionLookupConcurrency: number
-  private readonly configuredRegistries: Omit<PluginRegistries, 'resolved'>
+  private get configuredRegistries(): Omit<PluginRegistries, 'resolved'> {
+    const registry = this.config.registry.get()
+    return {
+      registry: registry === undefined ? null : normalizeRegistry(registry),
+      fallbackRegistries: this.config.fallbackRegistries.get().map(normalizeRegistry),
+    }
+  }
   private readonly ownerContext: Context
   private readonly abort = new AbortController()
   /** Installations by request id, from their call until it settles. */
   private readonly installs = new Map<PluginInstallRequestId, InstallControl>()
   private readonly detail: BundleDetailOptions
 
-  constructor(ctx: Context, config: Config) {
+  constructor(ctx: Context, private readonly config: ResolvedConfig) {
     super(ctx, 'pluginManager')
     this.ownerEntryId = ctx.fiber.entry?.id
     this.ownerContext = ctx
     this.profile = ctx.profileContext
     for (const name of this.profile.startedBundles) this.protectsManager(name)
-    this.outputBytes = (config as Required<Config>).outputBytes
-    this.lockWaitMs = (config as Required<Config>).lockWaitMs
-    this.inspectTimeoutMs = (config as Required<Config>).inspectTimeoutMs
-    this.githubConnectionTimeoutMs = (config as Required<Config>).githubConnectionTimeoutMs
-    this.gitTransportTimeoutMs = (config as Required<Config>).gitTransportTimeoutMs
-    this.idleTimeoutMs = (config as Required<Config>).idleTimeoutMs
-    this.pnpmCommand = (config as Required<Config>).pnpmCommand
-    this.versionListLimit = (config as Required<Config>).versionListLimit
-    this.versionLookupConcurrency = (config as Required<Config>).versionLookupConcurrency
-    this.configuredRegistries = {
-      registry: config.registry === undefined ? null : normalizeRegistry(config.registry),
-      fallbackRegistries: (config as Required<Config>).fallbackRegistries.map(normalizeRegistry),
-    }
-    const required = config as Required<Config>
+    this.outputBytes = (config as Required<ResolvedConfig>).outputBytes
+    this.lockWaitMs = (config as Required<ResolvedConfig>).lockWaitMs
+    this.inspectTimeoutMs = (config as Required<ResolvedConfig>).inspectTimeoutMs
+    this.githubConnectionTimeoutMs = (config as Required<ResolvedConfig>).githubConnectionTimeoutMs
+    this.gitTransportTimeoutMs = (config as Required<ResolvedConfig>).gitTransportTimeoutMs
+    this.idleTimeoutMs = (config as Required<ResolvedConfig>).idleTimeoutMs
+    this.pnpmCommand = (config as Required<ResolvedConfig>).pnpmCommand
+    this.versionListLimit = (config as Required<ResolvedConfig>).versionListLimit
+    this.versionLookupConcurrency = (config as Required<ResolvedConfig>).versionLookupConcurrency
+    const required = config as Required<ResolvedConfig>
     this.detail = {
       profile: this.profile, maxDocumentBytes: required.detailMaxBytes, maxImageBytes: required.detailImageMaxBytes,
       npmFileSources: required.detailNpmFileSources, timeoutMs: required.detailFetchTimeoutMs, lifetime: this.abort.signal,

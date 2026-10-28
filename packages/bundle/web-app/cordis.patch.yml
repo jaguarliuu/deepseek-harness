@@ -14,6 +14,18 @@
 
 # ── surface-specific values the base deliberately omits ─────────────────────
 
+# Private model endpoints are configured explicitly in Settings; no public route is selected.
+- id: agent-default-model
+  config:
+    provider: ''
+    model: ''
+
+- id: llm-deepseek
+  disabled: true
+
+- id: llm-deepseek-account
+  disabled: true
+
 - id: system-prompt
   config:
     personaPrefix: >-
@@ -135,6 +147,7 @@
     # reports an actionable error when its settings-domain provider is absent.
     - id: ui-settings-account
       name: '@deepseek-ai/dsh-client-ui-settings-account'
+      disabled: !!js "ctx.get('profileContext')?.name === 'desktop'"
 
     - id: account-controller
       name: '@deepseek-ai/dsh-api-account-controller'
@@ -297,12 +310,16 @@
 
     - id: ui-settings
       name: '@deepseek-ai/dsh-client-ui-settings'
+      config:
+        enabled: !!js "ctx.get('profileContext')?.name !== 'desktop'"
 
     - id: ui-settings-general
       name: '@deepseek-ai/dsh-client-ui-settings-general'
 
     - id: ui-settings-models
       name: '@deepseek-ai/dsh-client-ui-settings-models'
+      config:
+        credentialOnboarding: false
 
     # Plugin management: the sidebar Plugins page installs, enables, disables,
     # and removes the profile's bundles through the `pluginManager` Remote.

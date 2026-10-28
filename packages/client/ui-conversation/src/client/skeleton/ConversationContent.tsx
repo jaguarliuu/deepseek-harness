@@ -4,6 +4,7 @@ import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
 import { workspaceDisplayTitle } from '@deepseek-ai/dsh-api-workspace-controller/default-workspace'
 import type { ConversationContentProps, ConversationViewsProps, InputZone } from '../contract/slots.ts'
 import { HeroShell, WorkspaceChip, workspaceLabel } from './EmptyHero.tsx'
+import { HomeScenarios } from './HomeScenarios.tsx'
 import css from './ConversationRoot.module.css'
 
 function ConversationSessionView({ renderSlot }: ConversationViewsProps) {
@@ -167,6 +168,12 @@ export function ConversationContent(props: ConversationContentProps) {
       {hero && heroWorkspaceRow}
       {zone !== undefined && renderSlot('conversation.input.dock', zone)}
       {inputBar}
+      {hero && <HomeScenarios t={t} disabled={inert || inputState?.phase !== 'plain'} onSelect={(prompt) => {
+        if (props.inputActions === undefined || inputState === undefined) return false
+        const span = props.inputActions.captureInsertion()
+        const end = inputState.draft.length
+        return props.inputActions.insertText(`${end === 0 ? '' : '\n\n'}${prompt}`, { ...span, start: end, end })
+      }} />}
     </div>
   )
 

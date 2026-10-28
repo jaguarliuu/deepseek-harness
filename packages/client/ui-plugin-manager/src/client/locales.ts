@@ -7,9 +7,9 @@ export const INSTALL_PATH_EXAMPLE = '/Users/name/my-plugin'
 
 /** Simplified Chinese dictionary and key source of truth. */
 export const zh = {
-  panel: '插件',
-  title: '插件',
-  intro: '安装、启用和配置插件',
+  panel: '能力中心',
+  title: '内部能力中心',
+  intro: '国家电网 · 智维小 C，让专业能力融入日常工作',
   infoLabel: '插件说明',
   infoDescription: '在这里配置官方插件，安装和管理其他插件。内置插件列表及运行状态可在「设置 → 内置插件」中查看',
   loading: '正在读取插件…',
@@ -36,7 +36,7 @@ export const zh = {
   moreTitle: '实验性插件',
   moreAction: '更多',
   tabsLabel: '插件视图',
-  installedTab: '已安装',
+  installedTab: '插件管理',
   statusProblem: '异常',
   statusBeta: '实验性',
   reasonLabel: '原因',
@@ -301,8 +301,8 @@ export type PluginManagerLocaleKey = keyof typeof zh
 
 /** English dictionary checked against the Chinese key set. */
 export const en = {
-  panel: 'Plugins',
-  title: 'Plugins',
+  panel: 'Capabilities',
+  title: 'Capability Center',
   intro: 'Install, enable, and configure plugins',
   infoLabel: 'About plugins',
   infoDescription: 'Configure official plugins and install or manage other plugins here. View the built-in plugin list and runtime status in Settings → Built-in plugins.',
@@ -1174,8 +1174,8 @@ export const es = {
 
 /** French dictionary, checked against the English keys. */
 export const fr = {
-  panel: 'Plugins',
-  title: 'Plugins',
+  panel: 'Capabilities',
+  title: 'Capability Center',
   intro: 'Installer, activer et configurer les plugins',
   infoLabel: 'À propos des plugins',
   infoDescription: "Configurez les plugins officiels et installez ou gérez d'autres plugins ici. Affichez la liste des plugins intégrés et l'état d'exécution dans Paramètres → Plugins intégrés.",
@@ -1465,8 +1465,8 @@ export const fr = {
 
 /** German dictionary, checked against the English keys. */
 export const de = {
-  panel: 'Plugins',
-  title: 'Plugins',
+  panel: 'Capabilities',
+  title: 'Capability Center',
   intro: 'Plugins installieren, aktivieren und konfigurieren',
   infoLabel: 'Über Plugins',
   infoDescription: 'Konfigurieren Sie hier offizielle Plugins und installieren oder verwalten Sie andere Plugins. Sehen Sie sich die Liste der integrierten Plugins und den Laufzeitstatus unter Einstellungen → Integrierte Plugins an.',

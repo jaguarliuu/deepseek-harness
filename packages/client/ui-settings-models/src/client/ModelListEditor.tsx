@@ -51,6 +51,7 @@ function numberOf(model: ModelDraft, key: string): number | undefined {
 
 /** What an interrogation needs, taken from the live form. */
 export interface ProbeTarget {
+  noAuth?: boolean
   /** Settings namespace whose adapter family answers. */
   settingsNs: string
   /**
@@ -213,6 +214,7 @@ export function ModelListEditor(props: ModelListEditorProps): ReactNode {
       const answer = await operations.discoverModels(probe.settingsNs, {
         ...probe.provider === undefined ? {} : { provider: probe.provider },
         ...probe.baseURL === undefined || probe.baseURL.length === 0 ? {} : { baseURL: probe.baseURL },
+        ...probe.noAuth === undefined ? {} : { noAuth: probe.noAuth },
         ...probe.api === undefined ? {} : { api: probe.api },
         ...probe.apiKey === undefined ? {} : { apiKey: probe.apiKey },
       })

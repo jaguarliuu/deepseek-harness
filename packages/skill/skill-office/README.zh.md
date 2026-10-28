@@ -9,7 +9,7 @@ kind: "package-reference"
 
 ## 概述
 
-目录列出 Office 路由及六个创作或操作技能，完整说明按需加载。创作技能使用选定的 Python 库；操作技能提供配置的 Node 与 LibreOffice Kit CLI 路径。SDK 和 Desktop 分别挂载技能提供者和依赖查询。
+目录列出 Office 路由、七个格式或操作技能，以及五个办公写作或分析技能，完整说明按需加载。创作技能使用选定的 Python 库；操作技能提供配置的 Node 与 LibreOffice Kit CLI 路径。SDK 和 Desktop 分别挂载技能提供者和依赖查询。
 
 ## 目录
 
@@ -35,7 +35,7 @@ kind: "package-reference"
 
 | 字段 | 默认值 | 含义 |
 |---|---|---|
-| `assetRoot` | 载体资源或包内 `assets/` | 包含七个技能目录的绝对路径。 |
+| `assetRoot` | 载体资源或包内 `assets/` | 包含随包技能目录的绝对路径。 |
 | `node` | 宿主 Node.js | 操作技能使用的独立 Node 可执行程序；打包载体显式提供。 |
 | `cli` | 已安装 Kit CLI | CLI 入口的绝对路径；`false` 禁用操作执行。 |
 
@@ -44,11 +44,11 @@ kind: "package-reference"
 <a id="progressive-loading"></a>
 ### 渐进加载
 
-模型依据任务选择技能；宿主不会根据文件扩展名注入完整说明。七个技能均列入目录，可通过 `skill` 按名称加载或由用户显式调用。用户要求的外观修改，包括电子表格单元格填充和文本对齐，即使没有明确要求视觉检查，也需要渲染；用户明确要求跳过渲染时以该要求为准。纯操作任务可以直接进入对应技能。
+模型依据任务选择技能；宿主不会根据文件扩展名注入完整说明。所有随包技能均列入目录，可通过 `skill` 按名称加载或由用户显式调用。用户要求的外观修改，包括电子表格单元格填充和文本对齐，即使没有明确要求视觉检查，也需要渲染；用户明确要求跳过渲染时以该要求为准。纯操作任务可以直接进入对应技能。
 
 ```mermaid
 flowchart TD
-    A["Initial catalog: seven Office summaries"]
+    A["Initial catalog: Office summaries"]
     A -->|Non-Office task| N["Continue without loading Office instructions"]
     A -->|Office task| B["skill(office): task routing"]
 
@@ -95,7 +95,7 @@ flowchart TD
 |---|---|
 | [`src/index.ts`](src/index.ts) | 注册资源并返回原始技能正文。 |
 
-| [`assets/`](assets/) | 路由与六个子技能。 |
+| [`assets/`](assets/) | Office 工作流及办公写作或分析技能。 |
 
 </details>
 
@@ -122,6 +122,8 @@ flowchart TD
 ## 已知限制与后续工作
 
 <a id="known-limitations-and-deferred-work"></a>
+
+- `office-pdf` 使用随包 pypdf 提取文本、合并及选择页面；不包含图片 OCR 或可选加密依赖。
 
 - 提供者不安装创作库。
 - LibreOffice 输出可能不同于原生 Office 应用。

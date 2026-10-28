@@ -249,9 +249,7 @@
   background: transparent;
 }
 
-/* Selected tab is blue, not ink: brand-primary resolves to neutral black in
-   this token sheet, so the selected state rides the business blue — the
-   nearest semantic token that stays blue in both themes. */
+/* Selected tabs share the theme business accent in both palettes. */
 .tabActive {
   color: var(--dsw-alias-state-business-primary);
 }
@@ -564,6 +562,7 @@
      8 above the card (its margin-top restores 12 under the hero chrome). */
   gap: 8px;
   /* Foot inside the centered box floats the stack a bit above true center. */
+  padding-top: 32px;
   padding-bottom: 32px;
   /* Card cap + both clearances: the hero input card lands at exactly the same
      width as the docked composer at every viewport. */
@@ -601,7 +600,7 @@
    the tree seat matches active (sticky footer) without a Root remount. */
 .root[data-phase='hero'] .scrollBody,
 .embeddedBody[data-content-phase='hero'] .scrollBody {
-  justify-content: center;
+  justify-content: safe center;
   overflow-y: auto;
 }
 

@@ -1,19 +1,8 @@
 @import url('./assets/window-material.css');
 
-/* Figma 2121:39336 / 2138:44626, Platform modes. Native material supplies the blur. */
+/* Shared palette supplies colors; native material supplies the blur. */
 body {
   color-scheme: light dark;
-  --dsw-alias-label-primary: #0f1115;
-  --dsw-alias-label-secondary: #61666b;
-  --dsw-alias-label-tertiary: #81858c;
-  --dsw-alias-label-primary-inverted: #fff;
-  --dsw-alias-brand-primary: var(--dsw-alias-label-primary);
-  --dsw-alias-button-primary-hover: #43454a;
-  --dsw-alias-button-elevated-fill: #fff;
-  --dsw-alias-button-floating-hover: #f1f3f5;
-  --dsw-alias-border-l2: #0000001a;
-  --dsw-alias-border-l4: #00000029;
-  --dsw-alias-label-caption: #adb2b8;
   --welcome-tint: var(--dsw-desktop-window-tint);
   --ds-transition-duration: 0.2s;
   --ds-transition-duration-slow: 0.3s;
@@ -22,20 +11,6 @@ body {
   --dsw-font-family-brand: 'Montserrat', var(--dsw-font-family);
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    --dsw-alias-label-primary: #f9fafb;
-    --dsw-alias-label-secondary: #cfd3d6;
-    --dsw-alias-label-tertiary: #adb2b8;
-    --dsw-alias-label-primary-inverted: #353638;
-    --dsw-alias-button-primary-hover: #ebeef2;
-    --dsw-alias-button-elevated-fill: #43454a;
-    --dsw-alias-button-floating-hover: #353638;
-    --dsw-alias-border-l2: #ffffff1f;
-    --dsw-alias-border-l4: #ffffff33;
-    --dsw-alias-label-caption: #81858c;
-  }
-}
 
 * {
   box-sizing: border-box;
@@ -97,7 +72,9 @@ body {
   display: block;
   flex: none;
   width: 100%;
-  height: 40px;
+  height: auto;
+  aspect-ratio: 3 / 1;
+  object-fit: contain;
   user-select: none;
   -webkit-user-drag: none;
 }

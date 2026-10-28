@@ -579,7 +579,7 @@ describe('desktop main startup', () => {
     await vi.advanceTimersByTimeAsync(0)
     const zh = locale === 'zh-CN'
     expect(harness.dialog.showMessageBox).toHaveBeenLastCalledWith(expect.objectContaining({
-      type: 'info', title: zh ? '关于 DeepSeek Harness' : 'About DeepSeek Harness', message: 'DeepSeek Harness',
+      type: 'info', title: zh ? '关于 智维小 C' : 'About 智维小 C', message: '智维小 C',
       detail: zh ? '版本 V1.0.0' : 'Version V1.0.0', buttons: [zh ? '确定' : 'OK'], cancelId: 0,
     }))
     // A dialog that cannot open is logged, not surfaced as an unhandled rejection.
@@ -921,7 +921,7 @@ describe('desktop main startup', () => {
     window.minimized = true
     window.emit('minimize')
     expect(window.setVibrancy).toHaveBeenLastCalledWith(null)
-    expect(window.setBackgroundColor).toHaveBeenLastCalledWith('#f9fafb')
+    expect(window.setBackgroundColor).toHaveBeenLastCalledWith('#f5f9f7')
     // Restoring re-requests the material and returns to the transparent base.
     window.minimized = false
     window.emit('restore')
@@ -932,7 +932,7 @@ describe('desktop main startup', () => {
     window.visible = false
     window.emit('hide')
     expect(window.setVibrancy).toHaveBeenLastCalledWith(null)
-    expect(window.setBackgroundColor).toHaveBeenLastCalledWith('#1b1b1c')
+    expect(window.setBackgroundColor).toHaveBeenLastCalledWith('#14221c')
     window.visible = true
     window.emit('show')
     expect(window.setBackgroundColor).toHaveBeenLastCalledWith('#00000000')
@@ -997,7 +997,7 @@ describe('desktop main startup', () => {
     expect(() => handler(event, 'application', NaN, 34)).toThrow('invalid popup request')
     const application = handler(event, 'application', 48, 34)
     expect(harness.menu.buildFromTemplate.mock.lastCall![0].map(item => item.label ?? item.type)).toEqual([
-      '关于 DeepSeek Harness', 'separator', '检查更新…', '管理 dsh 命令…', 'separator', '退出',
+      '关于 智维小 C', 'separator', '检查更新…', '管理 dsh 命令…', 'separator', '退出',
     ])
     expect(harness.popup.mock.lastCall![0]).toMatchObject({ window, x: 48, y: 34 })
     expect(harness.popup.mock.lastCall![0].callback).toBeTypeOf('function')
@@ -1030,7 +1030,7 @@ describe('desktop main startup', () => {
       .find(items => items.some(item => item.role === 'editMenu'))
     if (template === undefined) throw new Error('application menu missing')
     expect(template.map(describeItem)).toEqual(platform === 'darwin'
-      ? ['Desktop test', en.fileMenu, 'editMenu', 'windowMenu']
+      ? ['智维小 C', en.fileMenu, 'editMenu', 'windowMenu']
       : ['Application', 'editMenu'])
     const application = template[0]!.submenu as MenuItemConstructorOptions[]
     expect(application.filter(item => item.visible !== false).map(describeItem)).toEqual(platform === 'darwin'

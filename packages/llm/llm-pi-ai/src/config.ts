@@ -90,6 +90,8 @@ export type {
 
 /** Configuration for one pi-ai provider route; the `providers` dict key IS the route. */
 export interface PiAiProviderProfile {
+  /** Explicitly omit authentication for a private compatible endpoint. */
+  noAuth?: boolean
   /** Credential reference (environment-variable name) resolved per request through `ctx.credentials`. */
   apiKeyEnv?: string
   /** Name shown by configuration surfaces; defaults to the route key. */
@@ -324,6 +326,7 @@ const modelProfile: z<PiAiModelProfile> = z.object({
 const modelOverride: z<PiAiModelOverride> = z.object(modelFields)
 
 const profile = z.object({
+  noAuth: z.boolean(),
   apiKeyEnv: z.string().role('credential-ref'),
   displayName: z.string(),
   api: z.union(supportedProtocols()),
@@ -424,6 +427,9 @@ export function resolveProfiles(
     }
     if (source.displayName !== undefined && source.displayName.length === 0) {
       throw new Error(`llm-pi-ai: provider "${provider}" has an empty displayName`)
+    }
+    if (source.noAuth === true && (!source.baseURL || !['openai-completions', 'openai-responses', 'anthropic-messages'].includes(source.api ?? ''))) {
+      throw new Error('noAuth requires an explicit compatible protocol and API base URL')
     }
     assertValidHeaders(provider, source.headers)
     const streamIdleTimeoutMs = source.streamIdleTimeoutMs ?? DEFAULT_STREAM_IDLE_TIMEOUT_MS

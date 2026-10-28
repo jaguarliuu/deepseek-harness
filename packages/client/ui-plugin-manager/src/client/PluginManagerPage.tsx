@@ -1517,8 +1517,8 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
   const language = props.useLocale(snapshot => snapshot.active)
   const selectedTab = props.useStore(state => state.tab)
   // A contributed tab that left the ledger falls back to Installed, and stays there when it returns.
-  const tab = tabs.some(item => item.id === selectedTab) ? selectedTab : INSTALLED_TAB
-  useEffect(() => { if (tab !== selectedTab) setTab(tab) }, [tab, selectedTab, setTab])
+  const tab = selectedTab === '' ? (tabs[0]?.id ?? INSTALLED_TAB) : tabs.some(item => item.id === selectedTab) ? selectedTab : INSTALLED_TAB
+  useEffect(() => { if (selectedTab !== '' && tab !== selectedTab) setTab(tab) }, [tab, selectedTab, setTab])
   const tabsId = useId()
   const [activation, setActivation] = useState<string | null>(null)
   const [headerRef] = useState(props.createHeaderRef)
@@ -1690,6 +1690,8 @@ export function PluginManagerPage(props: PluginManagerPageProps): ReactNode {
           ? (
             <div role="tabpanel" id={`${tabsId}-${tab}-panel`} aria-labelledby={`${tabsId}-${tab}`} className={css.tabPanel}>
               {renderSlot('plugins.tab', {
+                catalogStatus: state.status,
+                catalog: listed.map(pkg => ({ ...pkg, title: packageText(pkg, resolveText).title, description: packageText(pkg, resolveText).description ?? pkg.description ?? '' })),
                 install: props.installFrom,
                 openPackage: (name) => { setTab(INSTALLED_TAB); setView({ kind: 'package', name, returnTab: tab }) },
               }, { only: tab })}

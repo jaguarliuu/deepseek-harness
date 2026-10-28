@@ -52,7 +52,8 @@
     "@deepseek-ai/dsh-lazy-require": "workspace:*",
     "@deepseek-ai/dsh-win32-process": "workspace:*",
     "koffi": "3.1.1",
-    "node-pty": "1.2.0-beta.15"
+    "node-pty": "1.2.0-beta.15",
+    "@deepseek-ai/schemastery": "workspace:~"
   },
   "devDependencies": {
     "@deepseek-ai/dsh-loader-smoke": "workspace:*",

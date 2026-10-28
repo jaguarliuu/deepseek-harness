@@ -91,6 +91,15 @@ async function fixture(reload: 'live' | 'startup' = 'live', overlay = false, pre
   return { ctx, dir, manager: ctx.pluginManager, bundle, profile, stopHmr, overlays, connection }
 }
 
+it('applies registry edits through the real Loader without replacing the manager', async () => {
+  const { ctx, manager } = await fixture()
+  const entry = [...ctx.loader.entries()].find(row => row.options.id === 'manager')!
+  const uid = entry.fiber?.uid
+  await entry.update({ config: { ...entry.options.config as object, registry: 'https://npm.company.example/', fallbackRegistries: [] } })
+  expect(entry.fiber?.uid).toBe(uid)
+  expect(await manager.registries()).toMatchObject({ registry: 'https://npm.company.example/', fallbackRegistries: [] })
+})
+
 it.each(['network', 'timeout'] as const)('stops a GitHub %s before pnpm and attributes it to the repository', async (kind) => {
   const { manager, dir, connection } = await fixture()
   const before = readFileSync(join(dir, 'package.json'), 'utf8')

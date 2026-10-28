@@ -116,3 +116,13 @@ it('loads an explicitly invoked authoring skill without the router', async () =>
   expect(text).toContain('# Excel workbooks')
   expect(text).not.toMatch(/Office task routing|dsoffice/)
 })
+
+it('loads PDF instructions without a renderer or dependency download', async () => {
+  const { agent, adapter } = await setup('native', ['office-pdf'])
+  await send(agent, 'Extract the text and merge these PDF files.')
+  const loaded = JSON.stringify(adapter.requests.at(-1))
+  expect(loaded).toContain('pypdf.PdfReader')
+  expect(loaded).toContain('load_workspace_dependencies')
+  expect(loaded).toContain('do not run pip')
+  expect(loaded).not.toContain('Installed LibreOffice Kit')
+})

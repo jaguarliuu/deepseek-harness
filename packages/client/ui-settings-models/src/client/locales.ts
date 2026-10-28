@@ -2,10 +2,23 @@
 
 /** English strings (the key-set source of truth for this pair). */
 export const en = {
+  connectionFailed: 'Connection failed. Check the address, model ID, and service status.',
+  connectionAuthFailed: 'Authentication failed. Check the API key or the service authentication requirements.',
+  connectionModelFailed: 'Endpoint or model not found. Check the API address and model ID.',
+  connectionTimeout: 'Connection timed out. Check the network and model service.',
+
+  testConnection: 'Test connection',
+  testingConnection: 'Testing…',
+  connectionSuccess: 'Connection successful. The model returned a response.',
+  noAuth: 'No API key required',
+  noAuthHint: 'Select this only for services that accept requests without authentication.',
+  testModel: 'Test model',
+  connectionNeedsFields: 'Enter the API address and a model ID before testing.',
+
   nav: 'Models',
   deepSeekAccount: 'DeepSeek Account',
   title: 'Models',
-  intro: 'Enter your API keys to use models from the following providers.',
+  intro: 'Configure your private model endpoint, model IDs, and the credentials required by your service. OpenAI-compatible chat is selected by default.',
   edit: 'Edit',
   editProvider: 'Edit {provider}',
   remove: 'Delete',
@@ -18,7 +31,7 @@ export const en = {
   add: 'Add model provider',
   addMode: 'How to add',
   addCatalog: 'Third-party model provider',
-  addCustom: 'Custom model API',
+  addCustom: 'OpenAI-compatible / private model',
   addCatalogHint: 'Pick OpenAI, Anthropic, Kimi, or another provider from the built-in catalog and enter its API key.',
   addCustomHint: 'Connect a relay, a self-hosted server, or any other OpenAI- or Anthropic-compatible endpoint by its base URL, protocol, and models.',
   addCatalogExhausted: 'Every catalog provider is already configured.',
@@ -146,10 +159,23 @@ export type ModelsKey = keyof typeof en
 
 /** Chinese strings (same keys as {@link en}). */
 export const zh: { [Key in keyof typeof en]: string } = {
+  connectionFailed: '连接失败，请检查地址、模型 ID 和服务状态',
+  connectionAuthFailed: '认证失败，请检查密钥或服务是否允许免密访问',
+  connectionModelFailed: '接口或模型不存在，请检查 API 地址和模型 ID',
+  connectionTimeout: '连接超时，请检查内网连通性和模型服务',
+
+  testConnection: '测试连接',
+  testingConnection: '测试中…',
+  connectionSuccess: '连接成功，模型已正常响应',
+  noAuth: '无需 API Key',
+  noAuthHint: '仅对允许免密访问的内网服务启用',
+  testModel: '测试模型',
+  connectionNeedsFields: '请先填写 API 地址和模型 ID',
+
   nav: '模型',
   deepSeekAccount: 'DeepSeek 账号',
   title: '模型',
-  intro: '填入各提供商的 API 密钥即可使用其模型。',
+  intro: '配置内网模型的 API 地址、模型 ID 和服务要求的密钥，默认使用 OpenAI 兼容协议。',
   edit: '编辑',
   editProvider: '编辑 {provider}',
   remove: '删除',
@@ -162,7 +188,7 @@ export const zh: { [Key in keyof typeof en]: string } = {
   add: '添加模型提供商',
   addMode: '添加方式',
   addCatalog: '第三方模型提供商',
-  addCustom: '自定义模型 API',
+  addCustom: 'OpenAI 兼容 / 私有模型',
   addCatalogHint: '从内置目录中选择 OpenAI、Anthropic、Kimi 等提供商，填入其 API 密钥即可使用。',
   addCustomHint: '连接中转站、自部署服务或其他兼容 OpenAI / Anthropic 协议的接口，需填写 API 地址、协议和模型。',
   addCatalogExhausted: '目录中的提供商都已添加。',
@@ -287,6 +313,19 @@ export const zh: { [Key in keyof typeof en]: string } = {
 
 /** Japanese copy, checked against the English keys. */
 export const ja = {
+  connectionFailed: 'Connection failed. Check the address, model ID, and service status.',
+  connectionAuthFailed: 'Authentication failed. Check the API key or the service authentication requirements.',
+  connectionModelFailed: 'Endpoint or model not found. Check the API address and model ID.',
+  connectionTimeout: 'Connection timed out. Check the network and model service.',
+
+  testConnection: 'Test connection',
+  testingConnection: 'Testing…',
+  connectionSuccess: 'Connection successful. The model returned a response.',
+  noAuth: 'No API key required',
+  noAuthHint: 'Select this only for services that accept requests without authentication.',
+  testModel: 'Test model',
+  connectionNeedsFields: 'Enter the API address and a model ID before testing.',
+
   'nav': 'モデル',
   'deepSeekAccount': 'DeepSeekアカウント',
   'title': 'モデル',
@@ -428,6 +467,19 @@ export const ja = {
 
 /** Spanish dictionary, checked against the English keys. */
 export const es = {
+  connectionFailed: 'Connection failed. Check the address, model ID, and service status.',
+  connectionAuthFailed: 'Authentication failed. Check the API key or the service authentication requirements.',
+  connectionModelFailed: 'Endpoint or model not found. Check the API address and model ID.',
+  connectionTimeout: 'Connection timed out. Check the network and model service.',
+
+  testConnection: 'Test connection',
+  testingConnection: 'Testing…',
+  connectionSuccess: 'Connection successful. The model returned a response.',
+  noAuth: 'No API key required',
+  noAuthHint: 'Select this only for services that accept requests without authentication.',
+  testModel: 'Test model',
+  connectionNeedsFields: 'Enter the API address and a model ID before testing.',
+
   nav: 'Modelos',
   deepSeekAccount: 'Cuenta DeepSeek',
   title: 'Modelos',
@@ -569,6 +621,19 @@ export const es = {
 
 /** French dictionary, checked against the English keys. */
 export const fr = {
+  connectionFailed: 'Connection failed. Check the address, model ID, and service status.',
+  connectionAuthFailed: 'Authentication failed. Check the API key or the service authentication requirements.',
+  connectionModelFailed: 'Endpoint or model not found. Check the API address and model ID.',
+  connectionTimeout: 'Connection timed out. Check the network and model service.',
+
+  testConnection: 'Test connection',
+  testingConnection: 'Testing…',
+  connectionSuccess: 'Connection successful. The model returned a response.',
+  noAuth: 'No API key required',
+  noAuthHint: 'Select this only for services that accept requests without authentication.',
+  testModel: 'Test model',
+  connectionNeedsFields: 'Enter the API address and a model ID before testing.',
+
   nav: 'Modèles',
   deepSeekAccount: 'Compte DeepSeek',
   title: 'Modèles',
@@ -710,6 +775,19 @@ export const fr = {
 
 /** German dictionary, checked against the English keys. */
 export const de = {
+  connectionFailed: 'Connection failed. Check the address, model ID, and service status.',
+  connectionAuthFailed: 'Authentication failed. Check the API key or the service authentication requirements.',
+  connectionModelFailed: 'Endpoint or model not found. Check the API address and model ID.',
+  connectionTimeout: 'Connection timed out. Check the network and model service.',
+
+  testConnection: 'Test connection',
+  testingConnection: 'Testing…',
+  connectionSuccess: 'Connection successful. The model returned a response.',
+  noAuth: 'No API key required',
+  noAuthHint: 'Select this only for services that accept requests without authentication.',
+  testModel: 'Test model',
+  connectionNeedsFields: 'Enter the API address and a model ID before testing.',
+
   nav: 'Modelle',
   deepSeekAccount: 'DeepSeek-Konto',
   title: 'Modelle',
@@ -851,6 +929,19 @@ export const de = {
 
 /** Russian dictionary, checked against the English keys. */
 export const ru = {
+  connectionFailed: 'Connection failed. Check the address, model ID, and service status.',
+  connectionAuthFailed: 'Authentication failed. Check the API key or the service authentication requirements.',
+  connectionModelFailed: 'Endpoint or model not found. Check the API address and model ID.',
+  connectionTimeout: 'Connection timed out. Check the network and model service.',
+
+  testConnection: 'Test connection',
+  testingConnection: 'Testing…',
+  connectionSuccess: 'Connection successful. The model returned a response.',
+  noAuth: 'No API key required',
+  noAuthHint: 'Select this only for services that accept requests without authentication.',
+  testModel: 'Test model',
+  connectionNeedsFields: 'Enter the API address and a model ID before testing.',
+
   nav: 'Модели',
   deepSeekAccount: 'DeepSeek Аккаунт',
   title: 'Модели',
@@ -992,6 +1083,19 @@ export const ru = {
 
 /** Portuguese dictionary, checked against the English keys. */
 export const pt = {
+  connectionFailed: 'Connection failed. Check the address, model ID, and service status.',
+  connectionAuthFailed: 'Authentication failed. Check the API key or the service authentication requirements.',
+  connectionModelFailed: 'Endpoint or model not found. Check the API address and model ID.',
+  connectionTimeout: 'Connection timed out. Check the network and model service.',
+
+  testConnection: 'Test connection',
+  testingConnection: 'Testing…',
+  connectionSuccess: 'Connection successful. The model returned a response.',
+  noAuth: 'No API key required',
+  noAuthHint: 'Select this only for services that accept requests without authentication.',
+  testModel: 'Test model',
+  connectionNeedsFields: 'Enter the API address and a model ID before testing.',
+
   nav: 'Modelos',
   deepSeekAccount: 'DeepSeek Conta',
   title: 'Modelos',

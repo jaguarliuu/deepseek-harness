@@ -25,6 +25,8 @@ English | [中文](README.zh.md)
 <a id="use-this-package"></a>
 ## Use this package
 
+The Internal Capability Center combines Host-owned plugin metadata with the selected session's Skills catalog. It supports search, type and office filters, full descriptions, and copyable skill commands. Plugin operations stay in the official manager; exact npm installation targets require confirmation. The initial source is the application catalog; remote company catalogs and public providers are not connected. Anywhere Labs attribution and adaptations are recorded in `THIRD-PARTY-NOTICES.json`.
+
 Type `/` in the composer and pick a skill from the suggestions, or type `/name` directly; the sent message carries the literal text, and the host loads the skill the same way for a menu pick or a hand-typed token. A name shared with a host command still resolves to the command — adjudication claims the line client-side before it ever becomes a prompt.
 
 ### What the source offers

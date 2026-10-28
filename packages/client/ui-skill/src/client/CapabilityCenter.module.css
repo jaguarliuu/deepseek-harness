@@ -1,0 +1,36 @@
+.center { display: flex; flex-direction: column; gap: 24px; padding-bottom: 16px; color: var(--dsw-alias-label-primary); }
+.hero { padding: 28px; border: 1px solid var(--dsw-alias-border-l3); border-radius: var(--dsw-radius-xl); background: var(--dsw-alias-bg-layer-2); border-inline-start: 3px solid var(--dsw-alias-brand-text); }
+.eyebrow { font-size: 12px; line-height: 20px; letter-spacing: 1px; color: var(--dsw-alias-brand-text); }
+.hero h2 { margin: 12px 0 8px; font-size: 28px; line-height: 38px; font-weight: 500; }
+.hero p { margin: 0; font-size: 14px; line-height: 24px; color: var(--dsw-alias-label-secondary); }
+.source { display: block; margin-top: 20px; font-size: 12px; color: var(--dsw-alias-label-secondary); }
+.toolbar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(180px, 280px); align-items: end; gap: 16px; }
+.context { display: flex; flex-direction: column; gap: 6px; min-width: 0; font-size: 12px; color: var(--dsw-alias-label-secondary); }
+.context select, .command input { padding: 10px 12px; min-width: 0; width: 100%; box-sizing: border-box; border: 1px solid var(--dsw-alias-border-l3); border-radius: var(--dsw-radius-md); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font: inherit; }
+.filters { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.facet { border: 1px solid var(--dsw-alias-border-l3); background: transparent; padding: 7px 12px; border-radius: var(--dsw-radius-md); color: var(--dsw-alias-label-secondary); font: inherit; font-size: 13px; cursor: pointer; }
+.facet[aria-pressed='true'] { color: var(--dsw-alias-brand-text); background: var(--dsw-specific-sidebar-nav-item-active); border-color: var(--dsw-alias-brand-text); }
+.count { margin-inline-start: auto; font-size: 12px; color: var(--dsw-alias-label-secondary); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+.grid li { min-width: 0; }
+.card { display: flex; flex-direction: column; gap: 14px; width: 100%; height: 100%; padding: 22px; text-align: start; border: 1px solid var(--dsw-alias-border-l3); border-radius: var(--dsw-radius-xl); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font: inherit; cursor: pointer; }
+.cardHead { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.icon { display: inline-flex; color: var(--dsw-alias-brand-text); }
+.type { font-size: 11px; line-height: 18px; padding: 2px 8px; border-radius: var(--dsw-radius-sm); background: var(--dsw-alias-bg-base); color: var(--dsw-alias-label-secondary); }
+.card h3 { margin: 0; font-size: 16px; line-height: 24px; font-weight: 500; overflow-wrap: anywhere; }
+.card p { margin: 0; color: var(--dsw-alias-label-secondary); font-size: 13px; line-height: 22px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.cardFoot { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 10px; font-size: 12px; color: var(--dsw-alias-brand-text); }
+.card:focus-visible, .facet:focus-visible, .context select:focus-visible { outline: 2px solid var(--dsw-alias-brand-text); outline-offset: 3px; }
+@media (hover: hover) { .card:hover { border-color: var(--dsw-alias-brand-text); background: var(--dsw-alias-settings-card-fill); } }
+.empty { padding: 48px 12px; text-align: center; color: var(--dsw-alias-label-secondary); }
+.details { display: flex; flex-direction: column; gap: 20px; max-width: 560px; overflow-wrap: anywhere; font-size: 14px; line-height: 24px; }
+.details p { margin: 0; white-space: pre-wrap; }
+.facts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 20px; margin: 0; }
+.facts dt { color: var(--dsw-alias-label-secondary); }
+.facts dd { margin: 0; }
+.command, .confirm { display: flex; flex-direction: column; gap: 12px; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.skeleton { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.skeleton span { height: 120px; border-radius: var(--dsw-radius-xl); background: var(--dsw-alias-bg-layer-2); }
+@media (max-width: 650px) { .toolbar { grid-template-columns: minmax(0, 1fr); } .hero { padding: 20px; } .hero h2 { font-size: 24px; line-height: 32px; } .count { margin-inline-start: 0; } }
+@media (pointer: coarse) { .context select, .command input { font-size: 16px; } }

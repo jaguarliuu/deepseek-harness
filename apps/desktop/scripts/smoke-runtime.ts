@@ -104,6 +104,9 @@ export function apply(ctx) {
   ctx.effect(() => ctx.webServer.register({ kind: 'exact', path: '/desktop-smoke-office-cli',
     async handler(_request, response) {
       try {
+        for (const name of ['office-docx', 'office-xlsx', 'office-pptx', 'office-pdf', 'gov-doc-writing', 'meeting-recap', 'work-report-writer', 'dataset-health-audit', 'data-viz-gen']) {
+          if (await ctx.skills.get(name) === undefined) throw new Error('Missing bundled Office skill: ' + name)
+        }
         const skill = await ctx.skills.get('office-export-pdf')
         const json = skill?.content.match(/\\n(\\{\\n[\\s\\S]+)$/u)?.[1]
         if (json === undefined) throw new Error('Office skill did not supply CLI paths')
@@ -171,6 +174,11 @@ export function apply(ctx) {
       })
       if (!converted.ok) throw new Error(`desktop runtime: ${extension} conversion failed: ${await converted.text()}`)
       const pdf = Buffer.from(await converted.arrayBuffer())
+      const output = join(home, `converted.${extension}.pdf`)
+      writeFileSync(output, pdf)
+      await promisify(execFile)(dependencies.python, ['-I', '-B', '-c',
+        'from pypdf import PdfReader; import sys; r = PdfReader(sys.argv[1]); assert len(r.pages) > 0; assert \"Desktop Office conversion\" in \"\".join(p.extract_text() for p in r.pages)', output],
+      { env: { ...environment, PATH: '' }, timeout: 120_000, windowsHide: true })
       if (!/^%PDF-\d\.\d/u.test(pdf.subarray(0, 8).toString())
         || !pdf.subarray(-1024).toString().trimEnd().endsWith('%%EOF')) {
         throw new Error(`desktop runtime: invalid ${extension} PDF output`)

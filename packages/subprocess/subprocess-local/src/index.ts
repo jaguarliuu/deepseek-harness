@@ -2,9 +2,8 @@
  * Local Service Provider for the subprocess capability seam. Each spawn owns a
  * platform-selected managed range with the spec's per-stream stdio dispositions.
  * Normal disposal terminates and joins live ranges; Node's synchronous exit
- * phase force-stops any ranges the service still owns. It has no config: every
- * disposition and limit arrives on the spec, so deployment-varying choices
- * stay with the caller's config (the bash executor's, the LSP host's, …).
+ * phase force-stops any ranges the service still owns. Configured environment defaults apply to newly launched local processes;
+ * explicit caller entries take precedence. Dispositions and limits arrive on the spec.
  * @module @deepseek-ai/dsh-subprocess-local
  */
 
@@ -13,7 +12,8 @@ import { access, stat } from 'node:fs/promises'
 import { userInfo } from 'node:os'
 import { delimiter, extname, isAbsolute, resolve } from 'node:path'
 import type { Duplex } from 'node:stream'
-import { Context } from '@deepseek-ai/cordis'
+import { Context, type Volatile } from '@deepseek-ai/cordis'
+import z from '@deepseek-ai/schemastery'
 import type * as NodePty from 'node-pty'
 import type { IPtyForkOptions, IWindowsPtyForkOptions } from 'node-pty'
 import { createLazyRequire } from '@deepseek-ai/dsh-lazy-require'
@@ -54,6 +54,12 @@ import { prepareShellActivity } from './shell-activity.ts'
 
 const requireNodePty = createLazyRequire<typeof NodePty>('node-pty', import.meta.url)
 
+/** Live defaults for newly launched local processes and terminals. */
+export interface Config {
+  /** Environment defaults; explicit request entries take precedence. */
+  environment: Volatile<Record<string, string>>
+}
+
 /**
  * Local subprocess service: platform-selected managed ranges, Node-shaped stdio
  * dispositions (raw pipes, inherit, bounded tail-keep collection with spill
@@ -62,6 +68,8 @@ const requireNodePty = createLazyRequire<typeof NodePty>('node-pty', import.meta
  * JavaScript-observable host exit also performs synchronous final termination.
  */
 export class LocalSubprocessRuntime extends SubprocessRuntime {
+  /** Environment defaults read at each launch; edits do not restart existing children. */
+  static Config = z.object({ environment: z.dict(z.string()).default({}).volatile() })
   /** Live handles retained for normal disposal and synchronous host-exit finalization. */
   private live = new Set<LocalSubprocessHandle>()
   /** Live terminals retained through normal quiescence or host-exit finalization. */
@@ -87,7 +95,7 @@ export class LocalSubprocessRuntime extends SubprocessRuntime {
   /** Test hook for platform process inspection; production resolves lazily on terminal spawn. */
   terminalInspector: ProcessInspector | undefined
 
-  constructor(ctx: Context) {
+  constructor(ctx: Context, private readonly config?: Config) {
     super(ctx)
     ctx.effect(() => {
       const onHostExit = (): void => { this.terminateForHostExit() }
@@ -195,6 +203,7 @@ export class LocalSubprocessRuntime extends SubprocessRuntime {
   }
 
   spawn(spec: SubprocessSpawnSpec): SubprocessHandle {
+    spec = { ...spec, env: { ...this.config?.environment.get(), ...spec.env } }
     validateSubprocessSpec(spec)
     const env = targetEnvironment(spec)
     const containmentMode = this.selectContainmentMode('ordinary')
@@ -288,6 +297,7 @@ export class LocalSubprocessRuntime extends SubprocessRuntime {
   // Local PTY allocation is synchronous, but the provider contract permits remote asynchronous allocation.
   // oxlint-disable-next-line typescript/require-await -- Preserve promise rejection semantics at the async provider contract.
   async spawnTerminal(spec: SubprocessTerminalSpawnSpec): Promise<SubprocessTerminalHandle> {
+    spec = { ...spec, env: { ...this.config?.environment.get(), ...spec.env } }
     const file = spec.argv[0]
     if (file === undefined || file.length === 0) {
       throw new Error('subprocess-local: terminal argv must contain a program')

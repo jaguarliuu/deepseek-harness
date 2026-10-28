@@ -310,8 +310,8 @@ export async function discoverModels(
   // and its credential resolver remains lazy so a typed key cannot fail over a
   // stored credential it supersedes. A route may still authenticate through a
   // deployment-owned Authorization header when neither key exists.
-  const stored = storedProfile?.()
-  const supplied = request.apiKey ?? await stored?.resolveApiKey()
+  const stored = request.noAuth === true ? undefined : storedProfile?.()
+  const supplied = request.noAuth === true ? undefined : request.apiKey ?? await stored?.resolveApiKey()
   const apiKey = supplied === undefined ? undefined : usableProbeKey(supplied)
   let response: Response
   try {
