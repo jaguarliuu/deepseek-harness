@@ -1,0 +1,55 @@
+name: 智维小 C · Windows 办公离线测试包
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: zhiwei-windows-office-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  package:
+    runs-on: windows-2022
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      DSH_TELEMETRY_DISABLED: '1'
+      POWERSHELL_TELEMETRY_OPTOUT: '1'
+    steps:
+      - name: Enable repository symlinks and long paths
+        run: |
+          git config --global core.symlinks true
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          git config --global core.longpaths true
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: '24'
+      - uses: pnpm/action-setup@v5.0.0
+      - uses: actions/setup-python@v6.3.0
+        with:
+          python-version: '3.12'
+          architecture: x64
+      - name: Build and verify offline office installer
+        # Build mode is shared with CNB and does not require any CNB credentials.
+        run: ./apps/desktop/scripts/cnb-windows-package.ps1 -Mode Build
+      - name: Upload installer, checksum and office manifest
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: zhiwei-xiao-c-windows-x64-${{ github.run_number }}
+          path: |
+            apps/desktop/.desktop-build/targets/win-x64/unsigned-artifacts/*.exe
+            apps/desktop/.desktop-build/targets/win-x64/unsigned-artifacts/*.exe.sha256
+            apps/desktop/.desktop-build/targets/win-x64/unsigned-artifacts/office-runtime.json
+          include-hidden-files: true
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
