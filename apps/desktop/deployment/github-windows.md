@@ -12,6 +12,8 @@ The `zhiwei-windows-office.yml` workflow uses a GitHub-hosted `windows-2022` run
 
 The workflow installs Node.js 24, repository-pinned pnpm, and Python 3.12. It reuses the Build mode of `cnb-windows-package.ps1`, which installs locked dependencies and runs `package:win:x64:unsigned` with packaged-runtime checks. This mode does not use CNB credentials or upload to CNB. GitHub-hosted Windows supplies the native build tools; no additional repository secrets are needed for this unsigned workflow.
 
+If packaging fails, expand Show packaging failure details for the last 120 lines of each journal file, or download `zhiwei-windows-diagnostics-<run number>-<attempt>` from Artifacts. It contains the packaging stdout, stderr, and event records, and is retained for 14 days. If setup fails before packaging starts, no journal exists; inspect the failed setup step instead.
+
 ## Offline contents and verification
 
 The installer includes Word, Excel, PPT, and PDF Skills, the packaged Python interpreter and locked libraries, and the Windows office engine. Local ASR models are excluded. The employee computer still needs access to its configured internal model endpoint. The build runner needs internet access to download dependencies.

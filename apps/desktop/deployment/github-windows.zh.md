@@ -12,6 +12,8 @@
 
 工作流安装 Node.js 24、仓库锁定的 pnpm 和 Python 3.12，复用 `cnb-windows-package.ps1` 的 Build 模式，安装锁定依赖并运行带包内运行时检查的 `package:win:x64:unsigned`。该模式不使用 CNB 凭据，也不上传到 CNB。GitHub 托管 Windows 提供原生构建工具；此未签名工作流不需要额外的仓库密钥。
 
+打包失败时，展开 Show packaging failure details 查看各日志最后 120 行，或从 Artifacts 下载 `zhiwei-windows-diagnostics-<运行编号>-<尝试次数>`。其中包含打包标准输出、错误输出和事件记录，保留 14 天。若准备步骤在打包启动前失败，则尚无日志文件，需要查看失败的准备步骤。
+
 ## 离线内容与验收
 
 安装包包含 Word、Excel、PPT、PDF Skills，打包的 Python 解释器和锁定库，以及 Windows 办公引擎，不包含本地 ASR 模型。员工电脑仍需访问其配置的内网模型地址；构建节点需要联网下载依赖。

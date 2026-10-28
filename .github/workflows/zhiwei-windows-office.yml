@@ -41,6 +41,31 @@ jobs:
       - name: Build and verify offline office installer
         # Build mode is shared with CNB and does not require any CNB credentials.
         run: ./apps/desktop/scripts/cnb-windows-package.ps1 -Mode Build
+      - name: Show packaging failure details
+        if: ${{ failure() }}
+        run: |
+          $runs = 'apps/desktop/.desktop-build/packaging-runs'
+          if (Test-Path -LiteralPath $runs) {
+            Get-ChildItem -LiteralPath $runs -Recurse -File |
+              Where-Object { $_.Name -in @('stderr.log', 'stdout.log', 'events.jsonl') } |
+              ForEach-Object {
+                Write-Output "::group::$($_.Name) ($($_.Directory.Name))"
+                Get-Content -LiteralPath $_.FullName -Tail 120
+                Write-Output '::endgroup::'
+              }
+          }
+      - name: Upload packaging diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: zhiwei-windows-diagnostics-${{ github.run_number }}-${{ github.run_attempt }}
+          path: |
+            apps/desktop/.desktop-build/packaging-runs/**/events.jsonl
+            apps/desktop/.desktop-build/packaging-runs/**/stdout.log
+            apps/desktop/.desktop-build/packaging-runs/**/stderr.log
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
       - name: Upload installer, checksum and office manifest
         uses: actions/upload-artifact@v7.0.1
         with:
