@@ -1,0 +1,6 @@
+branch:
+  - reg: '^master$'
+    buttons:
+      - name: 构建 Windows 办公测试包
+        description: 使用组织 Windows x64 Runner 打包，内置 Word、Excel、PPT、PDF 依赖
+        event: web_trigger_windows_office

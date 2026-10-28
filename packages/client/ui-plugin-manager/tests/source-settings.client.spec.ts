@@ -17,10 +17,10 @@ describe('intranet sources', () => {
     const form = sourceForm(host.scope, 'npm')
     form.actions().edit('registry', 'https://npm.example')
     form.actions().save()
-    await vi.waitFor(() => expect(host.mutate).toHaveBeenCalledWith([
+    await vi.waitFor(() => { expect(host.mutate).toHaveBeenCalledWith([
       { op: 'set', path: ['registry'], value: 'https://npm.example/' },
       { op: 'set', path: ['fallbackRegistries'], value: [] },
-    ], 4))
+    ], 4) })
     form.dispose()
   })
 
@@ -32,7 +32,7 @@ describe('intranet sources', () => {
     expect(form.field('registry').text).toBe('https://old.example/simple/')
     form.actions().edit('registry', 'https://pypi.example/simple/')
     form.actions().save()
-    await vi.waitFor(() => expect(form.shell().failed).toBe(true))
+    await vi.waitFor(() => { expect(form.shell().failed).toBe(true) })
     expect(host.mutate).toHaveBeenCalledWith([{ op: 'set', path: ['environment', 'PIP_INDEX_URL'], value: 'https://pypi.example/simple/' }], 8)
     expect(form.field('registry').text).toBe('https://pypi.example/simple/')
     form.dispose()
@@ -44,7 +44,7 @@ describe('intranet sources', () => {
     const form = sourceForm(host.scope, 'python')
     form.actions().resetField('registry')
     form.actions().save()
-    await vi.waitFor(() => expect(host.mutate).toHaveBeenCalledWith([{ op: 'unset', path: ['environment', 'PIP_INDEX_URL'] }], undefined))
+    await vi.waitFor(() => { expect(host.mutate).toHaveBeenCalledWith([{ op: 'unset', path: ['environment', 'PIP_INDEX_URL'] }], undefined) })
     form.dispose()
   })
 })

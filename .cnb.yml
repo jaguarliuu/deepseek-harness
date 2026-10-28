@@ -1,0 +1,16 @@
+# Requires an online organization-owned Windows x64 runner; see deployment guide.
+master:
+  web_trigger_windows_office:
+    - name: 智维小 C Windows 办公离线测试包
+      runner:
+        namespace: group
+        tags:
+          - windows
+          - zhiwei-x64
+      env:
+        DSH_TELEMETRY_DISABLED: '1'
+      stages:
+        - name: 构建并验证 Windows 办公安装包
+          script: pwsh -NoProfile -File apps/desktop/scripts/cnb-windows-package.ps1 -Mode Build
+        - name: 上传安装包和校验文件至当前提交附件
+          script: pwsh -NoProfile -File apps/desktop/scripts/cnb-windows-package.ps1 -Mode Upload
