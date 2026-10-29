@@ -69,6 +69,8 @@ function deferred<T>(): Deferred<T> {
 }
 
 class FakeWorkspaceRemote implements WorkspaceRemote {
+  readonly trashSession = vi.fn<WorkspaceRemote['trashSession']>(async () => remoteOk({ archivedSessionIds: [], trashedSessionIds: [] }))
+  readonly purgeSession = vi.fn<WorkspaceRemote['purgeSession']>(async () => remoteOk({ archivedSessionIds: [], trashedSessionIds: [] }))
   readonly initializeDefault = vi.fn<WorkspaceRemote['initializeDefault']>(async () => remoteOk({ workspace: workspace('default') }))
   readonly calls: Array<{ readonly method: string; readonly request: unknown }> = []
   onCreate: (request: WorkspaceCreateRequest) => Promise<RemoteResult<WorkspaceCreateValue>> = request =>

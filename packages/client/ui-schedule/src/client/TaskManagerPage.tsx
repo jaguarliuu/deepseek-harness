@@ -10,6 +10,9 @@ import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
 import type { ScheduleCatalogEntry, ScheduleId } from '@deepseek-ai/dsh-schedule/client'
 import type { CatalogSnapshot } from './catalog-source.ts'
 import { CatalogFeedback } from './CatalogFeedback.tsx'
+import { TaskCreateDialog } from './TaskCreateDialog.tsx'
+import type { ScheduleCreateRequest } from '@deepseek-ai/dsh-schedule/client'
+import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import { TaskDetail, useTaskDetail, type TaskDetailInjected } from './TaskDetail.tsx'
 import { useRelativeClock } from './relative-clock.ts'
 import { formatScheduleFrequency, nextRunParts, taskName, zoneLabel } from './schedule-format.ts'
@@ -21,11 +24,8 @@ import css from './TaskManagerPage.module.css'
 export interface TaskManagerInjected extends TaskDetailInjected {
   /** Host task catalog with its query and deletion state. */
   readonly hooks: { readonly catalog: HostObservable<CatalogSnapshot<ScheduleCatalogEntry>> }
-  /**
-   * Start a new Session, where a reminder is created by asking the model to
-   * schedule it. The page deliberately has no creation form of its own.
-   */
-  readonly onNewTask: () => void
+  /** Save a task for the selected Session and refresh the catalog. */
+  readonly onCreateTask: (sessionId: SessionId, request: ScheduleCreateRequest) => Promise<void>
   /**
    * Remove every ended Host task, after this page has confirmed the action.
    *
@@ -51,9 +51,12 @@ type StatusFilter = 'all' | ScheduleCatalogEntry['status']
  * @returns the searchable task list beside the selected task's detail.
  */
 export function TaskManagerPage(props: TaskManagerPageProps) {
-  const { useCatalog, onNewTask, onClearEnded, onRetry, t } = props
+  const { useCatalog, onCreateTask, onClearEnded, onRetry, t } = props
   const catalog = useCatalog(snapshot => snapshot)
   const { records, status } = catalog
+  const sessions = props.useSessions(state => state)
+  const archived = props.useWorkspaces(state => state.archivedSessionIds)
+  const [creating, setCreating] = useState(false)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [selectedId, setSelectedId] = useState<ScheduleId | null>(null)
@@ -186,7 +189,7 @@ export function TaskManagerPage(props: TaskManagerPageProps) {
             <div className={css.pageHeading}>
               <h1 ref={headingRef} tabIndex={-1}>{t('title')}</h1>
               <div className={css.creationActions}>
-                <Button variant="primary" size="sm" className={css.headerAction} icon={<IconPlusOutlineRegular size={13} />} onClick={onNewTask}>{t('new.action')}</Button>
+                <Button variant="primary" size="sm" className={css.headerAction} icon={<IconPlusOutlineRegular size={13} />} onClick={() => { setCreating(true) }}>{t('new.action')}</Button>
               </div>
             </div>
             <div className={css.filters}>
@@ -254,7 +257,7 @@ export function TaskManagerPage(props: TaskManagerPageProps) {
               {status === 'ready' && rows.length === 0 && <div className={css.empty} role="status">
                 <ScheduleEmptyIllustration className={css.emptyIllustration} />
                 <h2>{t(emptyTitle)}</h2>
-                <Button variant="outline" className={css.emptyAction} onClick={onNewTask}>
+                <Button variant="outline" className={css.emptyAction} onClick={() => { setCreating(true) }}>
                   {t('empty.action')}
                 </Button>
               </div>}
@@ -334,6 +337,12 @@ export function TaskManagerPage(props: TaskManagerPageProps) {
         </div>}
       />
 
+      {creating && <TaskCreateDialog
+        sessions={sessions.ids.filter(id => !archived.includes(id)).map(id => ({
+          id, title: sessions.byId[id]?.title || sessions.byId[id]?.cwd || id,
+        }))}
+        onCreate={onCreateTask} onClose={() => { setCreating(false) }} t={t}
+      />}
     </section>
   )
 }

@@ -187,6 +187,16 @@ export abstract class SessionPersistence extends Service {
   abstract flush(): Promise<void>
 
   /**
+   * Permanently remove one closed Session's stored artifacts when supported by the backend.
+   * @param id - Session identity selected by an explicit user deletion.
+   * @returns Resolution after removal; active handles and unsupported backends reject.
+   */
+  purge(id: SessionId): Promise<void> {
+    return Promise.reject(new Error(`Session deletion is not supported by this backend: ${id}`))
+  }
+
+
+  /**
    * Observe one stored session without reading its event log or taking
    * ownership.
    *

@@ -353,10 +353,10 @@ describe('ui-schedule browser half', () => {
       ) as ScheduleTaskCatalogInjected & ScheduleTaskBindingInjected
       expect(chip.taskBindings).toBe(body.taskBindings)
       expect(chip.hooks.catalog).toBe(body.hooks.catalog)
-      // The panel starts a new reminder in a Session rather than opening a creation form.
+      // The panel exposes task creation without navigation.
       const panel = injectedFace(ctx.slots.entries('main')[0]!, undefined as never) as TaskManagerInjected
-      panel.onNewTask()
-      expect(startSession).toHaveBeenCalledOnce()
+      expect(panel.onCreateTask).toBeTypeOf('function')
+      expect(startSession).not.toHaveBeenCalled()
     } finally {
       await fiber.dispose()
       owner()

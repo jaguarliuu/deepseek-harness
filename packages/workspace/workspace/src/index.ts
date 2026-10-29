@@ -345,6 +345,46 @@ export class WorkspaceRegistry extends Service {
     return this.requireState().archivedSessionIds
   }
 
+  /** Session ids retained in the recoverable recycle bin. */
+  get trashedSessionIds(): readonly SessionId[] {
+    return this.requireState().trashedSessionIds ?? []
+  }
+
+  /**
+   * Move an idle Session to the recycle bin without changing its log or workspace files.
+   * @param sessionId - Existing Session to remove from ordinary and archive views.
+   * @returns Resolution after the recycle-bin and archive sets are committed together.
+   */
+  trashSession(sessionId: SessionId): Promise<void> {
+    return this.enqueueOperation(async () => {
+      const state = this.requireState()
+      if (state.trashedSessionIds?.includes(sessionId)) return
+      if (!(await this.sessionKnown(sessionId))) throw new WorkspaceUnknownSessionError(sessionId, 'archive')
+      const activity = await this.ctx.waterfall('workspace/session-activity', { sessionId }, () => Promise.resolve([]))
+      if (activity.length > 0) throw new WorkspaceActiveSessionError(sessionId, activity)
+      await this.setState({ ...state,
+        trashedSessionIds: [...(state.trashedSessionIds ?? []), sessionId],
+        archivedSessionIds: [...new Set([...state.archivedSessionIds, sessionId])],
+        pinnedSessionIds: state.pinnedSessionIds.filter(id => id !== sessionId),
+      })
+    })
+  }
+
+  /**
+   * Permanently delete a Session already in the recycle bin.
+   * @param sessionId - Recycled Session selected by the user.
+   * @returns Resolution after artifact deletion and recycle-bin removal; failures keep the marker for retry.
+   */
+  purgeSession(sessionId: SessionId): Promise<void> {
+    return this.enqueueOperation(async () => {
+      const state = this.requireState()
+      if (!state.trashedSessionIds?.includes(sessionId)) throw new Error('Only recycled Sessions can be permanently deleted')
+      await this.ctx.sessionPersistence.purge(sessionId)
+      // Retain archival suppression for stale catalog snapshots and old clients.
+      await this.setState({ ...state, trashedSessionIds: state.trashedSessionIds.filter(id => id !== sessionId) })
+    })
+  }
+
   /**
    * Archive one session durably. The session must exist (live or in session
    * persistence); its workspace accounting — or lack of one — is irrelevant.
@@ -405,6 +445,7 @@ export class WorkspaceRegistry extends Service {
       await this.setState({
         ...state,
         archivedSessionIds: state.archivedSessionIds.filter(id => id !== sessionId),
+        ...(state.trashedSessionIds === undefined ? {} : { trashedSessionIds: state.trashedSessionIds.filter(id => id !== sessionId) }),
       })
     })
   }
@@ -727,6 +768,7 @@ export class WorkspaceRegistry extends Service {
 
     if (!sameIds(state.workspaceIds, workspaceIds)) {
       await this.setState({
+        ...state,
         initialized: false,
         workspaceIds,
         archivedSessionIds: state.archivedSessionIds,
@@ -734,6 +776,7 @@ export class WorkspaceRegistry extends Service {
       })
     }
     await this.setState({
+      ...state,
       initialized: true,
       workspaceIds,
       archivedSessionIds: state.archivedSessionIds,

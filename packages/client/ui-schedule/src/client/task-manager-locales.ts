@@ -3,6 +3,20 @@ import { frequencyEn, frequencyJa, frequencyEs, frequencyFr, frequencyDe, freque
 
 /** English task-manager dictionary and key domain. */
 export const en = {
+  'new.session': 'Linked session',
+  'new.sessionHint': 'Choose the session whose workspace and model will run this task.',
+  'new.empty': 'Create a work session before adding a task.',
+  'new.once': 'Once',
+  'new.daily': 'Daily',
+  'new.every': 'Every N minutes',
+  'new.time': 'Execution time',
+  'new.date': 'Execution date',
+  'new.zone': 'Time zone',
+  'new.minutes': 'Interval (minutes)',
+  'new.save': 'Create task',
+  'new.saving': 'Creating…',
+  'new.failed': 'Could not create the task. Check the fields and try again.',
+
   'panel': 'Automation tasks',
   'title': 'Automation tasks',
   'new.action': 'New',
@@ -11,7 +25,7 @@ export const en = {
   'list.loading': 'Loading tasks…',
   'list.error': 'Could not load tasks.',
   'list.retry': 'Retry',
-  'list.empty': 'No tasks yet. Tasks created in your sessions appear here.',
+  'list.empty': 'No tasks yet. Create a task to run work on a schedule.',
   'list.emptyInactive': 'No inactive automation tasks',
   'list.noMatches': 'No matching tasks',
   'search.label': 'Search tasks',
@@ -159,6 +173,20 @@ export type TaskManagerKey = keyof typeof en
 
 /** Simplified Chinese dictionary with the same keys as English. */
 export const zh: Record<TaskManagerKey, string> = {
+  'new.session': '关联会话',
+  'new.sessionHint': '任务使用所选会话的工作目录和模型执行，保存后留在任务列表。',
+  'new.empty': '请先创建工作会话，再添加自动化任务',
+  'new.once': '仅一次',
+  'new.daily': '每天',
+  'new.every': '每隔一段时间',
+  'new.time': '执行时间',
+  'new.date': '执行日期',
+  'new.zone': '时区',
+  'new.minutes': '间隔（分钟）',
+  'new.save': '创建任务',
+  'new.saving': '正在创建…',
+  'new.failed': '创建失败，请检查填写内容后重试',
+
   'panel': '自动化任务',
   'title': '自动化任务',
   'new.action': '新建',
@@ -167,7 +195,7 @@ export const zh: Record<TaskManagerKey, string> = {
   'list.loading': '正在加载任务…',
   'list.error': '无法加载任务',
   'list.retry': '重试',
-  'list.empty': '还没有自动化任务，在会话中创建的任务会显示在这里',
+  'list.empty': '还没有自动化任务，创建任务后可按计划执行',
   'list.emptyInactive': '没有已结束的自动化任务',
   'list.noMatches': '没有匹配的自动化任务',
   'search.label': '搜索任务',
@@ -309,6 +337,20 @@ export const zh: Record<TaskManagerKey, string> = {
 
 /** Japanese copy, checked against the English keys. */
 export const ja = {
+  'new.session': 'Linked session',
+  'new.sessionHint': 'Choose the session whose workspace and model will run this task.',
+  'new.empty': 'Create a work session before adding a task.',
+  'new.once': 'Once',
+  'new.daily': 'Daily',
+  'new.every': 'Every N minutes',
+  'new.time': 'Execution time',
+  'new.date': 'Execution date',
+  'new.zone': 'Time zone',
+  'new.minutes': 'Interval (minutes)',
+  'new.save': 'Create task',
+  'new.saving': 'Creating…',
+  'new.failed': 'Could not create the task. Check the fields and try again.',
+
   ...frequencyJa,
   'panel': '自動化タスク',
   'title': '自動化タスク',
@@ -459,6 +501,20 @@ export const ja = {
 
 /** Spanish dictionary, checked against the English keys. */
 export const es = {
+  'new.session': 'Linked session',
+  'new.sessionHint': 'Choose the session whose workspace and model will run this task.',
+  'new.empty': 'Create a work session before adding a task.',
+  'new.once': 'Once',
+  'new.daily': 'Daily',
+  'new.every': 'Every N minutes',
+  'new.time': 'Execution time',
+  'new.date': 'Execution date',
+  'new.zone': 'Time zone',
+  'new.minutes': 'Interval (minutes)',
+  'new.save': 'Create task',
+  'new.saving': 'Creating…',
+  'new.failed': 'Could not create the task. Check the fields and try again.',
+
   'panel': 'Tareas de automatización',
   'title': 'Tareas de automatización',
   'new.action': 'Nuevo',
@@ -611,6 +667,20 @@ export const es = {
 
 /** French dictionary, checked against the English keys. */
 export const fr = {
+  'new.session': 'Linked session',
+  'new.sessionHint': 'Choose the session whose workspace and model will run this task.',
+  'new.empty': 'Create a work session before adding a task.',
+  'new.once': 'Once',
+  'new.daily': 'Daily',
+  'new.every': 'Every N minutes',
+  'new.time': 'Execution time',
+  'new.date': 'Execution date',
+  'new.zone': 'Time zone',
+  'new.minutes': 'Interval (minutes)',
+  'new.save': 'Create task',
+  'new.saving': 'Creating…',
+  'new.failed': 'Could not create the task. Check the fields and try again.',
+
   'panel': "Tâches d'automatisation",
   'title': "Tâches d'automatisation",
   'new.action': 'Nouveau',
@@ -763,6 +833,20 @@ export const fr = {
 
 /** German dictionary, checked against the English keys. */
 export const de = {
+  'new.session': 'Linked session',
+  'new.sessionHint': 'Choose the session whose workspace and model will run this task.',
+  'new.empty': 'Create a work session before adding a task.',
+  'new.once': 'Once',
+  'new.daily': 'Daily',
+  'new.every': 'Every N minutes',
+  'new.time': 'Execution time',
+  'new.date': 'Execution date',
+  'new.zone': 'Time zone',
+  'new.minutes': 'Interval (minutes)',
+  'new.save': 'Create task',
+  'new.saving': 'Creating…',
+  'new.failed': 'Could not create the task. Check the fields and try again.',
+
   'panel': 'Automatisierungsaufgaben',
   'title': 'Automatisierungsaufgaben',
   'new.action': 'Neu',
@@ -915,6 +999,20 @@ export const de = {
 
 /** Russian dictionary, checked against the English keys. */
 export const ru = {
+  'new.session': 'Linked session',
+  'new.sessionHint': 'Choose the session whose workspace and model will run this task.',
+  'new.empty': 'Create a work session before adding a task.',
+  'new.once': 'Once',
+  'new.daily': 'Daily',
+  'new.every': 'Every N minutes',
+  'new.time': 'Execution time',
+  'new.date': 'Execution date',
+  'new.zone': 'Time zone',
+  'new.minutes': 'Interval (minutes)',
+  'new.save': 'Create task',
+  'new.saving': 'Creating…',
+  'new.failed': 'Could not create the task. Check the fields and try again.',
+
   'panel': 'Задачи автоматизации',
   'title': 'Задачи автоматизации',
   'new.action': 'Новый',
@@ -1067,6 +1165,20 @@ export const ru = {
 
 /** Portuguese dictionary, checked against the English keys. */
 export const pt = {
+  'new.session': 'Linked session',
+  'new.sessionHint': 'Choose the session whose workspace and model will run this task.',
+  'new.empty': 'Create a work session before adding a task.',
+  'new.once': 'Once',
+  'new.daily': 'Daily',
+  'new.every': 'Every N minutes',
+  'new.time': 'Execution time',
+  'new.date': 'Execution date',
+  'new.zone': 'Time zone',
+  'new.minutes': 'Interval (minutes)',
+  'new.save': 'Create task',
+  'new.saving': 'Creating…',
+  'new.failed': 'Could not create the task. Check the fields and try again.',
+
   'panel': 'Tarefas de automação',
   'title': 'Tarefas de automação',
   'new.action': 'Novo',

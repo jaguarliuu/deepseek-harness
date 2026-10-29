@@ -778,6 +778,8 @@ export const LINK_MAP: Readonly<Record<string, string>> = {
   SettingsPathOp: 'settings.md',
   SettingsDescribeOptions: 'settings.md',
   SkillListRequest: 'skills.md',
+  SkillImportRequest: 'skills.md',
+  SkillImportValue: 'skills.md',
   SkillListValue: 'skills.md',
   AuthorizationEntry: 'credentials.md',
   AuthorizationFlow: 'credentials.md',

@@ -7,6 +7,8 @@ kind: "package-reference"
 
 English | [中文](README.zh.md)
 
+The Skills settings and capability center import a SKILL.md file or a complete skill folder into the selected Session workspace. Imports accept up to 256 files and 10 MiB, preserve nested resources, and refuse existing skill names.
+
 ## Summary
 
 `dsh-client-ui-skill` lets users invoke a skill by choosing it from the `/` suggestions or typing `/name` directly. The same literal command loads the skill consistently from the Web composer, TUI, and ACP, while a name shared with a host command continues to resolve as that command. Skill calls appear in the conversation as expandable `Instructions` cards whose settled contents remain stable when the installed skill catalog changes.

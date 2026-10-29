@@ -5,6 +5,13 @@ export const NS = 'skill'
 
 /** Simplified Chinese dictionary (the key-set source of truth). */
 export const zh = {
+  'import.file': '导入 SKILL.md',
+  'import.folder': '导入技能文件夹',
+  'import.pending': '正在导入…',
+  'import.hint': '导入到当前工作区。文件夹根目录须有 SKILL.md，包含 name 和 description。最多 256 个文件、10 MiB，同名技能不会覆盖。',
+  'import.success': '技能已导入，可刷新目录查看',
+  'import.failed': '导入失败，请检查 SKILL.md、文件路径及大小，或是否已存在同名技能',
+
   'center.browse': '能力目录',
   'center.brand': '智维小 C · 工作能力库',
   'center.title': '把专业能力带到你的桌面',
@@ -76,6 +83,13 @@ export type SkillKey = keyof typeof zh
 
 /** English dictionary, checked complete against the zh key set. */
 export const en = {
+  'import.file': 'Import SKILL.md',
+  'import.folder': 'Import skill folder',
+  'import.pending': 'Importing…',
+  'import.hint': 'Install in the selected workspace. Include a root SKILL.md with name and description. Up to 256 files / 10 MiB; existing names are never overwritten.',
+  'import.success': 'Skill imported. Refresh the catalog to view it.',
+  'import.failed': 'Import failed. Check SKILL.md, file paths and size, and whether this skill name already exists.',
+
   'center.browse': 'Browse',
   'center.brand': 'Zhiwei C · Capabilities',
   'center.title': 'Expertise for your everyday work',
@@ -144,6 +158,13 @@ export const en = {
 
 /** Japanese copy, checked against the English keys. */
 export const ja = {
+  'import.file': 'Import SKILL.md',
+  'import.folder': 'Import skill folder',
+  'import.pending': 'Importing…',
+  'import.hint': 'Install in the selected workspace. Include a root SKILL.md with name and description. Up to 256 files / 10 MiB; existing names are never overwritten.',
+  'import.success': 'Skill imported. Refresh the catalog to view it.',
+  'import.failed': 'Import failed. Check SKILL.md, file paths and size, and whether this skill name already exists.',
+
   'center.browse': 'Browse',
   'center.brand': 'Zhiwei C · Capabilities',
   'center.title': 'Expertise for your everyday work',
@@ -212,6 +233,13 @@ export const ja = {
 
 /** Spanish dictionary, checked against the English keys. */
 export const es = {
+  'import.file': 'Import SKILL.md',
+  'import.folder': 'Import skill folder',
+  'import.pending': 'Importing…',
+  'import.hint': 'Install in the selected workspace. Include a root SKILL.md with name and description. Up to 256 files / 10 MiB; existing names are never overwritten.',
+  'import.success': 'Skill imported. Refresh the catalog to view it.',
+  'import.failed': 'Import failed. Check SKILL.md, file paths and size, and whether this skill name already exists.',
+
   'center.browse': 'Browse',
   'center.brand': 'Zhiwei C · Capabilities',
   'center.title': 'Expertise for your everyday work',
@@ -280,6 +308,13 @@ export const es = {
 
 /** French dictionary, checked against the English keys. */
 export const fr = {
+  'import.file': 'Import SKILL.md',
+  'import.folder': 'Import skill folder',
+  'import.pending': 'Importing…',
+  'import.hint': 'Install in the selected workspace. Include a root SKILL.md with name and description. Up to 256 files / 10 MiB; existing names are never overwritten.',
+  'import.success': 'Skill imported. Refresh the catalog to view it.',
+  'import.failed': 'Import failed. Check SKILL.md, file paths and size, and whether this skill name already exists.',
+
   'center.browse': 'Browse',
   'center.brand': 'Zhiwei C · Capabilities',
   'center.title': 'Expertise for your everyday work',
@@ -348,6 +383,13 @@ export const fr = {
 
 /** German dictionary, checked against the English keys. */
 export const de = {
+  'import.file': 'Import SKILL.md',
+  'import.folder': 'Import skill folder',
+  'import.pending': 'Importing…',
+  'import.hint': 'Install in the selected workspace. Include a root SKILL.md with name and description. Up to 256 files / 10 MiB; existing names are never overwritten.',
+  'import.success': 'Skill imported. Refresh the catalog to view it.',
+  'import.failed': 'Import failed. Check SKILL.md, file paths and size, and whether this skill name already exists.',
+
   'center.browse': 'Browse',
   'center.brand': 'Zhiwei C · Capabilities',
   'center.title': 'Expertise for your everyday work',
@@ -416,6 +458,13 @@ export const de = {
 
 /** Russian dictionary, checked against the English keys. */
 export const ru = {
+  'import.file': 'Import SKILL.md',
+  'import.folder': 'Import skill folder',
+  'import.pending': 'Importing…',
+  'import.hint': 'Install in the selected workspace. Include a root SKILL.md with name and description. Up to 256 files / 10 MiB; existing names are never overwritten.',
+  'import.success': 'Skill imported. Refresh the catalog to view it.',
+  'import.failed': 'Import failed. Check SKILL.md, file paths and size, and whether this skill name already exists.',
+
   'center.browse': 'Browse',
   'center.brand': 'Zhiwei C · Capabilities',
   'center.title': 'Expertise for your everyday work',
@@ -484,6 +533,13 @@ export const ru = {
 
 /** Portuguese dictionary, checked against the English keys. */
 export const pt = {
+  'import.file': 'Import SKILL.md',
+  'import.folder': 'Import skill folder',
+  'import.pending': 'Importing…',
+  'import.hint': 'Install in the selected workspace. Include a root SKILL.md with name and description. Up to 256 files / 10 MiB; existing names are never overwritten.',
+  'import.success': 'Skill imported. Refresh the catalog to view it.',
+  'import.failed': 'Import failed. Check SKILL.md, file paths and size, and whether this skill name already exists.',
+
   'center.browse': 'Browse',
   'center.brand': 'Zhiwei C · Capabilities',
   'center.title': 'Expertise for your everyday work',

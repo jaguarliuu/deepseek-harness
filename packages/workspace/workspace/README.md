@@ -7,6 +7,8 @@ kind: "package-reference"
 
 English | [中文](README.zh.md)
 
+Optional trashedSessionIds stores recoverable deletions; absent means empty. Recycled ids also remain archived so execution stays blocked. Restoring removes both markers. Permanent deletion requires the recycle marker and a persistence backend supporting purge; failure retains the marker for retry. Older readers treat recycled Sessions as archived.
+
 ## Summary
 
 Use this package to keep an ordered, persistent list of project directories and the sessions run in each directory. Hosts can build project sidebars, hide sessions from grouping without deleting their histories, and remove projects without deleting folders, files, or sessions. Re-adding a removed directory creates a fresh project; an existing project's sessions stay grouped when its directory disappears. Choose it for GUI or host workflows that need durable project grouping; it is invisible to models and adds no prompt or request-context cost, but requires session persistence and storage backends.

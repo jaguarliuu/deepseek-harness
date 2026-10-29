@@ -51,6 +51,7 @@ import type {} from '@deepseek-ai/dsh-client-ui-conversation/client'
 import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
 import type {} from '@deepseek-ai/dsh-client-resources/client'
 import type {} from '@deepseek-ai/dsh-client-ui-plugin-manager/client'
+import type { SkillImportInjected } from './SkillImport.tsx'
 import { CapabilityCenter } from './CapabilityCenter.tsx'
 import { SkillsSection } from './SkillsSection.tsx'
 import { SkillRow } from './SkillRow.tsx'
@@ -90,6 +91,14 @@ export const inject = ['resources', 'inputTriggers', 'sessions', 'slots', 'local
  * @param ctx - client root context.
  */
 export function apply(ctx: ClientContext): void {
+  const skillImport: SkillImportInjected = {
+    onImportSkill: async (request) => {
+      const result = await ctx.remote.skills.importBundle(request)
+      if (!result.ok) throw new Error(result.error.message)
+      invalidate(request.sessionId)
+      return result.value
+    },
+  }
   ctx.effect(() => ctx.locale.register(NS, { zh, en, ja, es, fr, de, ru, pt }), 'ui-skill: dictionaries')
   ctx.effect(() => ctx.resources.register<'skillcatalog'>({
     protocol: 'skillcatalog',
@@ -109,11 +118,11 @@ export function apply(ctx: ClientContext): void {
   }), 'ui-skill: settings catalog')
   ctx.slots.inject('plugins.tab', () => ctx.slots.register({
     name: 'plugins.tab', id: 'capabilities', order: -10,
-    label: () => ctx.locale.bind(NS)('center.browse'), locale: NS,
+    label: () => ctx.locale.bind(NS)('center.browse'), locale: NS, inject: () => skillImport,
   }, CapabilityCenter))
   ctx.slots.inject('settings.section', () => ctx.slots.register({
     name: 'settings.section', id: 'skills', order: 16,
-    label: () => ctx.locale.bind(NS)('page.title'), locale: NS,
+    label: () => ctx.locale.bind(NS)('page.title'), locale: NS, inject: () => skillImport,
   }, SkillsSection))
   ctx.uiConversation.userText.register(skillReferenceRule)
   ctx.slots.inject('tool.call.toolview', () => ctx.slots.register(

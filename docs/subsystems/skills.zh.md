@@ -6,6 +6,8 @@
 
 源码：[`packages/skill/skill/src/index.ts`](../../packages/skill/skill/src/index.ts)、[`packages/skill/skill-filesystem/src/index.ts`](../../packages/skill/skill-filesystem/src/index.ts)、[`packages/experimental/skill-badge/src/index.ts`](../../packages/experimental/skill-badge/src/index.ts)、[`packages/skill/skill-office/src/index.ts`](../../packages/skill/skill-office/src/index.ts)、[`packages/sandbox/sandbox-windows-acl/src/acl-skill.ts`](../../packages/sandbox/sandbox-windows-acl/src/acl-skill.ts) 与 [`packages/skill/tool-skill/src/index.ts`](../../packages/skill/tool-skill/src/index.ts)。
 
+`SkillImportRequest` 携带会话标识、相对文件路径和 base64 内容，`SkillImportValue` 返回安装的技能名称。[会话控制器](../../packages/api/session-controller/README.zh.md) 验证并安装用户选择的技能包。
+
 ## 提供方注册表
 
 `ctx.skills` 组合本地、内嵌、远程或其他提供方。注册是同步的；远程初始化与发现属于 `list()` 的 await 阶段。提供方对象、选项与候选项以只读方式借用，语义字段会被校验。
@@ -259,6 +261,14 @@ Host service backing `ctx.remote.skills` without activating a cold Agent.
  * @throws RemoteError when the Session cannot be inspected or no registry can serve it.
  */
 @Remote async list(request: SkillListRequest, signal: AbortSignal): Promise<SkillListValue>
+
+/**
+ * Install a user-selected skill bundle in the Session workspace without overwriting an existing skill.
+ * @param request - Session and relative bundle files encoded as base64.
+ * @param signal - Cancellation before publishing the skill.
+ * @returns The validated skill name after its files are written.
+ */
+@Remote async importBundle(request: SkillImportRequest, signal: AbortSignal): Promise<SkillImportValue>
 ```
 
 Source: [`packages/api/session-controller/src/skill-catalog.ts`](../../packages/api/session-controller/src/skill-catalog.ts)

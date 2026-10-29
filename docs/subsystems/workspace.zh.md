@@ -366,6 +366,20 @@ Host service backing the generated `ctx.remote.workspace` namespace.
 @Remote('archiveSession') archiveSession(request: WorkspaceArchiveSessionRequest): Promise<WorkspaceArchiveValue>
 
 /**
+ * Move an idle Session to the recoverable recycle bin.
+ * @param request - Session identity to remove from the ordinary list.
+ * @returns Committed archive and recycle-bin memberships.
+ */
+@Remote async trashSession(request: WorkspaceUnarchiveSessionRequest): Promise<WorkspaceArchiveValue>
+
+/**
+ * Permanently remove a recycled Session's artifacts.
+ * @param request - Session identity confirmed by the user.
+ * @returns Committed recycle-bin membership after removal.
+ */
+@Remote async purgeSession(request: WorkspaceUnarchiveSessionRequest): Promise<WorkspaceArchiveValue>
+
+/**
  * Restore one archived Session to Workspace grouping surfaces.
  * @param request - Session identity to unarchive.
  * @returns the complete resulting archive set.
@@ -528,6 +542,20 @@ delete(id: WorkspaceId): Promise<boolean>
  * @returns the complete committed workspace order.
  */
 insertBefore(id: WorkspaceId, beforeId?: WorkspaceId): Promise<readonly WorkspaceId[]>
+
+/**
+ * Move an idle Session to the recycle bin without changing its log or workspace files.
+ * @param sessionId - Existing Session to remove from ordinary and archive views.
+ * @returns Resolution after the recycle-bin and archive sets are committed together.
+ */
+trashSession(sessionId: SessionId): Promise<void>
+
+/**
+ * Permanently delete a Session already in the recycle bin.
+ * @param sessionId - Recycled Session selected by the user.
+ * @returns Resolution after artifact deletion and recycle-bin removal; failures keep the marker for retry.
+ */
+purgeSession(sessionId: SessionId): Promise<void>
 
 /**
  * Archive one session durably. The session must exist (live or in session

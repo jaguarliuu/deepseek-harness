@@ -9,6 +9,8 @@ English | [中文](README.zh.md)
 
 Desktop product events use the optional [product analytics service](../product-analytics/README.md); ordinary Web interactions are excluded.
 
+The Session menu moves idle Sessions to the recycle bin after confirmation. Recycled Sessions are hidden from ordinary, archive and search lists. The recycle-bin panel restores Sessions or permanently deletes their stored history after a second confirmation; workspace files are retained.
+
 ## Summary
 
 This package lets users browse grouped or flat Session lists, choose a Workspace for a new Session, and manage Workspaces and Sessions through add, rename, reorder, search, fork, archive, and Workspace deletion; the Session row menu and its hover buttons are slot lists that client plugins extend. Pending interactions appear as warning dots, and subagent-origin Sessions remain hidden. An idle, unarchived Session row with active scheduled tasks shows a clock mark, and its hover card lists those tasks. Canonically distinct folder paths remain separate Workspaces. Adding a Workspace requires a composed directory picker; without one, adding is unavailable.

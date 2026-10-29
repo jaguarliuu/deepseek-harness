@@ -310,6 +310,8 @@ class JsonlSessionPersistence extends SessionPersistence {
    * revision guard.
    */
   private readonly coldLogMemo = new Map<SessionId, StoredLog>()
+  /** Reject new readers while permanent deletion holds the Session writer claim. */
+  private readonly purging = new Set<SessionId>()
   /** One joinable decode/migration operation per selected historical Session file revision. */
   private readonly migrationPreparations = new Map<SessionId, MigrationPreparation>()
 
@@ -390,6 +392,7 @@ class JsonlSessionPersistence extends SessionPersistence {
     await this.ensureRootEncoding()
     options?.signal?.throwIfAborted()
     const pending = this.tracker.pendingOf(id)
+    if (this.purging.has(id)) throw new SessionPersistenceNotFoundError(id)
     if (access === 'read') {
       if (pending !== undefined) {
         return this.tracker.adopt(new JsonlSessionHandle(this, id, pending.header, 'read', { cursor: 0, materialized: false, inheritedEventCount: pending.inheritedEventCount }))
@@ -416,6 +419,7 @@ class JsonlSessionPersistence extends SessionPersistence {
           inheritedEventCount: stored.inheritedEventCount,
         }
       }
+      if (this.purging.has(id)) throw new SessionPersistenceNotFoundError(id)
       return this.tracker.adopt(new JsonlSessionHandle(this, id, stored.meta, 'read', state))
     }
     // A pending entry always belongs to an ACTIVE creator handle (close erases
@@ -471,6 +475,29 @@ class JsonlSessionPersistence extends SessionPersistence {
    */
   flush(): Promise<void> {
     return this.tracker.flushAll()
+  }
+
+  /**
+   * Remove a closed Session's artifacts under its existing cross-process write lock.
+   * @param id - Session explicitly selected for permanent deletion.
+   * @returns Resolution after removal; the empty lock directory remains to preserve lock identity.
+   */
+  override async purge(id: SessionId): Promise<void> {
+    if ([...this.tracker.openHandles].some(handle => handle.id === id)) throw new Error('Close the Session before deleting it permanently')
+    this.tracker.claimWrite(id)
+    this.purging.add(id)
+    try {
+      const selected = await this.findLog(id)
+      if (selected === undefined) return
+      const directory = dirname(selected.sourcePath)
+      const lease = await this.acquireLease(id, undefined, directory)
+      try {
+        for (const entry of await readdir(directory)) {
+          if (entry !== 'session.lock') await rm(join(directory, entry), { recursive: true, force: true })
+        }
+        this.coldLogMemo.delete(id)
+      } finally { await lease.release() }
+    } finally { this.purging.delete(id); this.tracker.releaseClaim(id) }
   }
 
   /**

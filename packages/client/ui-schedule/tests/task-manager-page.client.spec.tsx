@@ -178,7 +178,7 @@ function mount(
     ...allowAllAccess,
     onDelete: vi.fn<TaskManagerPageProps['onDelete']>(async () => 'deleted'),
     onRetry: vi.fn(async () => {}),
-    onNewTask: vi.fn(),
+    onCreateTask: vi.fn(async () => {}),
     onClearEnded: vi.fn(async () => {}),
     onUpdateTiming: vi.fn<TaskManagerPageProps['onUpdateTiming']>(async ({ expected }) => ({
       ok: true, value: { id: expected.id, updated: false, record: expected },
@@ -621,12 +621,13 @@ it('updates original Session navigation as metadata arrives and archive state ch
 })
 
 describe('Task manager catalog', () => {
-  it('starts a new Session instead of offering a page creation form', () => {
+  it('opens a creation form without creating a Session', () => {
     const h = mount({ records: [at] })
     // The heading's compact action and the empty state's named action are the
     // mock's two creation entries; only the heading's shows while a row exists.
     fireEvent.click(screen.getByRole('button', { name: en['new.action'] }))
-    expect(h.props.onNewTask).toHaveBeenCalledOnce()
+    expect(h.props.onCreateTask).not.toHaveBeenCalled()
+    expect(screen.getByRole('dialog')).toBeDefined()
     expect(screen.queryByRole('button', { name: en['empty.action'] })).toBeNull()
   })
 
@@ -833,7 +834,8 @@ describe('Task manager catalog', () => {
     // The empty state's action keeps the mock's single creation entry: it starts a
     // new Session instead of resetting the filters the reader chose.
     fireEvent.click(emptyNewTaskButton())
-    expect(h.props.onNewTask).toHaveBeenCalledOnce()
+    expect(h.props.onCreateTask).not.toHaveBeenCalled()
+    expect(screen.getByRole('dialog')).toBeDefined()
     expect(taskNames()).toEqual([])
     expect(screen.getByRole<HTMLInputElement>('searchbox').value).toBe('release')
     expect(within(statuses).getByRole('button', { name: en['status.inactive'] }).getAttribute('aria-pressed')).toBe('true')

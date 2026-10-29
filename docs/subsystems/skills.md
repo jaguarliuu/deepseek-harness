@@ -6,6 +6,8 @@ The [skill capability family](../../packages/skill) includes the Service Definit
 
 Source: [`packages/skill/skill/src/index.ts`](../../packages/skill/skill/src/index.ts), [`packages/skill/skill-filesystem/src/index.ts`](../../packages/skill/skill-filesystem/src/index.ts), [`packages/experimental/skill-badge/src/index.ts`](../../packages/experimental/skill-badge/src/index.ts), [`packages/skill/skill-office/src/index.ts`](../../packages/skill/skill-office/src/index.ts), [`packages/sandbox/sandbox-windows-acl/src/acl-skill.ts`](../../packages/sandbox/sandbox-windows-acl/src/acl-skill.ts), and [`packages/skill/tool-skill/src/index.ts`](../../packages/skill/tool-skill/src/index.ts).
 
+`SkillImportRequest` carries a Session id and relative files with base64 contents; `SkillImportValue` returns the installed name. The [Session controller](../../packages/api/session-controller/README.md) validates and installs these user-selected bundles.
+
 ## Provider registry
 
 `ctx.skills` combines local, embedded, remote, or other providers. Registration is synchronous; remote initialization and discovery belong in awaited `list()`. Provider objects, options, and candidates are borrowed readonly, while semantic fields are validated.
@@ -259,6 +261,14 @@ Host service backing `ctx.remote.skills` without activating a cold Agent.
  * @throws RemoteError when the Session cannot be inspected or no registry can serve it.
  */
 @Remote async list(request: SkillListRequest, signal: AbortSignal): Promise<SkillListValue>
+
+/**
+ * Install a user-selected skill bundle in the Session workspace without overwriting an existing skill.
+ * @param request - Session and relative bundle files encoded as base64.
+ * @param signal - Cancellation before publishing the skill.
+ * @returns The validated skill name after its files are written.
+ */
+@Remote async importBundle(request: SkillImportRequest, signal: AbortSignal): Promise<SkillImportValue>
 ```
 
 Source: [`packages/api/session-controller/src/skill-catalog.ts`](../../packages/api/session-controller/src/skill-catalog.ts)

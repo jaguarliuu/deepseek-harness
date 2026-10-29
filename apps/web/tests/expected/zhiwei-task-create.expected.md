@@ -1,0 +1,22 @@
+- dialog "New automation task":
+  - heading "New automation task" [level=2]
+  - button "Close details"
+  - group:
+    - text: Automation task name
+    - textbox "Automation task name": Inspect database
+    - text: Automation task instruction
+    - textbox "Automation task instruction": Inspect database health
+    - text: Linked session
+    - combobox "Linked session":
+      - option "{{cwd}}" [selected]
+    - paragraph: Choose the session whose workspace and model will run this task.
+    - text: Frequency
+    - combobox "Frequency":
+      - option "Once"
+      - option "Daily" [selected]
+      - option "Every N minutes"
+    - text: Execution time
+    - textbox "Execution time": {{clock}}
+    - text: Time zone
+    - textbox "Time zone": Asia/Shanghai
+  - button "Create task"

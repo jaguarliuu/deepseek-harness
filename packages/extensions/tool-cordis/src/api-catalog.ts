@@ -2219,7 +2219,7 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     description: 'Shared management service; reads, deletion, and timing edits never activate a Session.\n\n`sessionPersistence` is a load-order requirement rather than a directly called service: a delivery commits only when `ctx.sessions.flush()` reports that a `session/flush` listener participated, and the persistence backend providing this service is the plugin that registers that listener.',
     methods: [
       {
-        signature: 'async create(sessionId: SessionId, request: ScheduleCreateRequest, signal?: AbortSignal): Promise<ScheduleRecord>',
+        signature: '@Remote async create(sessionId: SessionId, request: ScheduleCreateRequest, signal?: AbortSignal): Promise<ScheduleRecord>',
         description: 'Create a reminder bound to the caller-selected Session without activating it.\n\nThe request must supply a title; a missing, blank-after-trim, or over-long title rejects with `invalid_prompt` instead of deriving one from the prompt. A Session a delegated child owns rejects with `subagent_session`, because delivery can never reach it: the child is one whose delegation depth is above zero. The record is built from the clock reading taken before the request joins the serialized queue, so a create that waits behind a longer operation keeps its request-time anchor and may already be due when the queue reaches it.',
         parameters: [{ name: 'sessionId', description: 'Original Session receiving the reminder.' }, { name: 'request', description: 'Validated tool selector, required title, and reminder content.' }, { name: 'signal', description: 'Optional cancellation checked before persistence begins, including after FIFO waits.' }],
         returns: 'The durably stored schedule. Cancellation does not roll back an in-flight write.',
@@ -2454,6 +2454,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         parameters: [],
         returns: 'resolution once every write handle active at the call has flushed.',
         throws: ['{AggregateError} naming each session whose flush failed; the remaining handles still flush.'],
+      },
+      {
+        signature: 'purge(id: SessionId): Promise<void>',
+        description: 'Permanently remove one closed Session\'s stored artifacts when supported by the backend.',
+        parameters: [{ name: 'id', description: 'Session identity selected by an explicit user deletion.' }],
+        returns: 'Resolution after removal; active handles and unsupported backends reject.',
       },
       {
         signature: 'abstract stat(id: SessionId, options?: SessionPersistenceStatOptions): Promise<SessionPersistenceSnapshot | undefined>',
@@ -2782,6 +2788,12 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         parameters: [{ name: 'request', description: 'Session identity whose cwd and preset select the catalog view.' }, { name: 'signal', description: 'caller lifetime carried by the Remote transport; admitted catalog reads retain their existing completion semantics.' }],
         returns: 'user-invocable skill metadata without loading skill bodies.',
         throws: ['RemoteError when the Session cannot be inspected or no registry can serve it.'],
+      },
+      {
+        signature: '@Remote async importBundle(request: SkillImportRequest, signal: AbortSignal): Promise<SkillImportValue>',
+        description: 'Install a user-selected skill bundle in the Session workspace without overwriting an existing skill.',
+        parameters: [{ name: 'request', description: 'Session and relative bundle files encoded as base64.' }, { name: 'signal', description: 'Cancellation before publishing the skill.' }],
+        returns: 'The validated skill name after its files are written.',
       },
     ],
   },
@@ -4083,6 +4095,18 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         returns: 'the complete resulting archive set.',
       },
       {
+        signature: '@Remote async trashSession(request: WorkspaceUnarchiveSessionRequest): Promise<WorkspaceArchiveValue>',
+        description: 'Move an idle Session to the recoverable recycle bin.',
+        parameters: [{ name: 'request', description: 'Session identity to remove from the ordinary list.' }],
+        returns: 'Committed archive and recycle-bin memberships.',
+      },
+      {
+        signature: '@Remote async purgeSession(request: WorkspaceUnarchiveSessionRequest): Promise<WorkspaceArchiveValue>',
+        description: 'Permanently remove a recycled Session\'s artifacts.',
+        parameters: [{ name: 'request', description: 'Session identity confirmed by the user.' }],
+        returns: 'Committed recycle-bin membership after removal.',
+      },
+      {
         signature: '@Remote(\'unarchiveSession\') unarchiveSession(request: WorkspaceUnarchiveSessionRequest): Promise<WorkspaceArchiveValue>',
         description: 'Restore one archived Session to Workspace grouping surfaces.',
         parameters: [{ name: 'request', description: 'Session identity to unarchive.' }],
@@ -4186,6 +4210,18 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         description: 'Move one workspace within the durable display order, DOM-insertBefore-like. With an anchor it lands before that workspace; without one it appends.',
         parameters: [{ name: 'id', description: 'Workspace to move.' }, { name: 'beforeId', description: 'Workspace anchor; omitted appends.' }],
         returns: 'the complete committed workspace order.',
+      },
+      {
+        signature: 'trashSession(sessionId: SessionId): Promise<void>',
+        description: 'Move an idle Session to the recycle bin without changing its log or workspace files.',
+        parameters: [{ name: 'sessionId', description: 'Existing Session to remove from ordinary and archive views.' }],
+        returns: 'Resolution after the recycle-bin and archive sets are committed together.',
+      },
+      {
+        signature: 'purgeSession(sessionId: SessionId): Promise<void>',
+        description: 'Permanently delete a Session already in the recycle bin.',
+        parameters: [{ name: 'sessionId', description: 'Recycled Session selected by the user.' }],
+        returns: 'Resolution after artifact deletion and recycle-bin removal; failures keep the marker for retry.',
       },
       {
         signature: 'archiveSession(sessionId: SessionId, options: ArchiveSessionOptions = {}): Promise<void>',
@@ -8057,6 +8093,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface SkillEntry {\n    readonly path?: string;\n    readonly name: string;\n    readonly description: string;\n    readonly whenToUse?: string;\n    readonly modelInvocable: boolean;\n}',
   },
   {
+    name: 'SkillImportRequest',
+    declaration: 'export interface SkillImportRequest {\n    readonly sessionId: SessionId;\n    readonly files: readonly {\n        readonly path: string;\n        readonly base64: string;\n    }[];\n}',
+  },
+  {
+    name: 'SkillImportValue',
+    declaration: 'export interface SkillImportValue {\n    readonly name: string;\n}',
+  },
+  {
     name: 'SkillInvocationPolicy',
     declaration: 'export interface SkillInvocationPolicy {\n    readonly modelInvocable: boolean;\n    readonly userInvocable: boolean;\n}',
   },
@@ -9174,11 +9218,11 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'WorkspaceArchiveValue',
-    declaration: 'export interface WorkspaceArchiveValue {\n    readonly archivedSessionIds: readonly SessionId[];\n}',
+    declaration: 'export interface WorkspaceArchiveValue {\n    readonly archivedSessionIds: readonly SessionId[];\n    readonly trashedSessionIds?: readonly SessionId[];\n}',
   },
   {
     name: 'WorkspaceBaseline',
-    declaration: 'export interface WorkspaceBaseline {\n    readonly items: readonly WorkspaceView[];\n    readonly archivedSessionIds: readonly SessionId[];\n    readonly pinnedSessionIds: readonly SessionId[];\n}',
+    declaration: 'export interface WorkspaceBaseline {\n    readonly items: readonly WorkspaceView[];\n    readonly archivedSessionIds: readonly SessionId[];\n    readonly trashedSessionIds?: readonly SessionId[];\n    readonly pinnedSessionIds: readonly SessionId[];\n}',
   },
   {
     name: 'WorkspaceByteRange',
@@ -9262,7 +9306,7 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   },
   {
     name: 'WorkspaceFollowIncrement',
-    declaration: 'export type WorkspaceFollowIncrement = {\n    readonly type: \'replace\';\n    readonly value: WorkspaceBaseline;\n} | {\n    readonly type: \'upsert\';\n    readonly workspace: WorkspaceView;\n} | {\n    readonly type: \'remove\';\n    readonly workspaceId: WorkspaceId;\n} | {\n    readonly type: \'order\';\n    readonly workspaceIds: readonly WorkspaceId[];\n} | {\n    readonly type: \'archived\';\n    readonly archivedSessionIds: readonly SessionId[];\n} | {\n    readonly type: \'pinned\';\n    readonly pinnedSessionIds: readonly SessionId[];\n};',
+    declaration: 'export type WorkspaceFollowIncrement = {\n    readonly type: \'replace\';\n    readonly value: WorkspaceBaseline;\n} | {\n    readonly type: \'upsert\';\n    readonly workspace: WorkspaceView;\n} | {\n    readonly type: \'remove\';\n    readonly workspaceId: WorkspaceId;\n} | {\n    readonly type: \'order\';\n    readonly workspaceIds: readonly WorkspaceId[];\n} | {\n    readonly type: \'archived\';\n    readonly archivedSessionIds: readonly SessionId[];\n    readonly trashedSessionIds?: readonly SessionId[];\n} | {\n    readonly type: \'pinned\';\n    readonly pinnedSessionIds: readonly SessionId[];\n};',
   },
   {
     name: 'WorkspaceInsertBeforeRequest',

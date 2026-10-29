@@ -51,6 +51,7 @@ export class WorkspaceFeed {
   private readonly followers = new Set<WorkspaceFollower>()
   private knownIds: Set<string>
   private order: readonly string[]
+  private trashed: string[] = []
   private archived: readonly string[]
   private pinned: readonly string[]
 
@@ -60,6 +61,7 @@ export class WorkspaceFeed {
     this.knownIds = new Set(baseline.map(workspace => String(workspace.id)))
     this.order = baseline.map(workspace => String(workspace.id))
     this.archived = ctx.workspaceRegistry.archivedSessionIds.map(String)
+    this.trashed = ctx.workspaceRegistry.trashedSessionIds.map(String)
     this.pinned = ctx.workspaceRegistry.pinnedSessionIds.map(String)
     ctx.on('domain/changed', (change: DomainChanged) => { this.changed(change) })
     ctx.effect(() => () => {
@@ -76,6 +78,7 @@ export class WorkspaceFeed {
     return {
       items: this.ctx.workspaceRegistry.list().map(workspaceView),
       archivedSessionIds: [...this.ctx.workspaceRegistry.archivedSessionIds],
+      trashedSessionIds: [...this.ctx.workspaceRegistry.trashedSessionIds],
       pinnedSessionIds: [...this.ctx.workspaceRegistry.pinnedSessionIds],
     }
   }
@@ -117,9 +120,11 @@ export class WorkspaceFeed {
       this.order = nextOrder
       if (orderChanged) this.publish({ type: 'order', workspaceIds: [...state.workspaceIds] })
       const nextArchived = state.archivedSessionIds.map(String)
-      if (!sameStrings(this.archived, nextArchived)) {
+      const nextTrashed = (state.trashedSessionIds ?? []).map(String)
+      if (!sameStrings(this.archived, nextArchived) || !sameStrings(this.trashed, nextTrashed)) {
+        this.trashed = nextTrashed
         this.archived = nextArchived
-        this.publish({ type: 'archived', archivedSessionIds: [...state.archivedSessionIds] })
+        this.publish({ type: 'archived', archivedSessionIds: [...state.archivedSessionIds], trashedSessionIds: [...(state.trashedSessionIds ?? [])] })
       }
       const nextPinned = state.pinnedSessionIds.map(String)
       if (!sameStrings(this.pinned, nextPinned)) {

@@ -1545,3 +1545,31 @@ declare module '@deepseek-ai/dsh-workspace/types' {
     'probe-items': true
   }
 }
+
+
+describe('Session recycle bin', () => {
+  it('persists deletion separately from archive and restores it after reopening', async () => {
+    const sessions = [header('recyclable')]
+    const first = await harness({ sessions })
+    first.stat.mockResolvedValue({ header: sessions[0]!, revision: SessionPersistenceRevision('r') } as never)
+    await first.registry.trashSession(SessionId('recyclable'))
+    expect(first.registry.trashedSessionIds).toEqual(['recyclable'])
+    expect(first.registry.archivedSessionIds).toEqual(['recyclable'])
+    await first.ctx.fiber.dispose()
+    const second = await harness({ pool: first.pool, sessions })
+    onTestFinished(() => second.ctx.fiber.dispose())
+    expect(second.registry.trashedSessionIds).toEqual(['recyclable'])
+    await second.registry.unarchiveSession(SessionId('recyclable'))
+    expect(second.registry.trashedSessionIds).toEqual([])
+    expect(second.registry.archivedSessionIds).toEqual([])
+  })
+})
+
+it('refuses recycling active Sessions without writing state', async () => {
+  const result = await harness({ sessions: [header('busy')] })
+  onTestFinished(() => result.ctx.fiber.dispose())
+  result.ctx.on('workspace/session-activity', async (_request, next) => [{ kind: 'probe' }, ...await next()])
+  await expect(result.registry.trashSession(SessionId('busy'))).rejects.toMatchObject({ name: 'WorkspaceActiveSessionError' })
+  expect(result.registry.trashedSessionIds).toEqual([])
+  expect(result.registry.archivedSessionIds).toEqual([])
+})

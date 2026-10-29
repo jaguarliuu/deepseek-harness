@@ -177,7 +177,7 @@ describe('Workspace state stream', () => {
     expect(upsertView).toHaveBeenCalledWith(view)
     expect(removeView).toHaveBeenCalledWith(view.workspaceId)
     expect(replaceOrder).toHaveBeenCalledWith([view.workspaceId])
-    expect(replaceArchived).toHaveBeenCalledWith(['session-one'])
+    expect(replaceArchived).toHaveBeenCalledWith(['session-one'], undefined)
     expect(replacePinned).toHaveBeenCalledWith(['session-two'])
     await stream.dispose()
     expect(streamStates(mock)).toEqual(['cancelled'])

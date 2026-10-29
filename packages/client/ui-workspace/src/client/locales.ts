@@ -6,6 +6,22 @@
 
 /** Simplified Chinese dictionary (the key-set source of truth). */
 export const zh = {
+  'trash.purge': '彻底删除',
+  'trash.purgeFailed': '会话仍被占用或删除失败，请关闭相关窗口或重启应用后重试。',
+  'trash.purgeConfirm': '彻底删除这段会话记录？此操作无法恢复，工作区文件不受影响。',
+
+  'trash.title': '回收站',
+  'trash.delete': '删除会话',
+  'trash.confirm': '将此会话移入回收站？之后可以恢复，工作区文件不会被删除。',
+  'trash.cancel': '取消',
+  'trash.pending': '正在移入…',
+  'trash.failed': '删除失败，请先停止运行任务和自动化计划后重试',
+  'trash.restoreFailed': '恢复失败，请重试',
+  'trash.intro': '删除的会话保留在此，可恢复或彻底删除。',
+  'trash.empty': '回收站为空',
+  'trash.restore': '恢复会话',
+  'trash.untitled': '未命名会话',
+
   'defaultWorkspace.failed': '无法创建默认工作区，请通过“选择工作区”选择文件夹',
   'draft.workspaceRequired': '请先选择工作区',
   'draft.initializationFailed': '暂时无法填入草稿，请稍后重试',
@@ -132,6 +148,22 @@ export type WorkspaceKey = keyof typeof zh
 
 /** English dictionary, checked complete against the zh key set. */
 export const en = {
+  'trash.purge': 'Delete permanently',
+  'trash.purgeFailed': 'Deletion failed or the session is still in use. Close related windows or restart the app and try again.',
+  'trash.purgeConfirm': 'Permanently delete this session history? This cannot be undone. Workspace files are not deleted.',
+
+  'trash.title': 'Recycle bin',
+  'trash.delete': 'Move to recycle bin',
+  'trash.confirm': 'Move this session to the recycle bin? Workspace files are not affected.',
+  'trash.cancel': 'Cancel',
+  'trash.pending': 'Moving…',
+  'trash.failed': 'Could not delete. Stop running tasks and automation schedules, then try again.',
+  'trash.restoreFailed': 'Could not restore. Try again.',
+  'trash.intro': 'Restore deleted sessions or delete them permanently.',
+  'trash.empty': 'The recycle bin is empty',
+  'trash.restore': 'Restore',
+  'trash.untitled': 'Untitled session',
+
   'defaultWorkspace.failed': 'Unable to create default workspace. Use Choose workspace to select a folder.',
   'draft.workspaceRequired': 'Choose a workspace first.',
   'draft.initializationFailed': 'Could not fill the draft. Please try again shortly.',
@@ -255,6 +287,22 @@ export const en = {
 
 /** Japanese copy, checked against the English keys. */
 export const ja = {
+  'trash.purge': 'Delete permanently',
+  'trash.purgeFailed': 'Deletion failed or the session is still in use. Close related windows or restart the app and try again.',
+  'trash.purgeConfirm': 'Permanently delete this session history? This cannot be undone. Workspace files are not deleted.',
+
+  'trash.title': 'Recycle bin',
+  'trash.delete': 'Move to recycle bin',
+  'trash.confirm': 'Move this session to the recycle bin? Workspace files are not affected.',
+  'trash.cancel': 'Cancel',
+  'trash.pending': 'Moving…',
+  'trash.failed': 'Could not delete. Stop running tasks and automation schedules, then try again.',
+  'trash.restoreFailed': 'Could not restore. Try again.',
+  'trash.intro': 'Restore deleted sessions or delete them permanently.',
+  'trash.empty': 'The recycle bin is empty',
+  'trash.restore': 'Restore',
+  'trash.untitled': 'Untitled session',
+
   'defaultWorkspace.failed': 'デフォルトのワークスペースを作成できません。ワークスペースを選択してフォルダーを選んでください。',
   'draft.workspaceRequired': '先にワークスペースを選択してください。',
   'draft.initializationFailed': '下書きを埋め込めませんでした。しばらくしてからもう一度お試しください。',
@@ -378,6 +426,22 @@ export const ja = {
 
 /** Spanish dictionary, checked against the English keys. */
 export const es = {
+  'trash.purge': 'Delete permanently',
+  'trash.purgeFailed': 'Deletion failed or the session is still in use. Close related windows or restart the app and try again.',
+  'trash.purgeConfirm': 'Permanently delete this session history? This cannot be undone. Workspace files are not deleted.',
+
+  'trash.title': 'Recycle bin',
+  'trash.delete': 'Move to recycle bin',
+  'trash.confirm': 'Move this session to the recycle bin? Workspace files are not affected.',
+  'trash.cancel': 'Cancel',
+  'trash.pending': 'Moving…',
+  'trash.failed': 'Could not delete. Stop running tasks and automation schedules, then try again.',
+  'trash.restoreFailed': 'Could not restore. Try again.',
+  'trash.intro': 'Restore deleted sessions or delete them permanently.',
+  'trash.empty': 'The recycle bin is empty',
+  'trash.restore': 'Restore',
+  'trash.untitled': 'Untitled session',
+
   'defaultWorkspace.failed': 'No se puede crear el espacio de trabajo predeterminado. Utilice Elegir espacio de trabajo para seleccionar una carpeta.',
   'draft.workspaceRequired': 'Elija un espacio de trabajo primero.',
   'draft.initializationFailed': 'No se pudo completar el borrador. Inténtelo de nuevo en breve.',
@@ -501,6 +565,22 @@ export const es = {
 
 /** French dictionary, checked against the English keys. */
 export const fr = {
+  'trash.purge': 'Delete permanently',
+  'trash.purgeFailed': 'Deletion failed or the session is still in use. Close related windows or restart the app and try again.',
+  'trash.purgeConfirm': 'Permanently delete this session history? This cannot be undone. Workspace files are not deleted.',
+
+  'trash.title': 'Recycle bin',
+  'trash.delete': 'Move to recycle bin',
+  'trash.confirm': 'Move this session to the recycle bin? Workspace files are not affected.',
+  'trash.cancel': 'Cancel',
+  'trash.pending': 'Moving…',
+  'trash.failed': 'Could not delete. Stop running tasks and automation schedules, then try again.',
+  'trash.restoreFailed': 'Could not restore. Try again.',
+  'trash.intro': 'Restore deleted sessions or delete them permanently.',
+  'trash.empty': 'The recycle bin is empty',
+  'trash.restore': 'Restore',
+  'trash.untitled': 'Untitled session',
+
   'defaultWorkspace.failed': 'Impossible de créer un espace de travail par défaut. Utilisez Choisir un espace de travail pour sélectionner un dossier.',
   'draft.workspaceRequired': "Choisissez d'abord un espace de travail.",
   'draft.initializationFailed': 'Impossible de remplir le projet. Veuillez réessayer sous peu.',
@@ -624,6 +704,22 @@ export const fr = {
 
 /** German dictionary, checked against the English keys. */
 export const de = {
+  'trash.purge': 'Delete permanently',
+  'trash.purgeFailed': 'Deletion failed or the session is still in use. Close related windows or restart the app and try again.',
+  'trash.purgeConfirm': 'Permanently delete this session history? This cannot be undone. Workspace files are not deleted.',
+
+  'trash.title': 'Recycle bin',
+  'trash.delete': 'Move to recycle bin',
+  'trash.confirm': 'Move this session to the recycle bin? Workspace files are not affected.',
+  'trash.cancel': 'Cancel',
+  'trash.pending': 'Moving…',
+  'trash.failed': 'Could not delete. Stop running tasks and automation schedules, then try again.',
+  'trash.restoreFailed': 'Could not restore. Try again.',
+  'trash.intro': 'Restore deleted sessions or delete them permanently.',
+  'trash.empty': 'The recycle bin is empty',
+  'trash.restore': 'Restore',
+  'trash.untitled': 'Untitled session',
+
   'defaultWorkspace.failed': 'Der Standardarbeitsbereich kann nicht erstellt werden. Verwenden Sie „Arbeitsbereich auswählen“, um einen Ordner auszuwählen.',
   'draft.workspaceRequired': 'Wählen Sie zunächst einen Arbeitsbereich.',
   'draft.initializationFailed': 'Der Entwurf konnte nicht ausgefüllt werden. Bitte versuchen Sie es in Kürze noch einmal.',
@@ -747,6 +843,22 @@ export const de = {
 
 /** Russian dictionary, checked against the English keys. */
 export const ru = {
+  'trash.purge': 'Delete permanently',
+  'trash.purgeFailed': 'Deletion failed or the session is still in use. Close related windows or restart the app and try again.',
+  'trash.purgeConfirm': 'Permanently delete this session history? This cannot be undone. Workspace files are not deleted.',
+
+  'trash.title': 'Recycle bin',
+  'trash.delete': 'Move to recycle bin',
+  'trash.confirm': 'Move this session to the recycle bin? Workspace files are not affected.',
+  'trash.cancel': 'Cancel',
+  'trash.pending': 'Moving…',
+  'trash.failed': 'Could not delete. Stop running tasks and automation schedules, then try again.',
+  'trash.restoreFailed': 'Could not restore. Try again.',
+  'trash.intro': 'Restore deleted sessions or delete them permanently.',
+  'trash.empty': 'The recycle bin is empty',
+  'trash.restore': 'Restore',
+  'trash.untitled': 'Untitled session',
+
   'defaultWorkspace.failed': 'Невозможно создать рабочую область по умолчанию. Используйте «Выбрать рабочее пространство», чтобы выбрать папку.',
   'draft.workspaceRequired': 'Сначала выберите рабочее место.',
   'draft.initializationFailed': 'Не удалось заполнить черновик. Пожалуйста, повторите попытку в ближайшее время.',
@@ -870,6 +982,22 @@ export const ru = {
 
 /** Portuguese dictionary, checked against the English keys. */
 export const pt = {
+  'trash.purge': 'Delete permanently',
+  'trash.purgeFailed': 'Deletion failed or the session is still in use. Close related windows or restart the app and try again.',
+  'trash.purgeConfirm': 'Permanently delete this session history? This cannot be undone. Workspace files are not deleted.',
+
+  'trash.title': 'Recycle bin',
+  'trash.delete': 'Move to recycle bin',
+  'trash.confirm': 'Move this session to the recycle bin? Workspace files are not affected.',
+  'trash.cancel': 'Cancel',
+  'trash.pending': 'Moving…',
+  'trash.failed': 'Could not delete. Stop running tasks and automation schedules, then try again.',
+  'trash.restoreFailed': 'Could not restore. Try again.',
+  'trash.intro': 'Restore deleted sessions or delete them permanently.',
+  'trash.empty': 'The recycle bin is empty',
+  'trash.restore': 'Restore',
+  'trash.untitled': 'Untitled session',
+
   'defaultWorkspace.failed': 'Não foi possível criar o espaço de trabalho padrão. Use Escolher espaço de trabalho para selecionar uma pasta.',
   'draft.workspaceRequired': 'Escolha um espaço de trabalho primeiro.',
   'draft.initializationFailed': 'Não foi possível preencher o rascunho. Por favor, tente novamente em breve.',

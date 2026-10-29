@@ -33,6 +33,7 @@ export interface WorkspaceSnapshot {
   readonly items: readonly WorkspaceView[]
   /** Complete registry-global archive set in Host order. */
   readonly archivedSessionIds: WorkspaceArchiveValue['archivedSessionIds']
+  readonly trashedSessionIds?: WorkspaceArchiveValue['archivedSessionIds']
   /** Complete registry-global pin set, most recently pinned first. */
   readonly pinnedSessionIds: WorkspacePinValue['pinnedSessionIds']
   readonly state: 'idle' | 'loading' | 'error'
@@ -51,7 +52,7 @@ export interface WorkspaceFollowSink {
   /** Replace the Host-confirmed Workspace order. */
   replaceOrder(workspaceIds: readonly WorkspaceId[]): void
   /** Replace the complete archived Session set. */
-  replaceArchived(sessionIds: WorkspaceArchiveValue['archivedSessionIds']): void
+  replaceArchived(sessionIds: WorkspaceArchiveValue['archivedSessionIds'], trashed?: WorkspaceArchiveValue['archivedSessionIds']): void
   /** Replace the complete pinned Session set. */
   replacePinned(pinnedSessionIds: WorkspacePinValue['pinnedSessionIds']): void
 }
@@ -61,6 +62,7 @@ export interface WorkspaceFollowSink {
  */
 export class ClientWorkspaceModel implements WorkspaceFollowSink {
   private items: readonly WorkspaceView[] = []
+  private trashedSessionIds: WorkspaceArchiveValue['archivedSessionIds'] = []
   private archivedSessionIds: WorkspaceArchiveValue['archivedSessionIds'] = []
   private pinnedSessionIds: WorkspacePinValue['pinnedSessionIds'] = []
   private state: WorkspaceSnapshot['state'] = 'loading'
@@ -198,7 +200,7 @@ export class ClientWorkspaceModel implements WorkspaceFollowSink {
       ...(options.stopActivity === true ? { stopActivity: true } : {}),
     })
     if (result.ok && requestSeq === this.archiveRequestSeq) {
-      this.installArchived(result.value.archivedSessionIds)
+      this.installArchived(result.value.archivedSessionIds, result.value.trashedSessionIds)
       // The Host drops an archived session's pin in the same durable write;
       // mirror that locally so no frame shows the row both archived and pinned.
       this.installPinned(this.pinnedSessionIds.filter(id => id !== sessionId))
@@ -218,7 +220,7 @@ export class ClientWorkspaceModel implements WorkspaceFollowSink {
     const requestSeq = ++this.archiveRequestSeq
     const result = await this.remote.unarchiveSession({ sessionId })
     if (result.ok && requestSeq === this.archiveRequestSeq) {
-      this.installArchived(result.value.archivedSessionIds)
+      this.installArchived(result.value.archivedSessionIds, result.value.trashedSessionIds)
     }
     return result
   }
@@ -266,7 +268,7 @@ export class ClientWorkspaceModel implements WorkspaceFollowSink {
     this.archiveRequestSeq++
     this.pinRequestSeq++
     this.installViews(baseline.items)
-    this.installArchived(baseline.archivedSessionIds)
+    this.installArchived(baseline.archivedSessionIds, baseline.trashedSessionIds ?? [])
     this.installPinned(baseline.pinnedSessionIds)
     this.state = 'idle'
     this.phase = 'ready'
@@ -294,9 +296,9 @@ export class ClientWorkspaceModel implements WorkspaceFollowSink {
    * Replace the archived Session set from the current follow generation.
    * @param archivedSessionIds - complete Host-confirmed archive set.
    */
-  replaceArchived(archivedSessionIds: WorkspaceArchiveValue['archivedSessionIds']): void {
+  replaceArchived(archivedSessionIds: WorkspaceArchiveValue['archivedSessionIds'], trashed?: WorkspaceArchiveValue['archivedSessionIds']): void {
     this.archiveRequestSeq++
-    this.installArchived(archivedSessionIds)
+    this.installArchived(archivedSessionIds, trashed)
   }
 
   /**
@@ -349,6 +351,7 @@ export class ClientWorkspaceModel implements WorkspaceFollowSink {
     return {
       items: this.items,
       archivedSessionIds: this.archivedSessionIds,
+      trashedSessionIds: this.trashedSessionIds,
       pinnedSessionIds: this.pinnedSessionIds,
       state: this.state,
       phase: this.phase,
@@ -356,9 +359,11 @@ export class ClientWorkspaceModel implements WorkspaceFollowSink {
     }
   }
 
-  private installArchived(archivedSessionIds: WorkspaceArchiveValue['archivedSessionIds']): void {
-    if (archivedSessionIds.length === this.archivedSessionIds.length
+  private installArchived(archivedSessionIds: WorkspaceArchiveValue['archivedSessionIds'], trashed: WorkspaceArchiveValue['archivedSessionIds'] = this.trashedSessionIds): void {
+    if (trashed.length === this.trashedSessionIds.length && trashed.every((id, index) => id === this.trashedSessionIds[index])
+      && archivedSessionIds.length === this.archivedSessionIds.length
       && archivedSessionIds.every((id, index) => id === this.archivedSessionIds[index])) return
+    this.trashedSessionIds = [...trashed]
     this.archivedSessionIds = [...archivedSessionIds]
     this.invalidate()
   }

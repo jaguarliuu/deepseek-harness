@@ -199,8 +199,11 @@ export function apply(ctx: ClientContext): void {
       locale: MANAGER_NS,
       inject: (): TaskManagerInjected => ({
         ...detail,
-        // The page has no creation form: a new reminder starts in a Session.
-        onNewTask: () => { ctx.uiWorkspace.startSession() },
+        onCreateTask: async (sessionId, request) => {
+          const result = await ctx.remote.schedule.create(sessionId, request)
+          if (!result.ok) throw new Error(result.error.message)
+          await manager.onRetry(manager.hooks.catalog.getSnapshot().readRequest)
+        },
         onClearEnded: async () => {
           const outcome = await clearEnded()
           deleteToast.reportClear(outcome)

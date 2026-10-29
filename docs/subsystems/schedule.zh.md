@@ -477,7 +477,7 @@ Shared management service; reads, deletion, and timing edits never activate a Se
  * @param signal - Optional cancellation checked before persistence begins, including after FIFO waits.
  * @returns The durably stored schedule. Cancellation does not roll back an in-flight write.
  */
-async create(sessionId: SessionId, request: ScheduleCreateRequest, signal?: AbortSignal): Promise<ScheduleRecord>
+@Remote async create(sessionId: SessionId, request: ScheduleCreateRequest, signal?: AbortSignal): Promise<ScheduleRecord>
 
 /**
  * Read the selected Session's active tasks without resuming its Agent.

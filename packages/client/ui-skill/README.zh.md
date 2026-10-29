@@ -7,6 +7,8 @@ kind: "package-reference"
 
 [English](README.md) | 中文
 
+Skills 设置和能力中心支持向所选会话的工作区导入 SKILL.md 文件或完整技能目录。单次最多 256 个文件、10 MiB，保留子目录资源，不覆盖已有同名技能。
+
 ## 概述
 
 `dsh-client-ui-skill` 让用户通过 `/` 建议选择或直接键入 `/name` 来调用 skill（技能）。同一条字面命令可以从 Web 编辑器、TUI 和 ACP（Agent Client Protocol）一致地加载 skill；如果名称与宿主命令相同，它仍会解析为该命令。skill 调用在对话中显示为可展开的 `Instructions` 卡片；即使已安装的 skill 目录发生变化，卡片落定后的内容仍保持稳定。

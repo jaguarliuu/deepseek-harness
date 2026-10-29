@@ -162,6 +162,34 @@ export class WorkspaceController extends TypertRemoteService {
   }
 
   /**
+   * Move an idle Session to the recoverable recycle bin.
+   * @param request - Session identity to remove from the ordinary list.
+   * @returns Committed archive and recycle-bin memberships.
+   */
+  @Remote
+  async trashSession(request: WorkspaceUnarchiveSessionRequest): Promise<WorkspaceArchiveValue> {
+    await this.ctx.workspaceRegistry.trashSession(request.sessionId)
+    return {
+      archivedSessionIds: [...this.ctx.workspaceRegistry.archivedSessionIds],
+      trashedSessionIds: [...this.ctx.workspaceRegistry.trashedSessionIds],
+    }
+  }
+
+  /**
+   * Permanently remove a recycled Session's artifacts.
+   * @param request - Session identity confirmed by the user.
+   * @returns Committed recycle-bin membership after removal.
+   */
+  @Remote
+  async purgeSession(request: WorkspaceUnarchiveSessionRequest): Promise<WorkspaceArchiveValue> {
+    await this.ctx.workspaceRegistry.purgeSession(request.sessionId)
+    return {
+      archivedSessionIds: [...this.ctx.workspaceRegistry.archivedSessionIds],
+      trashedSessionIds: [...this.ctx.workspaceRegistry.trashedSessionIds],
+    }
+  }
+
+  /**
    * Restore one archived Session to Workspace grouping surfaces.
    * @param request - Session identity to unarchive.
    * @returns the complete resulting archive set.
@@ -218,6 +246,7 @@ export class WorkspaceController extends TypertRemoteService {
       return {
         items: items.map(item => ({ ...item, sessionIds: sessions(item.sessionIds) })),
         archivedSessionIds: sessions(value.archivedSessionIds),
+        trashedSessionIds: sessions(value.trashedSessionIds ?? []),
         pinnedSessionIds: sessions(value.pinnedSessionIds),
       }
     }
@@ -247,7 +276,7 @@ export class WorkspaceController extends TypertRemoteService {
           }
           break
         case 'archived':
-          yield { type: 'archived', archivedSessionIds: sessions(frame.archivedSessionIds) }
+          yield { type: 'archived', archivedSessionIds: sessions(frame.archivedSessionIds), trashedSessionIds: sessions(frame.trashedSessionIds ?? []) }
           break
         case 'pinned':
           yield { type: 'pinned', pinnedSessionIds: sessions(frame.pinnedSessionIds) }

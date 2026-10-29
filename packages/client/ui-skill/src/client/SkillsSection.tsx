@@ -1,17 +1,19 @@
+import { SkillImport, type SkillImportInjected } from './SkillImport.tsx'
 /** Session-scoped skill catalog in Settings. */
 import { useState } from 'react'
 import type { PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
 import css from './SkillsSection.module.css'
 
-type Props = PropsRuntime<'settings.section'> & PropsLocale<'skill'>
+type Props = PropsRuntime<'settings.section'> & PropsLocale<'skill'> & SkillImportInjected
 
 /** Browse the actual catalog of a selected work session. */
-export function SkillsSection({ useSessions, useResource, t }: Props) {
+export function SkillsSection({ useSessions, useResource, t, onImportSkill }: Props) {
   const sessions = useSessions(state => state)
   const [selection, setSelection] = useState('')
+  const [refreshKey, setRefreshKey] = useState(0)
   const [query, setQuery] = useState('')
   const sessionId = sessions.ids.find(id => id === selection) ?? sessions.ids[0]
-  const catalog = useResource<'skillcatalog'>(sessionId ? `dsh-resource://skillcatalog/${sessionId}` : '')
+  const catalog = useResource<'skillcatalog'>(sessionId ? `dsh-resource://skillcatalog/${sessionId}?refresh=${refreshKey}` : '')
   const rows = (catalog.value?.skills ?? []).filter(skill => `${skill.name} ${skill.description}`.toLocaleLowerCase().includes(query.toLocaleLowerCase()))
   return <section className={css.section}>
     <h2 className={css.title}>{t('page.title')}</h2>
@@ -21,6 +23,7 @@ export function SkillsSection({ useSessions, useResource, t }: Props) {
         {sessions.ids.map(id => <option key={id} value={id}>{sessions.byId[id]?.title || sessions.byId[id]?.cwd || id}</option>)}
       </select>
     </label>
+    <SkillImport sessionId={sessionId} onImportSkill={onImportSkill} onImported={() => { setRefreshKey(value => value + 1) }} t={t} />
     <input className={css.search} aria-label={t('page.search')} placeholder={t('page.search')} value={query} onChange={(event) => { setQuery(event.target.value) }} />
     {catalog.status === 'failed' || catalog.value?.unavailable ? <p role="alert">{t('page.failed')}</p> : catalog.status === 'loading' ? <p role="status">{t('page.loading')}</p> : rows.length === 0 ? <p>{t(sessionId ? 'page.noResults' : 'page.empty')}</p> : null}
     <ul className={css.list}>{rows.map(skill => <li className={css.card} key={skill.name}>

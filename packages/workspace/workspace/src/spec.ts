@@ -60,6 +60,8 @@ export const workspaceDomainState = z.object({
   defaultWorkspaceId: workspaceId.optional(),
   workspaceIds: z.array(workspaceId),
   archivedSessionIds: z.array(sessionId).default([]),
+  /** Recoverable deletions; every id also belongs to archivedSessionIds. */
+  trashedSessionIds: z.array(sessionId).optional(),
   pinnedSessionIds: z.array(sessionId).default([]),
   pendingMutation: workspacePendingMutation.optional(),
 })

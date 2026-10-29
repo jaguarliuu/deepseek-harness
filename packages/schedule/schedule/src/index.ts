@@ -253,6 +253,7 @@ export class ScheduleService extends TypertRemoteService {
    * @param signal - Optional cancellation checked before persistence begins, including after FIFO waits.
    * @returns The durably stored schedule. Cancellation does not roll back an in-flight write.
    */
+  @Remote
   async create(sessionId: SessionId, request: ScheduleCreateRequest, signal?: AbortSignal): Promise<ScheduleRecord> {
     if (Number(request.at !== undefined) + Number(request.after_seconds !== undefined)
       + Number(request.every_seconds !== undefined) + Number(request.daily !== undefined)

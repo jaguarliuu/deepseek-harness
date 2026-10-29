@@ -1,3 +1,5 @@
+import { SessionTrashConfirm, SessionTrashIcon, SessionTrashMenuItem, SessionTrashPage, type SessionTrashInjected } from './session-actions/SessionTrash.tsx'
+import type { MainPanelId } from '@deepseek-ai/dsh-client-ui-layout/client'
 /**
  * Workspace plugin, browser half. Two registrations: WorkspaceBrowser fills
  * the sidebar shell's `sidebar.workspaces` hole (the whole browsing region),
@@ -100,7 +102,7 @@ const NS = 'workspace'
  * declaration through `slots.inject()` instead of assuming order.
  */
 export const inject = [
-  'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.directoryPicker', 'layout', 'shortcuts', 'remoteAccess',
+  'slots', 'sessions', 'workspaces', 'locale', 'remote', 'remote.workspace', 'remote.directoryPicker', 'layout', 'shortcuts', 'remoteAccess',
 ]
 
 /**
@@ -165,6 +167,24 @@ export function apply(ctx: Context): void {
   // its bound hook.
   const renameRequest = derive(shortcutControls.state, state => state.renameTarget)
   const archiveRequest = createSnapshotStore<SessionArchiveConfirmRequest | null>(null)
+  const trashRequest = createSnapshotStore<SessionId | null>(null)
+  const trashInjected = (): SessionTrashInjected => ({
+    hooks: { trashRequest },
+    requestTrash: (id) => { trashRequest.set(id) },
+    trashSession: async (sessionId) => {
+      const result = await ctx.remote.workspace.trashSession({ sessionId })
+      if (!result.ok) throw new Error(result.error.message)
+      await uiWorkspace.archiveSession(sessionId)
+    },
+    purgeSession: async (sessionId) => {
+      const result = await ctx.remote.workspace.purgeSession({ sessionId })
+      if (!result.ok) throw new Error(result.error.message)
+      await ctx.sessions.refresh()
+    },
+    restoreSession: async (sessionId) => { await uiWorkspace.unarchiveSession(sessionId) },
+  })
+  ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: 'recycle-bin' as MainPanelId, locale: NS, inject: trashInjected }, SessionTrashPage))
+  ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({ name: 'sidebar.panellist', id: 'recycle-bin', order: 90, label: () => ctx.locale.bind(NS)('trash.title'), locale: NS }, SessionTrashIcon))
   const requestSessionRename = shortcutControls.rename
   const unarchiveSession = (sessionId: SessionId): void => {
     uiWorkspace.unarchiveSession(sessionId).catch((reason: unknown) => {
@@ -318,6 +338,7 @@ export function apply(ctx: Context): void {
     yield ctx.slots.register({ name: 'sidebar.workspaces.session.menu.item', id: 'pin', order: 100, locale: NS, inject: pinInjected }, PinSessionMenuItem)
     yield ctx.slots.register({ name: 'sidebar.workspaces.session.menu.item', id: 'rename', order: 200, locale: NS, inject: renameInjected }, RenameSessionMenuItem)
     yield ctx.slots.register({ name: 'sidebar.workspaces.session.menu.item', id: 'fork', order: 300, locale: NS, inject: forkInjected }, ForkSessionMenuItem)
+    yield ctx.slots.register({ name: 'sidebar.workspaces.session.menu.item', id: 'trash', order: 425, locale: NS, inject: trashInjected }, SessionTrashMenuItem)
     yield ctx.slots.register({ name: 'sidebar.workspaces.session.menu.item', id: 'archive', order: 400, locale: NS, inject: archiveInjected }, ArchiveSessionMenuItem)
     yield ctx.slots.register({ name: 'sidebar.workspaces.session.menu.item', id: 'session-id', order: 450, locale: NS, inject: sessionIdInjected }, SessionIdMenuItem)
   })
@@ -328,6 +349,7 @@ export function apply(ctx: Context): void {
   // The surfaces the actions raise live in the frame-wide layer: they must
   // outlive the row menu the action sat in.
   ctx.slots.inject('shell.overlay', function* () {
+    yield ctx.slots.register({ name: 'shell.overlay', id: 'workspace.session-trash', locale: NS, inject: trashInjected }, SessionTrashConfirm)
     yield ctx.slots.register({
       name: 'shell.overlay', id: 'workspace.session-rename', locale: NS, inject: renameDialogInjected,
     }, SessionRenameDialog)

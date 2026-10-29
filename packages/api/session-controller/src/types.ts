@@ -613,3 +613,15 @@ export type SessionProjectionValue = JsonValue
 
 /** Application metadata returned by the serving desktop for one file. */
 export type SessionWorkspacePathApplication = NativeFileApplication
+
+/** A local skill bundle uploaded into the selected Session's workspace. */
+export interface SkillImportRequest {
+  readonly sessionId: SessionId
+  /** Paths relative to the skill folder; SKILL.md must be at its root. */
+  readonly files: readonly { readonly path: string; readonly base64: string }[]
+}
+
+/** Identity of a successfully imported workspace skill. */
+export interface SkillImportValue {
+  readonly name: string
+}

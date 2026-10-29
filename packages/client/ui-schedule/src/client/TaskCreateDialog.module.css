@@ -1,0 +1,7 @@
+.form, .form fieldset { display: flex; flex-direction: column; gap: 14px; }
+.form fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.form label { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+.form input, .form textarea, .form select { width: 100%; box-sizing: border-box; padding: 9px 12px; font: inherit; color: var(--dsw-alias-label-primary); background: var(--dsw-alias-settings-card-fill); border: 1px solid var(--dsw-alias-border-l3); border-radius: var(--dsw-radius-md); }
+.form textarea { resize: vertical; }
+.form p { margin: 0; color: var(--dsw-alias-label-secondary); font-size: 13px; }
+.form :is(input, textarea, select):focus-visible { outline: 2px solid var(--dsw-alias-brand-text); outline-offset: 2px; }

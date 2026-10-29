@@ -1,3 +1,4 @@
+import { SkillImport, type SkillImportInjected } from './SkillImport.tsx'
 /** Unified application plugin and session skill discovery, hosted by the plugin manager. */
 import { useId, useState } from 'react'
 import type { PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
@@ -5,7 +6,7 @@ import { Button, Input, Modal, SegmentedTabs, IconPluginPinwheelOutlineRegular, 
 import { isOfficeSkill, isPinnedCatalogTarget, OFFICE_SKILL_TITLES } from './capability-catalog.ts'
 import css from './CapabilityCenter.module.css'
 
-type Props = PropsRuntime<'plugins.tab'> & PropsLocale<'skill'>
+type Props = PropsRuntime<'plugins.tab'> & PropsLocale<'skill'> & SkillImportInjected
 type Entry = {
   id: string
   name: string
@@ -56,7 +57,7 @@ function CapabilityDetails({ entry, t, onClose, openPackage, install }: {
 }
 
 /** Browse the two authoritative catalogs with one search and type/office filters. */
-export function CapabilityCenter({ catalog = [], catalogStatus, useSessions, useResource, t, openPackage, install }: Props) {
+export function CapabilityCenter({ catalog = [], catalogStatus, useSessions, useResource, t, openPackage, install, onImportSkill }: Props) {
   const filterId = useId()
   const sessions = useSessions(state => state)
   const [selection, setSelection] = useState('')
@@ -98,6 +99,7 @@ export function CapabilityCenter({ catalog = [], catalogStatus, useSessions, use
         </select>
       </label>
     </div>
+    <SkillImport sessionId={sessionId} onImportSkill={onImportSkill} onImported={() => { setRefreshKey(value => !value) }} t={t} />
     <div className={css.filters}>
       <SegmentedTabs label={t('center.browse')} value={kind} onChange={setKind} items={[
         { value: 'all', label: t('center.all'), id: `${filterId}-all`, panelId: `${filterId}-panel` },

@@ -946,7 +946,13 @@ export function WorkspaceBrowser({
   const addShortcut = shortcuts.find(row => row.id === 'workspace.add')
   const shortcutState = useWorkspaceShortcuts(state => state)
   // Ordering remains live while the rail or search replaces the list body.
-  const list = useSessions(state => state)
+  const allSessions = useSessions(state => state)
+  const trashedSessionIds = useWorkspaces(state => state.trashedSessionIds)
+  const list = useMemo(() => {
+    const hidden = new Set(trashedSessionIds ?? [])
+    return { ...allSessions, ids: allSessions.ids.filter(id => !hidden.has(id)),
+      byId: Object.fromEntries(Object.entries(allSessions.byId).filter(([, session]) => !hidden.has(session.id))) }
+  }, [allSessions, trashedSessionIds])
   const storedWorkspaces = useWorkspaces(state => state.items)
   // The resolved name, not `t`, is the memo dependency: the bound seat keeps
   // its identity across a language switch.
@@ -1183,7 +1189,7 @@ export function WorkspaceBrowser({
         setRemoteSearch({
           query: normalizedQuery,
           status: 'ready',
-          items: result.items,
+          items: result.items.filter(item => !trashedSessionIds?.includes(item.sessionId)),
           hasMore: result.hasMore,
         })
       }).catch(() => {
@@ -1200,7 +1206,7 @@ export function WorkspaceBrowser({
       window.clearTimeout(timer)
       controller.abort()
     }
-  }, [normalizedQuery, searchSessions])
+  }, [normalizedQuery, searchSessions, trashedSessionIds])
 
   // Rename dialog (browser-owned so it outlives row unmounts during collapse).
   // The stored title decides whether confirming is a real rename; the draft is

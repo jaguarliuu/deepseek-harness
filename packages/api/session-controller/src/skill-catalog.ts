@@ -7,7 +7,8 @@ import { isUserInvocable } from '@deepseek-ai/dsh-skill'
 import type {} from '@deepseek-ai/dsh-working-directory'
 import type { ScopeKey } from '@deepseek-ai/dsh-scope'
 import { Remote, RemoteError, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
-import type { SkillListRequest, SkillListValue } from './types.ts'
+import { importWorkspaceSkill } from './skill-import.ts'
+import type { SkillImportRequest, SkillImportValue, SkillListRequest, SkillListValue } from './types.ts'
 
 declare module '@deepseek-ai/cordis' {
   interface Context {
@@ -88,6 +89,22 @@ export class SessionSkillCatalog extends TypertRemoteService {
     } catch (error: unknown) {
       throw new RemoteError('gateway/internal', `skill listing failed: ${String(error)}`, {})
     }
+  }
+
+  /**
+   * Install a user-selected skill bundle in the Session workspace without overwriting an existing skill.
+   * @param request - Session and relative bundle files encoded as base64.
+   * @param signal - Cancellation before publishing the skill.
+   * @returns The validated skill name after its files are written.
+   */
+  @Remote
+  async importBundle(request: SkillImportRequest, signal: AbortSignal): Promise<SkillImportValue> {
+    using observation = await this.ctx.sessionQuery.observeSession(request.sessionId)
+    const live = this.ctx.agents.get(request.sessionId)
+    const cwd = live === undefined
+      ? observation.projections?.values.workingDirectory ?? observation.header.cwd ?? this.ctx.workingDirectory.defaultDirectory
+      : await this.ctx.workingDirectory.ensure(live, signal)
+    return await importWorkspaceSkill(cwd, request.files, signal)
   }
 
   /** Resolve a live or standing preset scope without creating an Agent. */

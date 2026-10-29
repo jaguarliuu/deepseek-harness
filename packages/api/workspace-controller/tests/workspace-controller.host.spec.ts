@@ -285,22 +285,22 @@ describe('WorkspaceController commands', () => {
     const stops: string[] = []
     const stopListening = ctx.on('workspace/session-stop', ({ sessionId }) => { stops.push(String(sessionId)) })
     await expect(controller.archiveSession({ sessionId: session.id, stopActivity: true }))
-      .resolves.toEqual({ archivedSessionIds: [session.id] })
+      .resolves.toEqual({ trashedSessionIds: [], archivedSessionIds: [session.id] })
     expect(stops).toEqual([String(session.id)])
     stopListening()
     await expect(controller.unarchiveSession({ sessionId: session.id }))
-      .resolves.toEqual({ archivedSessionIds: [] })
+      .resolves.toEqual({ trashedSessionIds: [], archivedSessionIds: [] })
     stopReporting()
 
     await expect(controller.archiveSession({ sessionId: session.id }))
-      .resolves.toEqual({ archivedSessionIds: [session.id] })
+      .resolves.toEqual({ trashedSessionIds: [], archivedSessionIds: [session.id] })
     await expect(controller.archiveSession({ sessionId: SessionId('unknown') }))
       .rejects.toMatchObject({ code: 'session/not-found' })
     await expect(controller.unarchiveSession({ sessionId: session.id }))
-      .resolves.toEqual({ archivedSessionIds: [] })
+      .resolves.toEqual({ trashedSessionIds: [], archivedSessionIds: [] })
     // Unarchive is idempotent: an id that is not archived is not an error.
     await expect(controller.unarchiveSession({ sessionId: session.id }))
-      .resolves.toEqual({ archivedSessionIds: [] })
+      .resolves.toEqual({ trashedSessionIds: [], archivedSessionIds: [] })
   })
 
   it('pins only known unarchived Sessions and unpins idempotently', async () => {
@@ -349,7 +349,7 @@ describe('WorkspaceController follow', () => {
         value: {
           initialized: true,
           workspaceIds: ['missing'],
-          archivedSessionIds: [],
+          trashedSessionIds: [], archivedSessionIds: [],
           pinnedSessionIds: [],
         },
       })
@@ -381,7 +381,7 @@ describe('WorkspaceController follow', () => {
     const iterator = controller.follow(abort.signal)[Symbol.asyncIterator]()
     await expect(nextFrame(iterator)).resolves.toEqual({
       type: 'baseline',
-      value: { items: [], archivedSessionIds: [], pinnedSessionIds: [] },
+      value: { items: [], trashedSessionIds: [], archivedSessionIds: [], pinnedSessionIds: [] },
     })
 
     const first = await controller.create({ path: stageDir(root, 'first') })
@@ -417,12 +417,12 @@ describe('WorkspaceController follow', () => {
     })
     await controller.archiveSession({ sessionId: session.id })
     await expect(nextFrame(iterator)).resolves.toEqual({
-      type: 'archived', archivedSessionIds: [session.id],
+      type: 'archived', trashedSessionIds: [], archivedSessionIds: [session.id],
     })
     // Unarchive rides the same complete-set increment: no new frame type.
     await controller.unarchiveSession({ sessionId: session.id })
     await expect(nextFrame(iterator)).resolves.toEqual({
-      type: 'archived', archivedSessionIds: [],
+      type: 'archived', trashedSessionIds: [], archivedSessionIds: [],
     })
     await controller.pinSession({ sessionId: session.id })
     await expect(nextFrame(iterator)).resolves.toEqual({
@@ -475,7 +475,7 @@ describe('WorkspaceController follow', () => {
       type: 'baseline',
       value: {
         items: [expect.objectContaining({ workspaceId: shownId, sessionIds: [shared.id] })],
-        archivedSessionIds: [],
+        trashedSessionIds: [], archivedSessionIds: [],
         pinnedSessionIds: [shared.id],
       },
     })
@@ -491,8 +491,8 @@ describe('WorkspaceController follow', () => {
     await controller.archiveSession({ sessionId: secret.id })
     await controller.archiveSession({ sessionId: shared.id })
     await expect(nextFrame(iterator)).resolves.toEqual({ type: 'pinned', pinnedSessionIds: [] })
-    await expect(nextFrame(iterator)).resolves.toEqual({ type: 'archived', archivedSessionIds: [] })
-    await expect(nextFrame(iterator)).resolves.toEqual({ type: 'archived', archivedSessionIds: [shared.id] })
+    await expect(nextFrame(iterator)).resolves.toEqual({ type: 'archived', trashedSessionIds: [], archivedSessionIds: [] })
+    await expect(nextFrame(iterator)).resolves.toEqual({ type: 'archived', trashedSessionIds: [], archivedSessionIds: [shared.id] })
     await controller.delete({ workspaceId: hiddenId })
     await expect(nextFrame(iterator)).resolves.toEqual({ type: 'order', workspaceIds: [shownId] })
     await controller.delete({ workspaceId: shownId })
