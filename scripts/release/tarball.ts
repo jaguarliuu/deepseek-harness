@@ -7,8 +7,8 @@
  */
 
 import { readFileSync } from 'node:fs'
-import { basename, dirname, join } from 'node:path'
-import { capture } from './process.ts'
+import { join } from 'node:path'
+import { list } from 'tar'
 
 /** Name of the file recording the order in which a packed family uploads. */
 export const PUBLISH_ORDER_FILE = 'publish-order.txt'
@@ -22,13 +22,14 @@ export interface PackedIdentity {
 }
 
 /**
- * List a tarball's members.
+ * List UTF-8 tarball paths independently of the host's tar executable and locale.
  * @param tarball - absolute tarball path.
  * @returns Every path inside the archive.
  */
 export function tarballFiles(tarball: string): string[] {
-  // GNU tar reads the colon in a Windows drive path as a remote-host separator, so tar runs beside the tarball.
-  return capture('tar', ['-tzf', basename(tarball)], { cwd: dirname(tarball) }).split(/\r?\n/u).filter(line => line !== '')
+  const files: string[] = []
+  list({ file: tarball, sync: true, strict: true, onReadEntry: (entry) => { files.push(entry.path) } })
+  return files
 }
 
 /**
@@ -37,7 +38,21 @@ export function tarballFiles(tarball: string): string[] {
  * @returns The packed package.json object.
  */
 export function packedManifest(tarball: string): Record<string, unknown> {
-  const manifest: unknown = JSON.parse(capture('tar', ['-xOzf', basename(tarball), 'package/package.json'], { cwd: dirname(tarball) }))
+  const chunks: Buffer[] = []
+  const manifestEntries: string[] = []
+  list({
+    file: tarball,
+    sync: true,
+    strict: true,
+    onReadEntry(entry) {
+      if (entry.path !== 'package/package.json') return
+      if (manifestEntries.length !== 0 || entry.type !== 'File') throw new Error(`${tarball} has an invalid package manifest entry`)
+      manifestEntries.push(entry.path)
+      entry.on('data', (chunk: Buffer) => { chunks.push(chunk) })
+    },
+  })
+  if (manifestEntries.length === 0) throw new Error(`${tarball} has no manifest`)
+  const manifest: unknown = JSON.parse(Buffer.concat(chunks).toString('utf8'))
   if (manifest === null || typeof manifest !== 'object' || Array.isArray(manifest)) throw new Error(`${tarball} has no manifest`)
   return manifest as Record<string, unknown>
 }
