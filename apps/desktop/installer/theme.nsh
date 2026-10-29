@@ -18,14 +18,14 @@
 !define INSTALLER_BUTTON_FONT_SIZE 16
 !define INSTALLER_STATUS_FONT_SIZE 14
 ; GDI+ ARGB values; GDI text uses COLORREF below.
-!define INSTALLER_PRIMARY 0xFF0F1115
-!define INSTALLER_PRIMARY_HOVER 0xFF2D3135
-!define INSTALLER_PRIMARY_PRESSED 0xFF000000
-!define INSTALLER_CONTROL_HOVER 0xFFEEF0F2
-!define INSTALLER_CONTROL_PRESSED 0xFFD4DBE9
+!define INSTALLER_PRIMARY 0xFF007F73
+!define INSTALLER_PRIMARY_HOVER 0xFF00695F
+!define INSTALLER_PRIMARY_PRESSED 0xFF00564E
+!define INSTALLER_CONTROL_HOVER 0xFFEAF4F1
+!define INSTALLER_CONTROL_PRESSED 0xFFCDE8E1
 !define INSTALLER_DARK_CONTROL_HOVER 0xFF303034
 !define INSTALLER_DARK_CONTROL_PRESSED 0xFF45454B
-!define INSTALLER_TRACK_COLOR 0xFFE9ECF2
+!define INSTALLER_TRACK_COLOR 0xFFE1EFEB
 !define INSTALLER_TEXT_COLORREF 0x15110F
 
 Var InstallerTheme
@@ -71,9 +71,9 @@ Function InstallerResolveTheme
         StrCpy $InstallerBgArgb 0xFF151517
         StrCpy $InstallerBgColorref 0x171515
         StrCpy $InstallerTextColorref 0xFFFFFF
-        StrCpy $InstallerPrimary 0xFFF9FAFB
-        StrCpy $InstallerPrimaryHover 0xFFE9ECF2
-        StrCpy $InstallerPrimaryPressed 0xFFD4DBE9
+        StrCpy $InstallerPrimary 0xFF47C6AE
+        StrCpy $InstallerPrimaryHover 0xFF70D6C1
+        StrCpy $InstallerPrimaryPressed 0xFF2EAC95
         StrCpy $InstallerControlHover ${INSTALLER_DARK_CONTROL_HOVER}
         StrCpy $InstallerControlPressed ${INSTALLER_DARK_CONTROL_PRESSED}
         StrCpy $InstallerTrack 0xFF61666B

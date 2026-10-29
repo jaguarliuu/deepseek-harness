@@ -270,10 +270,11 @@ static LRESULT CALLBACK ProgressProc(HWND window, UINT message, WPARAM wparam, L
             const double fraction = reinterpret_cast<UINT_PTR>(GetPropW(GetParent(window), L"HarnessInstaller.ExtractProgress")) / 100.0;
             page->progress.Advance(stage, fraction, GetTickCount64());
             const int percent = static_cast<int>(page->progress.value);
-            SolidBrush track(page->dark ? Color(255, 97, 102, 107) : Color(255, 233, 236, 242));
+            SolidBrush track(page->dark ? Color(255, 97, 102, 107) : Color(255, 225, 239, 235));
             SolidBrush ink(page->dark ? Color(255, 255, 255, 255) : Color(255, 15, 17, 21));
             FillProgress(graphics, track, 472.0f);
-            FillProgress(graphics, ink, 472.0f * static_cast<REAL>(page->progress.value) / 100);
+            SolidBrush accent(page->dark ? Color(255, 71, 198, 174) : Color(255, 0, 127, 115));
+            FillProgress(graphics, accent, 472.0f * static_cast<REAL>(page->progress.value) / 100);
             FontFamily family(L"Microsoft YaHei UI");
             Font font(&family, 14, FontStyleRegular, UnitPixel);
             StringFormat centered;

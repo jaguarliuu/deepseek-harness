@@ -1,5 +1,6 @@
 {
   "name": "@deepseek-ai/dsh-desktop",
+  "productName": "智维小 C",
   "description": "Electron desktop shell for a bundled dsh runtime and external plugins",
   "version": "0.2.1-rc.3",
   "private": true,

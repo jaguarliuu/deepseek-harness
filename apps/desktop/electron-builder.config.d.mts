@@ -14,7 +14,11 @@ export interface DesktopElectronBuilderConfig {
     { readonly from: string, readonly to: 'dsh', readonly filter: readonly ['**/*'] },
     { readonly from: string, readonly to: 'dsh/node_modules', readonly filter: readonly ['**/*'] },
   ]
-  readonly extraMetadata: { readonly dshDesktopAppId: string }
+  readonly extraMetadata: {
+    readonly dshDesktopAppId: string
+    readonly author: { readonly name: '智维小 C' }
+    readonly description: string
+  }
   readonly asarUnpack: readonly string[]
   readonly extraResources: readonly [
     { readonly from: string, readonly to: 'runtime' },
@@ -48,6 +52,7 @@ export interface DesktopElectronBuilderConfig {
   }
   readonly nsis: {
     readonly uninstallDisplayName: '${productName}'
+    readonly shortcutName: '智维小 C'
     readonly include: string
     readonly oneClick: false
     readonly perMachine: false

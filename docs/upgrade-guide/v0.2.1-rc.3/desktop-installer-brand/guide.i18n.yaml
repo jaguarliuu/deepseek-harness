@@ -1,0 +1,16 @@
+# Bilingual-pair consistency record for guide.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/upgrade-guide/v0.2.1-rc.3/desktop-installer-brand/guide.md
+/:
+  en: e89705906f9862af
+  zh: 04697d281ba25d3c
+/desktop-installer-filenames:
+  en: eca081e4a032df82
+  zh: e56f7df341cd0b75
+/desktop-installer-filenames/change:
+  en: f210367aa51470b5
+  zh: aafeb19b68850f65
+/desktop-installer-filenames/migration:
+  en: 35cab02051973869
+  zh: 4dd958bff7f9e565

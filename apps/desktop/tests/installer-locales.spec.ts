@@ -74,3 +74,12 @@ it('uses the real electron-builder language identifiers and English fallback', (
       .toEqual(locales.map(locale => locale.nsisLanguage))
   } }, new LangConfigurator({ installerLanguages: locales.map(locale => locale.id) }))
 })
+
+it('uses the product brand in every installer language', () => {
+  for (const locale of readInstallerLocales()) {
+    for (const key of ['INSTALLER_LAUNCH_FAILED', 'INSTALLER_RUNNING', 'INSTALLER_PATH_OWNERSHIP']) {
+      expect(locale.strings[key]).toContain('智维小 C')
+    }
+    expect(renderInstallerStrings([locale])).not.toMatch(/DeepSeek|Harness/u)
+  }
+})

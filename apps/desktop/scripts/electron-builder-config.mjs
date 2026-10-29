@@ -108,6 +108,8 @@ export function createElectronBuilderConfig(
     appId,
     protocols: [{ name: '智维小 C', schemes: ['dsh'] }],
     extraMetadata: {
+      author: { name: '智维小 C' },
+      description: '智维小 C 桌面智能助手',
       dshDesktopAppId: appId,
       dshDesktopUpdateChannel: update?.channel ?? 'nightly',
       ...(policy === undefined ? {} : { dshMandatoryUpdatePolicy: policy }),
@@ -118,7 +120,7 @@ export function createElectronBuilderConfig(
     // The default copyright uses author.name; this line names the product instead.
     copyright: `Copyright © ${new Date().getFullYear()} \${productName}`,
     // Unsigned builds carry their own suffix so a shared file can never pass for a release artifact.
-    artifactName: `deepseek-harness-\${version}-\${os}-\${arch}${output.suffix}.\${ext}`,
+    artifactName: `zhiwei-xiaoc-\${version}-\${os}-\${arch}${output.suffix}.\${ext}`,
     directories: { output: output.directory },
     asar: true,
     electronDist: buildPaths.electron,
@@ -257,6 +259,7 @@ export function createElectronBuilderConfig(
     },
     nsis: {
       uninstallDisplayName: '${productName}',
+      shortcutName: '智维小 C',
       installerSidebar: join(buildPaths.root, 'installer-ui', 'uninstaller-sidebar.bmp'),
       uninstallerSidebar: join(buildPaths.root, 'installer-ui', 'uninstaller-sidebar.bmp'),
       include: fileURLToPath(new URL('./installer.nsh', import.meta.url)),

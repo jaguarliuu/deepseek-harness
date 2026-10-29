@@ -48,10 +48,11 @@ describe('installer preparation preserves application dependencies', () => {
       const metadata: unknown = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
       Object.defineProperties(metadataPackager, {
         config: { value: config },
-        metadata: { value: metadata },
+        metadata: { value: { ...metadata as object, ...config.extraMetadata } },
       })
       const appInfo = new AppInfo(metadataPackager, undefined)
-      expect(appInfo.companyName).toBe('Hangzhou DeepSeek Artificial Intelligence Co., Ltd.')
+      expect(appInfo.companyName).toBe('智维小 C')
+      expect(appInfo.productName).toBe('智维小 C')
       expect(appInfo.copyright).toBe(`Copyright © ${new Date().getFullYear()} 智维小 C`)
       if (platform === 'win32') {
         expect(expandMacro(config.nsis.uninstallDisplayName, null, appInfo, {}, false)).toBe('智维小 C')
@@ -97,8 +98,9 @@ describe('installer preparation preserves application dependencies', () => {
       DSH_DESKTOP_TARGET_ARCH: 'x64',
       DSH_DESKTOP_UNSIGNED: '1',
     }, 'win32', 'x64')
-    expect(config.artifactName).toBe('deepseek-harness-${version}-${os}-${arch}-unsigned.${ext}')
+    expect(config.artifactName).toBe('zhiwei-xiaoc-${version}-${os}-${arch}-unsigned.${ext}')
     expect(config.extraMetadata).not.toHaveProperty('dshMandatoryUpdatePolicy')
+    expect(config.nsis.shortcutName).toBe('智维小 C')
   })
 
   it('packages every preload entry point the shell loads', async () => {

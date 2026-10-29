@@ -68,19 +68,41 @@ if ($TestProgress -or $CompileProgressOnly) {
     }
 }
 Add-Type -AssemblyName System.Drawing
-foreach ($asset in @('brand', 'brand-2x', 'brand-dark', 'brand-dark-2x', 'uninstaller-sidebar')) {
-    $image = [Drawing.Image]::FromFile((Join-Path $installerRoot "assets/$asset.png"))
-    try {
-        $bitmap = [Drawing.Bitmap]::new($image.Width, $image.Height, [Drawing.Imaging.PixelFormat]::Format24bppRgb)
+$product = Get-Content -LiteralPath (Join-Path $PSScriptRoot '../package.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+$icon = [Drawing.Image]::FromFile([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../resources/icon-macos.png')))
+try {
+    foreach ($asset in @('brand', 'brand-2x', 'brand-dark', 'brand-dark-2x', 'uninstaller-sidebar')) {
+        $sidebar = $asset -eq 'uninstaller-sidebar'
+        $scale = if ($asset -like '*2x') { 2 } else { 1 }
+        $width = if ($sidebar) { 164 } else { 600 * $scale }
+        $height = if ($sidebar) { 314 } else { 196 * $scale }
+        $dark = $asset -like '*dark*'
+        $bitmap = [Drawing.Bitmap]::new($width, $height, [Drawing.Imaging.PixelFormat]::Format24bppRgb)
         try {
             $graphics = [Drawing.Graphics]::FromImage($bitmap)
+            $titleFont = [Drawing.Font]::new('Microsoft YaHei UI', $(if ($sidebar) { 20 } else { 28 * $scale }), [Drawing.FontStyle]::Bold, [Drawing.GraphicsUnit]::Pixel)
+            $titleBrush = [Drawing.SolidBrush]::new($(if ($dark) { [Drawing.Color]::FromArgb(112, 214, 193) } else { [Drawing.Color]::FromArgb(0, 105, 95) }))
+            $format = [Drawing.StringFormat]::new()
             try {
-                $background = if ($asset -like '*dark*') { [Drawing.Color]::FromArgb(21, 21, 23) } else { [Drawing.Color]::White }
-                $graphics.Clear($background)
-                $graphics.DrawImage($image, 0, 0, $image.Width, $image.Height)
-            } finally { $graphics.Dispose() }
+                $graphics.Clear($(if ($dark) { [Drawing.Color]::FromArgb(21, 21, 23) } else { [Drawing.Color]::White }))
+                $graphics.InterpolationMode = [Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+                $graphics.TextRenderingHint = [Drawing.Text.TextRenderingHint]::AntiAliasGridFit
+                $size = if ($sidebar) { 100 } else { 112 * $scale }
+                $top = if ($sidebar) { 58 } else { 8 * $scale }
+                $graphics.DrawImage($icon, [int](($width - $size) / 2), $top, $size, $size)
+                $format.Alignment = [Drawing.StringAlignment]::Center
+                $format.LineAlignment = [Drawing.StringAlignment]::Center
+                $titleTop = if ($sidebar) { 176 } else { 136 * $scale }
+                $titleHeight = if ($sidebar) { 48 } else { 44 * $scale }
+                $graphics.DrawString($product.productName, $titleFont, $titleBrush, [Drawing.RectangleF]::new(0, $titleTop, $width, $titleHeight), $format)
+            } finally {
+                $format.Dispose()
+                $titleBrush.Dispose()
+                $titleFont.Dispose()
+                $graphics.Dispose()
+            }
             $bitmap.Save((Join-Path $output "$asset.bmp"), [Drawing.Imaging.ImageFormat]::Bmp)
         } finally { $bitmap.Dispose() }
-    } finally { $image.Dispose() }
-}
-Write-Output "Prepared native installer resources: $output"
+    }
+} finally { $icon.Dispose() }
+Write-Output "Prepared native installer assets in $output"
