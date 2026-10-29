@@ -12,9 +12,6 @@ import { connectFreshWorkspace, expandOwningTurnProcess, newEnglishPage, writeCo
 const SUMMARY = `Next paragraph: ${'inspect the loaded context and pending tools '.repeat(8).trim()}`
 const DELTAS = ['First paragraph', `\nDetails\n\n\n${SUMMARY}`, '\nMore detail']
 const UI_EXPECTED = fileURLToPath(new URL('./expected/reasoning-preview/running.expected.md', import.meta.url))
-/** Computed mask of the animated whale: the ui-chat package asset URL, whose `@` is percent-encoded. */
-const WHALE_MASK = /^url\("([^"]*\/plugins\/@deepseek-ai\/dsh-client-ui-chat\/assets\/running-whale%402x-[0-9a-f]{12}\.png)"\)$/
-
 class PausedReasoningAdapter extends LlmAdapter {
   override async listModels(provider: string) { return [{ provider, id: 'paused', name: `${provider}/paused` }] }
   readonly stages = DELTAS.map(text => ({
@@ -67,57 +64,26 @@ it('shows completed paragraph first lines across blank lines with a right-edge f
       const reasoning = page.locator('[data-variant="think"][data-state="running"]')
       await expandOwningTurnProcess(page, reasoning)
       await reasoning.waitFor()
-      const whale = page.locator('[data-chat-running] span[aria-hidden="true"]:has(> svg)')
-      const animatedWhale = whale.locator(':scope > span')
-      const restingWhale = whale.locator(':scope > svg')
-      await whale.waitFor()
-      expect(await whale.locator('animate').count()).toBe(0)
-      const expectStaticWhale = async () => {
-        await expect.poll(() => animatedWhale.isVisible()).toBe(false)
-        await expect.poll(() => restingWhale.isVisible()).toBe(true)
-        expect(await animatedWhale.evaluate(element => getComputedStyle(element).maskImage)).toBe('none')
-        const colors = await restingWhale.locator('path').evaluate((path) => {
-          const probe = document.createElement('span')
-          probe.style.cssText = 'color: Canvas; forced-color-adjust: none'
-          document.body.append(probe)
-          try {
-            const style = getComputedStyle(path)
-            return {
-              stroke: style.stroke.toLowerCase() === 'currentcolor' ? style.color : style.stroke,
-              canvas: getComputedStyle(probe).color,
-              length: (path as SVGPathElement).getTotalLength(),
-            }
-          } finally { probe.remove() }
-        })
-        expect(colors.stroke).not.toBe('none')
-        expect(colors.stroke).not.toBe('transparent')
-        expect(colors.stroke).not.toBe(colors.canvas)
-        expect(colors.length).toBeGreaterThan(0)
-      }
+      const mark = page.locator('[data-chat-running] span[aria-hidden="true"] > span[aria-hidden="true"]')
+      await mark.waitFor()
+      const indicator = mark.locator('..')
       try {
-        await page.emulateMedia({ reducedMotion: 'no-preference', forcedColors: 'none' })
-        await expect.poll(() => animatedWhale.isVisible()).toBe(true)
-        expect(await animatedWhale.evaluate(element => getComputedStyle(element).maskMode)).toBe('alpha')
-        const imageSize = await animatedWhale.evaluate(async (element, mask) => {
-          const source = getComputedStyle(element).maskImage.match(new RegExp(mask))?.[1]
-          if (source === undefined) throw new Error('Running whale mask must use the ui-chat package asset URL')
+        await page.emulateMedia({ reducedMotion: 'no-preference' })
+        expect(await indicator.evaluate(element => getComputedStyle(element).animationName)).not.toBe('none')
+        const imageSize = await mark.evaluate(async (element) => {
+          const source = getComputedStyle(element).backgroundImage.match(/^url\("(.*)"\)$/)?.[1]
+          if (source === undefined) throw new Error('Running indicator must display product artwork')
           const image = new Image()
           image.src = source
           await image.decode()
           return [image.naturalWidth, image.naturalHeight]
-        }, WHALE_MASK.source)
-        expect(imageSize).toEqual([28, 28])
-        expect(await restingWhale.isVisible()).toBe(false)
-        const firstWhaleFrame = await whale.screenshot({ animations: 'allow' })
-        await expect.poll(async () => !(await whale.screenshot({ animations: 'allow' })).equals(firstWhaleFrame), {
-          timeout: 5000,
-        }).toBe(true)
+        })
+        expect(imageSize).toEqual([64, 64])
         await page.emulateMedia({ reducedMotion: 'reduce' })
-        await expectStaticWhale()
-        await page.emulateMedia({ reducedMotion: 'no-preference', forcedColors: 'active' })
-        await expectStaticWhale()
+        expect(await indicator.evaluate(element => getComputedStyle(element).animationName)).toBe('none')
+        expect(await mark.isVisible()).toBe(true)
       } finally {
-        await page.emulateMedia({ reducedMotion: null, forcedColors: null })
+        await page.emulateMedia({ reducedMotion: null })
       }
       expect(await reasoning.getAttribute('data-preview')).toBeNull()
 
@@ -141,7 +107,7 @@ it('shows completed paragraph first lines across blank lines with a right-edge f
       third.proceed.resolve(undefined)
       await settled
       await page.getByText('Done', { exact: true }).waitFor()
-      await whale.waitFor({ state: 'detached' })
+      await indicator.waitFor({ state: 'detached' })
       expect(console.pageErrors).toEqual([])
       expect(console.warnings).toEqual([])
     } finally {

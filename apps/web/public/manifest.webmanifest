@@ -1,11 +1,11 @@
 {
-  "name": "DeepSeek Harness",
-  "short_name": "DSH",
+  "name": "智维小 C",
+  "short_name": "智维小 C",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "theme_color": "#007f73",
   "icons": [
     {
       "src": "icon-192.png",

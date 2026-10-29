@@ -321,7 +321,7 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     // racing a fast local response.
     platform.holdNextGet()
     await openSettings(page, 'zh')
-    const settings = page.getByRole('dialog', { name: '设置', exact: true })
+    const settings = page.getByRole('dialog', { name: '智维小 C · 设置', exact: true })
     await settings.waitFor()
     await expect.poll(() => platform.gets.length, { timeout: 30_000 }).toBe(getsBefore + 1)
     // One open, one read: no control in the panel drives a second one.
@@ -382,7 +382,7 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     const reopenGetsBefore = platform.gets.length
     const reopenSummariesBefore = platform.summaries.length
     await openSettings(page, 'zh')
-    const reopened = page.getByRole('dialog', { name: '设置', exact: true })
+    const reopened = page.getByRole('dialog', { name: '智维小 C · 设置', exact: true })
     await reopened.waitFor()
     await expect.poll(() => platform.gets.length, { timeout: 30_000 }).toBe(reopenGetsBefore + 1)
     await expect.poll(() => platform.summaries.length, { timeout: 30_000 }).toBe(reopenSummariesBefore + 1)
@@ -418,14 +418,14 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     const topUpGetsBefore = platform.gets.length
     const topUpSummariesBefore = platform.summaries.length
     await openSettings(page, 'zh')
-    const topUpSettings = page.getByRole('dialog', { name: '设置', exact: true })
+    const topUpSettings = page.getByRole('dialog', { name: '智维小 C · 设置', exact: true })
     await topUpSettings.waitFor()
     await expect.poll(() => platform.gets.length, { timeout: 30_000 }).toBe(topUpGetsBefore + 1)
     await expect.poll(() => platform.summaries.length, { timeout: 30_000 }).toBe(topUpSummariesBefore + 1)
     observations.push(`topup.open gets=${String(platform.gets.length - topUpGetsBefore)} summaries=${String(platform.summaries.length - topUpSummariesBefore)}`)
     const callsBefore = (await platformCalls(page)).length
     await topUpSettings.getByRole('link', { name: '充值', exact: true }).click()
-    const topUpOverlay = page.getByRole('dialog', { name: '返回 DeepSeek Harness', exact: true })
+    const topUpOverlay = page.getByRole('dialog', { name: '返回 智维小 C', exact: true })
     await topUpOverlay.waitFor()
     // Opening the native view reads nothing by itself.
     expect(platform.gets.length).toBe(topUpGetsBefore + 1)
@@ -437,7 +437,7 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     platform.grant(ORDER_TOPUP, '11.00')
     // Holding the notice read proves the return does not wait for the refresh it starts.
     platform.holdNextGet()
-    await topUpOverlay.getByRole('button', { name: '返回 DeepSeek Harness', exact: true }).click()
+    await topUpOverlay.getByRole('button', { name: '返回 智维小 C', exact: true }).click()
     await topUpOverlay.waitFor({ state: 'detached', timeout: 30_000 })
     const topUpCalls = (await platformCalls(page)).slice(callsBefore).join(',')
     observations.push(`topup.returned bridge=${topUpCalls} cards=${String(await noticeCards(page).count())}`)
@@ -469,7 +469,7 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     platform.grant(ORDER_RETRY, '6.00')
     platform.failNextAcks(ORDER_RETRY, 1)
     await openSettings(page, 'zh')
-    const retryDialog = page.getByRole('dialog', { name: '设置', exact: true })
+    const retryDialog = page.getByRole('dialog', { name: '智维小 C · 设置', exact: true })
     await retryDialog.waitFor()
     observations.push(`retry.notice=${await shownNotice(page, zhRetry)}`)
     const retryAttempts = (): AckRecord[] => platform.acks.filter(item => item.orderId === ORDER_RETRY)
@@ -499,7 +499,7 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     platform.grant(ORDER_REPEAT, '7.00')
     const repeatAttempts = (): AckRecord[] => platform.acks.filter(item => item.orderId === ORDER_REPEAT)
     await openSettings(page, 'zh')
-    const repeatDialog = page.getByRole('dialog', { name: '设置', exact: true })
+    const repeatDialog = page.getByRole('dialog', { name: '智维小 C · 设置', exact: true })
     await repeatDialog.waitFor()
     observations.push(`repeat.first=${await shownNotice(page, zhRepeat)}`)
     await expect.poll(() => repeatAttempts().length, { timeout: 30_000 }).toBe(1)
@@ -529,7 +529,7 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     const failedSummariesBefore = platform.summaries.length
     const failedUsagesBefore = (await platformCalls(page)).filter(call => call === 'open:usage').length
     await openSettings(page, 'zh')
-    const failedSettings = page.getByRole('dialog', { name: '设置', exact: true })
+    const failedSettings = page.getByRole('dialog', { name: '智维小 C · 设置', exact: true })
     await failedSettings.waitFor()
     const failedLinks = failedSettings.getByRole('link', { name: '前往开放平台查看', exact: true })
     await expect.poll(() => failedLinks.count(), { timeout: 30_000 }).toBe(2)
@@ -541,9 +541,9 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     // Returning from usage refreshes nothing, because only a payment changes the account.
     for (const index of [0, 1]) {
       await failedLinks.nth(index).click()
-      const usageOverlay = page.getByRole('dialog', { name: '返回 DeepSeek Harness', exact: true })
+      const usageOverlay = page.getByRole('dialog', { name: '返回 智维小 C', exact: true })
       await usageOverlay.waitFor()
-      await usageOverlay.getByRole('button', { name: '返回 DeepSeek Harness', exact: true }).click()
+      await usageOverlay.getByRole('button', { name: '返回 智维小 C', exact: true }).click()
       await usageOverlay.waitFor({ state: 'detached', timeout: 30_000 })
     }
     const failedUsages = (await platformCalls(page)).filter(call => call === 'open:usage').length - failedUsagesBefore
@@ -591,7 +591,7 @@ describe.skipIf(MODE === 'record')('web e2e: bonus notice', () => {
     await expect.poll(() => cards.count()).toBe(3)
     await expect.poll(() => platform.acks.length).toBe(ackStart + 1)
     expect(platform.acks.slice(ackStart).map(ack => ack.orderId)).toEqual(['stack-first'])
-    expect(await stackPage.getByRole('status').count()).toBe(1)
+    expect(await cards.getByRole('status').count()).toBe(1)
     const second = cards.filter({ hasText: '22.00' })
     const secondNode = await second.elementHandle()
     const frontBox = await cards.first().boundingBox()

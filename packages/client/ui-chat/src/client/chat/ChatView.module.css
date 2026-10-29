@@ -315,38 +315,20 @@
   position: relative;
   display: inline-flex;
   flex: none;
-  width: calc(14px + var(--dsh-content-font-delta, 0px));
-  height: calc(14px + var(--dsh-content-font-delta, 0px));
+  width: 16px;
+  height: 16px;
   /* The fixed footprint contains the animation's layout and paint. */
   contain: strict;
   overflow: hidden;
 }
 
-.runningWhaleAnimated {
-  display: none;
-  position: absolute;
-  inset: 0;
+@keyframes runningProductPulse {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
 }
 
-.runningWhaleStill {
-  display: initial;
-}
-
-@supports (mask-mode: alpha) and (mask-image: url('')) {
-  @media (prefers-reduced-motion: no-preference) and (forced-colors: none) {
-    .runningWhaleAnimated {
-      display: block;
-      background: currentColor;
-      mask: url('../assets/running-whale@2x.png') center / 100% 100% no-repeat;
-      mask-mode: alpha;
-      /* Keep animated-mask repaints on an icon-sized composited layer. */
-      will-change: transform;
-    }
-
-    .runningWhaleStill {
-      display: none;
-    }
-  }
+@media (prefers-reduced-motion: no-preference) {
+  .runningIcon { animation: runningProductPulse 1.2s ease-in-out infinite alternate; }
 }
 
 .openError {

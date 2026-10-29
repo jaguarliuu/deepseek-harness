@@ -190,28 +190,22 @@ describe('product icon set', () => {
   })
 })
 
-describe('FishLogo', () => {
-  it('renders the fish path in currentColor at the native ratio', () => {
-    const { container } = render(<primitives.FishLogo />)
-    const svg = container.querySelector('svg')!
-    expect(svg.getAttribute('width')).toBe('24')
-    expect(Number(svg.getAttribute('height'))).toBeCloseTo(17.66, 1)
-    expect(svg.getAttribute('viewBox')).toBe('0 0 23.16 17.04')
-    expect(container.querySelectorAll('path')).toHaveLength(1)
-    expect(container.innerHTML).toContain('currentColor')
-    expect(container.innerHTML).not.toContain('M0 0L23.16')
+describe('product branding', () => {
+  it('renders a square decorative product mark through the existing export', () => {
+    const { container } = render(<primitives.FishLogo size={32} />)
+    const mark = container.firstElementChild as HTMLElement
+    expect(mark.getAttribute('aria-hidden')).toBe('true')
+    expect(mark.style.width).toBe('32px')
+    expect(mark.style.height).toBe('32px')
+    expect(container.querySelector('svg')).toBeNull()
   })
-})
 
-describe('BrandWordmark', () => {
-  it('can render the name artwork with or without its leading mark', () => {
-    const view = render(<primitives.BrandWordmark />)
-    const svg = view.container.querySelector('svg')!
-    expect(svg.getAttribute('width')).toBe('182')
-    expect(svg.getAttribute('viewBox')).toBe('0 0 182 24')
-
-    view.rerender(<primitives.BrandWordmark includeMark={false} />)
-    expect(svg.getAttribute('width')).toBe('156')
-    expect(svg.getAttribute('viewBox')).toBe('26 0 156 24')
+  it('renders the caller’s product name with an optional mark', () => {
+    const view = render(<primitives.BrandWordmark label="智维小 C" />)
+    expect(view.container.textContent).toBe('智维小 C')
+    expect(view.container.firstElementChild?.children).toHaveLength(1)
+    view.rerender(<primitives.BrandWordmark label="智维小 C" includeMark={false} />)
+    expect(view.container.textContent).toBe('智维小 C')
+    expect(view.container.firstElementChild?.children).toHaveLength(0)
   })
 })

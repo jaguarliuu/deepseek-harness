@@ -133,6 +133,8 @@ The atoms cannot read the application locale, so every piece of user-facing copy
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
 
+`FishLogo` retains its historical export name and renders the rounded product robot. `BrandWordmark` requires a caller-localized `label` and optionally includes the same mark; both are decorative. The shared CSS embeds a 64px PNG so dynamic plugin bundles need no extra asset route; regenerate it with `pnpm --dir apps/web run render:app-icons`.
+
 `Button` uses H36/R12 for `md` and H28/R8 for `sm`, including outlined controls. The `outline` variant preserves a transparent 0.5px layout border and paints its stroke with an inset shadow. The stroke reads ui-theme's DPR-aware `--dsh-hairline-width`, with a 0.5px fallback outside the theme. Feature classes customize its color through `--dsh-button-outline-color` and preserve the border width, transparent border color, and box-shadow. Menus and cards follow the [shared radius rules](../../../docs/web-styling.md#corner-radii-and-settings-cards); feature classes preserve control geometry.
 
 `Menu.listClassName` styles the menu card independently of the anchor wrapper, including in portal mode. Leading icons use the `--dsw-alias-menu-icon` color; destructive icons retain their error color.
