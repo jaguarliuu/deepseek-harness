@@ -11,6 +11,7 @@ it('uploads selected instructions and refreshes the catalog after success', asyn
   const onImportSkill = vi.fn(async () => ({ name: 'office-report' }))
   const onImported = vi.fn()
   render(<SkillImport sessionId={SessionId('office')} onImportSkill={onImportSkill} onImported={onImported} t={makeTranslate(en)} />)
+  fireEvent.click(screen.getByRole('button', { name: en['import.action'] }))
   const content = '---\nname: office-report\ndescription: Reports\n---\nWrite a report.'
   const file = new File([content], 'SKILL.md', { type: 'text/markdown' })
   Object.defineProperties(file, {
@@ -24,5 +25,5 @@ it('uploads selected instructions and refreshes the catalog after success', asyn
 })
 it('disables importing until a workspace Session is selected', () => {
   render(<SkillImport sessionId={undefined} onImportSkill={vi.fn()} onImported={vi.fn()} t={makeTranslate(en)} />)
-  expect(screen.getByRole<HTMLButtonElement>('button', { name: en['import.file'] }).disabled).toBe(true)
+  expect(screen.getByRole<HTMLButtonElement>('button', { name: en['import.action'] }).disabled).toBe(true)
 })

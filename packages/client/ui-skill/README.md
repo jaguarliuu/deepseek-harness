@@ -7,7 +7,7 @@ kind: "package-reference"
 
 English | [中文](README.zh.md)
 
-The Skills settings and capability center import a SKILL.md file or a complete skill folder into the selected Session workspace. Imports accept up to 256 files and 10 MiB, preserve nested resources, and refuse existing skill names.
+The Skills settings and capability center expose one Import skill action. Its dialog offers an instruction file or a complete skill folder, shows format requirements and import results, and installs into the selected Session workspace. Imports accept up to 256 files and 10 MiB, preserve nested resources, and refuse existing skill names.
 
 ## Summary
 

@@ -35,11 +35,13 @@ it('creates a task, imports a skill and restores a recycled Session over the rea
 
     await page.getByRole('button', { name: /Capabilities|Plugins|Capability center/u }).first().click()
     await page.getByRole('tab', { name: 'Browse', exact: true }).click()
+    await page.getByRole('button', { name: 'Import skill', exact: true }).click()
     await page.getByLabel('Import SKILL.md', { exact: true }).setInputFiles({
       name: 'SKILL.md', mimeType: 'text/markdown',
       buffer: Buffer.from('---\nname: intranet-report\ndescription: Internal report writing\n---\nWrite a concise report.\n'),
     })
     await page.getByText('Skill imported. Refresh the catalog to view it.', { exact: true }).waitFor()
+    await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click()
     await page.getByText('intranet-report', { exact: true }).waitFor()
 
     const group = page.getByRole('treeitem', { name: 'Ungrouped', exact: true })

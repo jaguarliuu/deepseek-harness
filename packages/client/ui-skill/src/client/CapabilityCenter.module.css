@@ -1,10 +1,10 @@
 .center { display: flex; flex-direction: column; gap: 24px; padding-bottom: 16px; color: var(--dsw-alias-label-primary); }
-.hero { padding: 28px; border: 1px solid var(--dsw-alias-border-l3); border-radius: var(--dsw-radius-xl); background: var(--dsw-alias-bg-layer-2); border-inline-start: 3px solid var(--dsw-alias-brand-text); }
+.hero { padding: 20px 24px; border: 1px solid var(--dsw-alias-border-l3); border-radius: var(--dsw-radius-xl); background: var(--dsw-alias-bg-layer-2); border-inline-start: 3px solid var(--dsw-alias-brand-text); }
 .eyebrow { font-size: 12px; line-height: 20px; letter-spacing: 1px; color: var(--dsw-alias-brand-text); }
 .hero h2 { margin: 12px 0 8px; font-size: 28px; line-height: 38px; font-weight: 500; }
 .hero p { margin: 0; font-size: 14px; line-height: 24px; color: var(--dsw-alias-label-secondary); }
-.source { display: block; margin-top: 20px; font-size: 12px; color: var(--dsw-alias-label-secondary); }
-.toolbar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(180px, 280px); align-items: end; gap: 16px; }
+.source { display: block; margin-top: 12px; font-size: 12px; color: var(--dsw-alias-label-secondary); }
+.toolbar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(160px, 220px) auto; align-items: end; gap: 12px; }
 .context { display: flex; flex-direction: column; gap: 6px; min-width: 0; font-size: 12px; color: var(--dsw-alias-label-secondary); }
 .context select, .command input { padding: 10px 12px; min-width: 0; width: 100%; box-sizing: border-box; border: 1px solid var(--dsw-alias-border-l3); border-radius: var(--dsw-radius-md); background: var(--dsw-alias-bg-layer-2); color: var(--dsw-alias-label-primary); font: inherit; }
 .filters { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }

@@ -11,6 +11,14 @@
 .card p { font-size: 13px; line-height: 21px; color: var(--dsw-alias-label-secondary); margin: 8px 0 0; }
 @media (pointer: coarse) { .search, .label select { font-size: 16px; } }
 
-.importBox { display: flex; flex-direction: column; gap: 8px; }
-.importActions { display: flex; flex-wrap: wrap; gap: 8px; }
-.importBox p { margin: 0; font-size: 13px; line-height: 21px; color: var(--dsw-alias-label-secondary); }
+.importBox { display: flex; align-items: center; flex-shrink: 0; }
+.importChoices { display: flex; flex-direction: column; gap: 12px; }
+.importChoice { display: flex; align-items: center; gap: 16px; padding: 18px; width: 100%; text-align: start; font: inherit; color: var(--dsw-alias-label-primary); background: var(--dsw-alias-bg-layer-2); border: 1px solid var(--dsw-alias-border-l3); border-radius: var(--dsw-radius-xl); cursor: pointer; }
+.importChoice strong { display: block; font-size: 14px; font-weight: 500; line-height: 22px; }
+.importChoice small { display: block; margin-top: 4px; color: var(--dsw-alias-label-secondary); font-size: 13px; line-height: 20px; }
+.importIcon { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex-shrink: 0; border-radius: var(--dsw-radius-md); color: var(--dsw-alias-brand-text); background: var(--dsw-specific-sidebar-nav-item-active); }
+.importChoice:focus-visible { outline: 2px solid var(--dsw-alias-brand-text); outline-offset: 2px; }
+.importChoice:disabled { opacity: .5; cursor: wait; }
+.importChoices p { margin: 0; font-size: 13px; line-height: 21px; color: var(--dsw-alias-label-secondary); }
+.importNote { padding-top: 8px; }
+@media (hover: hover) { .importChoice:not(:disabled):hover { border-color: var(--dsw-alias-brand-text); background: var(--dsw-alias-settings-card-fill); } }

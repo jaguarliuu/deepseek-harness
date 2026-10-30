@@ -1707,6 +1707,19 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'mcpManager',
+    summary: 'Own configured MCP children; each uses the standard reconnect and tool registration lifecycle.',
+    description: 'Own configured MCP children; each uses the standard reconnect and tool registration lifecycle.',
+    methods: [
+      {
+        signature: '@Remote async test(server: McpServer): Promise<ProbeResult>',
+        description: 'Initialize a temporary connection and enumerate tools without calling them or changing saved settings.',
+        parameters: [{ name: 'server', description: 'unsaved definition to verify; stdio starts the specified local executable.' }],
+        returns: 'tool names on success, or a redacted failure after connection cleanup.',
+      },
+    ],
+  },
+  {
     key: 'mcpResources',
     summary: 'Scoped resource access plus three tools shared by configured MCP servers.',
     description: 'Scoped resource access plus three tools shared by configured MCP servers.',
@@ -6485,6 +6498,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type McpResourceRequest = {\n    method: \'resources/list\' | \'resources/templates/list\';\n    cursor?: string;\n} | {\n    method: \'resources/read\';\n    uri: string;\n};',
   },
   {
+    name: 'McpServer',
+    declaration: 'export interface McpServer {\n    name: string;\n    enabled: boolean;\n    transport: \'streamable-http\' | \'stdio\';\n    url: string;\n    headers: Record<string, string>;\n    command: string;\n    args: string[];\n    env: Record<string, string>;\n    cwd: string;\n    timeoutMs: number;\n}',
+  },
+  {
     name: 'Message',
     declaration: 'export type Message = MessageRoleMap[keyof MessageRoleMap];',
   },
@@ -6899,6 +6916,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'PrincipalMap',
     declaration: 'export interface PrincipalMap {\n    owner: {\n        readonly kind: \'owner\';\n    };\n}',
+  },
+  {
+    name: 'ProbeResult',
+    declaration: 'export type ProbeResult = {\n    ok: true;\n    tools: string[];\n} | {\n    ok: false;\n    code: \'invalid\' | \'connection\' | \'timeout\' | \'cleanup\';\n};',
   },
   {
     name: 'ProductEvent',

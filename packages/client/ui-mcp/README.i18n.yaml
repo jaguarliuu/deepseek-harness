@@ -1,0 +1,43 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/client/ui-mcp/README.md
+/:
+  en: b56b2c6d9142efc5
+  zh: 71955873e0138bc8
+/deepseek-ai-dsh-client-ui-mcp:
+  en: 9a88ab79014990bc
+  zh: 2996c075252d4824
+/deepseek-ai-dsh-client-ui-mcp/summary:
+  en: 1af52cc65ada0441
+  zh: 6d5ffa5e3271dd29
+/deepseek-ai-dsh-client-ui-mcp/table-of-contents:
+  en: a2d5e2154ddddb36
+  zh: b1c8f55d527d8d6c
+/deepseek-ai-dsh-client-ui-mcp/configuration:
+  en: 6854a233f9a701e5
+  zh: 16e56a95dfb9c856
+/deepseek-ai-dsh-client-ui-mcp/connection-testing:
+  en: f9551275c4bd0a0f
+  zh: f3e06c3f61823674
+/deepseek-ai-dsh-client-ui-mcp/dev-note:
+  en: 9b57a0b2314e7b1e
+  zh: e5efc418d9b01a9d
+/deepseek-ai-dsh-client-ui-mcp/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/deepseek-ai-dsh-client-ui-mcp/model-experience/enabled-service-capabilities:
+  en: c151cc83c3a5f347
+  zh: 3ebfe291e6e72f7f
+/deepseek-ai-dsh-client-ui-mcp/model-experience/enabled-service-capabilities/what-the-model-sees:
+  en: 05391714a2e1f958
+  zh: 0c9c7f155374e52c
+/deepseek-ai-dsh-client-ui-mcp/model-experience/enabled-service-capabilities/token-effect:
+  en: 0efbd653e9c43521
+  zh: 9ec7a5e0eb3c8ff8
+/deepseek-ai-dsh-client-ui-mcp/model-experience/enabled-service-capabilities/kv-cache-effect:
+  en: db83764ca64e3095
+  zh: 4354ae6cf4f0ee45
+/deepseek-ai-dsh-client-ui-mcp/known-limitations-and-deferred-work:
+  en: 24820bdcc07f0369
+  zh: fc07b37e94824ad0

@@ -5,6 +5,10 @@ export const NS = 'skill'
 
 /** Simplified Chinese dictionary (the key-set source of truth). */
 export const zh = {
+  'import.action': '导入技能',
+  'import.intro': '将你自己的技能添加到所选工作区',
+  'import.fileHint': '适合只有说明文件的轻量技能',
+  'import.folderHint': '完整保留脚本、模板和参考资料',
   'import.file': '导入 SKILL.md',
   'import.folder': '导入技能文件夹',
   'import.pending': '正在导入…',
@@ -83,6 +87,10 @@ export type SkillKey = keyof typeof zh
 
 /** English dictionary, checked complete against the zh key set. */
 export const en = {
+  'import.action': 'Import skill',
+  'import.intro': 'Add your own skill to the selected workspace.',
+  'import.fileHint': 'One instruction file',
+  'import.folderHint': 'Instructions with scripts and templates',
   'import.file': 'Import SKILL.md',
   'import.folder': 'Import skill folder',
   'import.pending': 'Importing…',
@@ -158,6 +166,10 @@ export const en = {
 
 /** Japanese copy, checked against the English keys. */
 export const ja = {
+  'import.action': 'Import skill',
+  'import.intro': 'Add your own skill to the selected workspace.',
+  'import.fileHint': 'One instruction file',
+  'import.folderHint': 'Instructions with scripts and templates',
   'import.file': 'Import SKILL.md',
   'import.folder': 'Import skill folder',
   'import.pending': 'Importing…',
@@ -233,6 +245,10 @@ export const ja = {
 
 /** Spanish dictionary, checked against the English keys. */
 export const es = {
+  'import.action': 'Import skill',
+  'import.intro': 'Add your own skill to the selected workspace.',
+  'import.fileHint': 'One instruction file',
+  'import.folderHint': 'Instructions with scripts and templates',
   'import.file': 'Import SKILL.md',
   'import.folder': 'Import skill folder',
   'import.pending': 'Importing…',
@@ -308,6 +324,10 @@ export const es = {
 
 /** French dictionary, checked against the English keys. */
 export const fr = {
+  'import.action': 'Import skill',
+  'import.intro': 'Add your own skill to the selected workspace.',
+  'import.fileHint': 'One instruction file',
+  'import.folderHint': 'Instructions with scripts and templates',
   'import.file': 'Import SKILL.md',
   'import.folder': 'Import skill folder',
   'import.pending': 'Importing…',
@@ -383,6 +403,10 @@ export const fr = {
 
 /** German dictionary, checked against the English keys. */
 export const de = {
+  'import.action': 'Import skill',
+  'import.intro': 'Add your own skill to the selected workspace.',
+  'import.fileHint': 'One instruction file',
+  'import.folderHint': 'Instructions with scripts and templates',
   'import.file': 'Import SKILL.md',
   'import.folder': 'Import skill folder',
   'import.pending': 'Importing…',
@@ -458,6 +482,10 @@ export const de = {
 
 /** Russian dictionary, checked against the English keys. */
 export const ru = {
+  'import.action': 'Import skill',
+  'import.intro': 'Add your own skill to the selected workspace.',
+  'import.fileHint': 'One instruction file',
+  'import.folderHint': 'Instructions with scripts and templates',
   'import.file': 'Import SKILL.md',
   'import.folder': 'Import skill folder',
   'import.pending': 'Importing…',
@@ -533,6 +561,10 @@ export const ru = {
 
 /** Portuguese dictionary, checked against the English keys. */
 export const pt = {
+  'import.action': 'Import skill',
+  'import.intro': 'Add your own skill to the selected workspace.',
+  'import.fileHint': 'One instruction file',
+  'import.folderHint': 'Instructions with scripts and templates',
   'import.file': 'Import SKILL.md',
   'import.folder': 'Import skill folder',
   'import.pending': 'Importing…',

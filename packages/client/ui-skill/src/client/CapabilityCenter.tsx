@@ -95,11 +95,13 @@ export function CapabilityCenter({ catalog = [], catalogStatus, useSessions, use
       <Input aria-label={t('center.search')} placeholder={t('center.search')} value={query} onChange={(event) => { setQuery(event.target.value) }} />
       <label className={css.context}>{t('center.context')}
         <select value={sessionId ?? ''} onChange={(event) => { setSelection(event.target.value) }}>
-          {sessions.ids.map(id => <option key={id} value={id}>{sessions.byId[id]?.title || sessions.byId[id]?.cwd || id}</option>)}
+          {sessions.ids.map(id => <option key={id} value={id}>
+            {sessions.byId[id]?.title || sessions.byId[id]?.cwd?.split(/[\\/]/u).filter(Boolean).at(-1) || id}
+          </option>)}
         </select>
       </label>
+      <SkillImport sessionId={sessionId} onImportSkill={onImportSkill} onImported={() => { setRefreshKey(value => !value) }} t={t} />
     </div>
-    <SkillImport sessionId={sessionId} onImportSkill={onImportSkill} onImported={() => { setRefreshKey(value => !value) }} t={t} />
     <div className={css.filters}>
       <SegmentedTabs label={t('center.browse')} value={kind} onChange={setKind} items={[
         { value: 'all', label: t('center.all'), id: `${filterId}-all`, panelId: `${filterId}-panel` },

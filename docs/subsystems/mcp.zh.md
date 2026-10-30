@@ -9,6 +9,7 @@
 ## 目录
 
 - [配置](#configuration)
+- [桌面连接管理](#managed-desktop-connections)
 - [职责与作用域](#responsibilities-and-scope)
 - [协议与结果](#protocol-and-results)
 - [资源与指令](#resources-and-instructions)
@@ -34,6 +35,11 @@ MCP 服务器需要主动配置。在目标 Cordis 作用域中，为每台服�
 协议协商遵循 SDK 支持的修订版；产品没有强制指定协议修订版的设置。[配置目录](../config-catalog.zh.md#deepseek-aidsh-mcp-client) 列出客户端接受的字段和默认值。
 
 -----
+
+<a id="managed-desktop-connections"></a>
+## 桌面连接管理
+
+[MCP 服务设置](../../packages/client/ui-mcp/README.zh.md)拥有 `ctx.mcpManager`。`test` 方法接收 `McpServer` 定义并返回 `ProbeResult`：成功时为 `ok: true` 和发现的工具名称；失败时为 `ok: false` 和 `invalid`、`connection`、`timeout` 或 `cleanup` 错误码。服务定义包含唯一名称、启用标记、传输方式、地址和请求头、程序和参数、环境变量、工作目录及超时。测试使用临时连接，不调用工具。持久化定义属于 `ui-mcp` 配置项，动态更新替换受影响的 MCP 子插件。
 
 <a id="responsibilities-and-scope"></a>
 ## 职责与作用域
@@ -118,6 +124,23 @@ interface McpResourceProvider {
 ## Cordis API
 
 Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.zh.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+
+<a id="ctxmcpmanager--mcpmanager"></a>
+
+### `ctx.mcpManager` — `McpManager`
+
+Own configured MCP children; each uses the standard reconnect and tool registration lifecycle.
+
+```ts cordis-catalog
+/**
+ * Initialize a temporary connection and enumerate tools without calling them or changing saved settings.
+ * @param server - unsaved definition to verify; stdio starts the specified local executable.
+ * @returns tool names on success, or a redacted failure after connection cleanup.
+ */
+@Remote async test(server: McpServer): Promise<ProbeResult>
+```
+
+Source: [`packages/client/ui-mcp/src/index.ts`](../../packages/client/ui-mcp/src/index.ts)
 
 <a id="ctxmcpresources--mcpresourceruntime"></a>
 

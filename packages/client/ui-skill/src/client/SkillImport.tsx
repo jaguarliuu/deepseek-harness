@@ -1,6 +1,6 @@
 /** Local skill files enter the workspace through the authenticated skill importer. */
 import { useRef, useState } from 'react'
-import { Button } from '@deepseek-ai/dsh-client-ui-primitives'
+import { Button, Modal, IconPlusOutlineRegular, IconFolderCloseRegular, FileTypeIcon } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { PropsLocale } from '@deepseek-ai/dsh-client-ui-slots'
 import type { SkillImportRequest, SkillImportValue } from '@deepseek-ai/dsh-api-session-controller/types'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
@@ -18,6 +18,7 @@ export function SkillImport({ sessionId, onImportSkill, onImported, t }: SkillIm
 }) {
   const single = useRef<HTMLInputElement>(null)
   const folder = useRef<HTMLInputElement>(null)
+  const [open, setOpen] = useState(false)
   const [pending, setPending] = useState(false)
   const [result, setResult] = useState<'success' | 'failed' | null>(null)
   const upload = async (selected: FileList | null): Promise<void> => {
@@ -46,13 +47,25 @@ export function SkillImport({ sessionId, onImportSkill, onImported, t }: SkillIm
     }
   }
   return <div className={css.importBox}>
-    <div className={css.importActions}>
-      <Button disabled={pending || sessionId === undefined} onClick={() => { single.current?.click() }}>{t(pending ? 'import.pending' : 'import.file')}</Button>
-      <Button disabled={pending || sessionId === undefined} onClick={() => { folder.current?.click() }}>{t('import.folder')}</Button>
-    </div>
+    <Button variant="primary" icon={<IconPlusOutlineRegular size={16} />} disabled={sessionId === undefined}
+      onClick={() => { setResult(null); setOpen(true) }}>{t('import.action')}</Button>
+    {open && <Modal open title={t('import.action')} description={t('import.intro')} closeLabel={t('center.close')}
+      onClose={() => { if (!pending) setOpen(false) }}>
+      <div className={css.importChoices}>
+        <button className={css.importChoice} disabled={pending} onClick={() => { single.current?.click() }}>
+          <span className={css.importIcon}><FileTypeIcon path="SKILL.md" size={24} /></span>
+          <span><strong>{t('import.file')}</strong><small>{t('import.fileHint')}</small></span>
+        </button>
+        <button className={css.importChoice} disabled={pending} onClick={() => { folder.current?.click() }}>
+          <span className={css.importIcon}><IconFolderCloseRegular size={24} /></span>
+          <span><strong>{t('import.folder')}</strong><small>{t('import.folderHint')}</small></span>
+        </button>
+        <p className={css.importNote}>{t('import.hint')}</p>
+        {pending && <p role="status">{t('import.pending')}</p>}
+        {result && <p role={result === 'failed' ? 'alert' : 'status'}>{t(`import.${result}`)}</p>}
+      </div>
+    </Modal>}
     <input ref={single} type="file" accept=".md" hidden aria-label={t('import.file')} onChange={(event) => { void upload(event.target.files) }} />
     <input ref={folder} type="file" {...{ webkitdirectory: '' }} multiple hidden aria-label={t('import.folder')} onChange={(event) => { void upload(event.target.files) }} />
-    <p>{t('import.hint')}</p>
-    {result && <p role={result === 'failed' ? 'alert' : 'status'}>{t(`import.${result}`)}</p>}
   </div>
 }

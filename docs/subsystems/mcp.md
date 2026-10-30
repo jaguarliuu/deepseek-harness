@@ -9,6 +9,7 @@ Model Context Protocol (MCP) connects the model to tools supplied by external se
 ## Table of Contents
 
 - [Configuration](#configuration)
+- [Managed desktop connections](#managed-desktop-connections)
 - [Responsibilities and scope](#responsibilities-and-scope)
 - [Protocol and results](#protocol-and-results)
 - [Resources and instructions](#resources-and-instructions)
@@ -34,6 +35,11 @@ MCP servers are opt-in. Configure one `@deepseek-ai/dsh-mcp-client` entry per se
 Protocol negotiation follows the SDK's supported revisions; there is no product setting that forces a protocol revision. The [configuration catalog](../config-catalog.md#deepseek-aidsh-mcp-client) lists accepted client fields and defaults.
 
 -----
+
+<a id="managed-desktop-connections"></a>
+## Managed desktop connections
+
+The [MCP services settings](../../packages/client/ui-mcp/README.md) owns `ctx.mcpManager`. Its `test` method accepts a `McpServer` definition and returns `ProbeResult`: either `ok: true` with discovered tool names, or `ok: false` with an `invalid`, `connection`, `timeout`, or `cleanup` code. Definitions carry a unique name, enabled flag, transport, endpoint and headers, executable and arguments, environment, working directory, and timeout. Testing uses a temporary connection and does not invoke tools. Persisted definitions belong to the `ui-mcp` configuration entry; volatile updates replace affected MCP child plugins.
 
 <a id="responsibilities-and-scope"></a>
 ## Responsibilities and scope
@@ -118,6 +124,23 @@ MCP prompt templates, human-input elicitation, task-based execution, and resourc
 ## Cordis API
 
 Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+
+<a id="ctxmcpmanager--mcpmanager"></a>
+
+### `ctx.mcpManager` — `McpManager`
+
+Own configured MCP children; each uses the standard reconnect and tool registration lifecycle.
+
+```ts cordis-catalog
+/**
+ * Initialize a temporary connection and enumerate tools without calling them or changing saved settings.
+ * @param server - unsaved definition to verify; stdio starts the specified local executable.
+ * @returns tool names on success, or a redacted failure after connection cleanup.
+ */
+@Remote async test(server: McpServer): Promise<ProbeResult>
+```
+
+Source: [`packages/client/ui-mcp/src/index.ts`](../../packages/client/ui-mcp/src/index.ts)
 
 <a id="ctxmcpresources--mcpresourceruntime"></a>
 

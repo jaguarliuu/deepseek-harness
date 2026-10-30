@@ -1,0 +1,17 @@
+- dialog "Add service":
+  - heading "Add service" [level=2]
+  - button "Close"
+  - text: Service name
+  - textbox "Service name": intranet
+  - paragraph: Letters, digits, underscores and hyphens; up to 32 characters. Used in tool names.
+  - text: Connection type
+  - combobox "Connection type":
+    - option "Remote HTTP" [selected]
+    - option "Local program"
+  - text: MCP endpoint
+  - textbox "MCP endpoint":
+    - /placeholder: https://mcp.company.local/mcp
+    - text: http://intranet.example/mcp
+  - group: Authentication and advanced settings
+  - button "Test connection"
+  - button "Save service"

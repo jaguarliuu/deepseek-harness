@@ -155,6 +155,14 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Owns module and exact configuration watchers; application mutations share its queue and automatic reloads await the application file lock.',
   },
   {
+    key: 'mcpManager',
+    pkg: 'client-ui-mcp',
+    title: 'Managed MCP connections',
+    mode: 'core',
+    consumers: ['client-ui-mcp'],
+    note: 'Reconciles configured MCP clients and probes unsaved connections without invoking tools.',
+  },
+  {
     key: 'pluginRegistryProbe',
     pkg: 'client-ui-plugin-manager',
     title: 'Host registry response comparison',
