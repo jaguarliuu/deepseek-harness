@@ -69,7 +69,7 @@
     "react-dom": "^18.2.0",
     "@deepseek-ai/dsh-client-ui-settings": "workspace:*",
     "@modelcontextprotocol/server": "2.2.0",
-    "@modelcontextprotocol/node": "2.0.0",
+    "@modelcontextprotocol/node": "2.1.0",
     "@deepseek-ai/dsh-tools": "workspace:*",
     "@deepseek-ai/dsh-system-prompt": "workspace:*",
     "@deepseek-ai/cosmokit": "workspace:~",
