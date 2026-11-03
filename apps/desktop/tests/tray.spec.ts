@@ -70,3 +70,13 @@ it('relabels the menu in the current locale and ignores relabel after disposal',
   f.tray.relabel()
   expect(native.menus).toHaveLength(2)
 })
+
+it('restores the companion from the Windows tray', () => {
+  const restore = vi.fn()
+  const tray = new DesktopTray({ iconPath: 'tray.ico', locale: () => resolveDesktopLocale('zh'),
+    open: vi.fn(), quit: vi.fn(), companion: restore })
+  const item = native.menus[0]!.find(entry => entry.label === '桌面小 C')!
+  ;(item as { click: () => void }).click()
+  expect(restore).toHaveBeenCalledOnce()
+  tray.dispose()
+})

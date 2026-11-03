@@ -6,8 +6,11 @@
   en: 0d36989eb614345d
   zh: a0a1a18c07621393
 /c-desktop:
-  en: d1e5fcd482f059cc
-  zh: 48f77a6fa267ebb8
+  en: 0a1fa60cd43e81de
+  zh: 464f1fc25429b4f1
+/c-desktop/desktop-companion:
+  en: d1369773c6dc38ee
+  zh: 25550231f79994a6
 /c-desktop/summary:
   en: 7bc8bf30de693222
   zh: e85993d8852b6cab
@@ -75,5 +78,5 @@
   en: 7f29313fba2e1abb
   zh: 3eecb0ca31a32e75
 /c-desktop/dev-note:
-  en: 8e26b460ba31f21b
-  zh: fbcd0307b3867125
+  en: 2b09ac001ff5ebe9
+  zh: 8e89913b3ddd933a

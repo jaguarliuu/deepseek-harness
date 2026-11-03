@@ -262,3 +262,19 @@
 .overlayLayer > * {
   pointer-events: auto;
 }
+
+/* The desktop quick-task view retains the live conversation and all approval overlays. */
+:global([data-quick-task]) .frame {
+  grid-template-columns: minmax(0, 1fr) !important;
+  padding-top: 100px;
+  --dsh-frame-leading-clearance: 0px;
+  --dsh-windows-sidebar-width: 0px;
+}
+:global([data-quick-task]) .sidebarCol,
+:global([data-quick-task]) .rightbarCol,
+:global([data-quick-task]) .leadingSeat,
+:global([data-quick-task]) .handle {
+  display: none;
+}
+:global([data-quick-task]) .centerCol { grid-column: 1; border-radius: 0; }
+:global([data-quick-task]) .frame[data-rightbar-fullscreen] .rightbarCol { display: block; }

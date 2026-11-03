@@ -16,7 +16,13 @@ import { writeCrashReport } from '../src/crash-report.ts'
 type InvokeEvent = { sender?: unknown; senderFrame: { url: string } }
 type InvokeHandler = (event: InvokeEvent, ...args: unknown[]) => unknown
 
+vi.mock('../src/selection-task.ts', () => ({ DesktopSelectionTask: class { capture = vi.fn(); fromClipboard = vi.fn(); accept = vi.fn(); dispose = vi.fn() } }))
+
 const fileDrag = vi.hoisted(() => ({ dispose: vi.fn<() => Promise<void>>(), install: vi.fn() }))
+vi.mock('../src/quick-task-window.ts', () => ({ DesktopQuickTask: class { show = vi.fn(); restore = vi.fn(); dispose = vi.fn() } }))
+vi.mock('../src/task-result-bubble.ts', () => ({ DesktopTaskResultBubble: class { notify = vi.fn(); dispose = vi.fn(); isVisible = () => false } }))
+vi.mock('../src/companion.ts', () => ({ DesktopCompanion: class { show = vi.fn(); dispose = vi.fn() } }))
+
 vi.mock('../src/file-drag.ts', () => ({ installDesktopFileDrag: () => { fileDrag.install(); return fileDrag.dispose } }))
 
 vi.mock('../src/web-document.ts', () => ({ authenticateWebHost: async () => 'test-cookie', serveWebDocument: vi.fn(), forwardWebRequest: vi.fn() }))
@@ -966,10 +972,10 @@ describe('desktop main startup', () => {
     listener(event, 'zh-CN', 'rgb(249, 250, 251)', '#0f1115')
     expect(window.setTitleBarOverlay).toHaveBeenCalledWith({ color: 'rgb(249, 250, 251)', symbolColor: '#0f1115' })
     window.webContents.emit('context-menu', {}, { isEditable: false, selectionText: 'text', editFlags: { canCopy: true } })
-    expect(harness.menu.buildFromTemplate).toHaveBeenLastCalledWith([{ role: 'copy', enabled: true, label: '复制', accelerator: '' }])
+    expect(harness.menu.buildFromTemplate).toHaveBeenLastCalledWith([{ role: 'copy', enabled: true, label: '复制', accelerator: '' }, { type: 'separator', accelerator: '' }, { label: zh.selectionAsk, click: expect.any(Function), accelerator: '' }])
     listener(event, 'en', '#1b1b1c', '#f9fafb')
     window.webContents.emit('context-menu', {}, { isEditable: false, selectionText: 'text', editFlags: { canCopy: true } })
-    expect(harness.menu.buildFromTemplate).toHaveBeenLastCalledWith([{ role: 'copy', enabled: true, label: 'Copy', accelerator: '' }])
+    expect(harness.menu.buildFromTemplate).toHaveBeenLastCalledWith([{ role: 'copy', enabled: true, label: 'Copy', accelerator: '' }, { type: 'separator', accelerator: '' }, { label: en.selectionAsk, click: expect.any(Function), accelerator: '' }])
     window.setTitleBarOverlay.mockClear()
     listener(event, 'en', 'url(file:///bad)', '#fff')
     expect(window.setTitleBarOverlay).not.toHaveBeenCalled()
@@ -997,7 +1003,7 @@ describe('desktop main startup', () => {
     expect(() => handler(event, 'application', NaN, 34)).toThrow('invalid popup request')
     const application = handler(event, 'application', 48, 34)
     expect(harness.menu.buildFromTemplate.mock.lastCall![0].map(item => item.label ?? item.type)).toEqual([
-      '关于 智维小 C', 'separator', '检查更新…', '管理 dsh 命令…', 'separator', '退出',
+      '关于 智维小 C', 'separator', zh.selectionAsk, zh.selectionClipboard, '桌面小 C', '检查更新…', '管理 dsh 命令…', 'separator', '退出',
     ])
     expect(harness.popup.mock.lastCall![0]).toMatchObject({ window, x: 48, y: 34 })
     expect(harness.popup.mock.lastCall![0].callback).toBeTypeOf('function')
@@ -1034,8 +1040,8 @@ describe('desktop main startup', () => {
       : ['Application', 'editMenu'])
     const application = template[0]!.submenu as MenuItemConstructorOptions[]
     expect(application.filter(item => item.visible !== false).map(describeItem)).toEqual(platform === 'darwin'
-      ? ['about', 'separator', en.checkUpdatesMenu, en.cliCommandMenu, 'separator', 'hide', 'hideOthers', 'unhide', 'separator', 'quit']
-      : ['about', 'separator', en.checkUpdatesMenu, 'separator', 'quit'])
+      ? ['about', 'separator', en.selectionAsk, en.selectionClipboard, en.companionMenu, en.checkUpdatesMenu, en.cliCommandMenu, 'separator', 'hide', 'hideOthers', 'unhide', 'separator', 'quit']
+      : ['about', 'separator', en.selectionAsk, en.selectionClipboard, en.companionMenu, en.checkUpdatesMenu, 'separator', 'quit'])
     expect(harness.menu.setApplicationMenu).toHaveBeenCalledOnce()
   })
 
@@ -1152,7 +1158,7 @@ describe('desktop main startup', () => {
     expect(harness.windows[0]!.urls).toEqual(['dsh-app://app/'])
   })
 
-  it('retains macOS native editing actions on right-click and only copy for selected read-only text', async () => {
+  it('retains macOS native editing actions on right-click and offers selection handoff for selected text', async () => {
     vi.spyOn(process, 'platform', 'get').mockReturnValue('darwin')
     await import('../src/main.ts')
     await harness.preparing.promise
@@ -1167,11 +1173,12 @@ describe('desktop main startup', () => {
       { role: 'cut', enabled: true, accelerator: '' }, { role: 'copy', enabled: true, accelerator: '' },
       { role: 'paste', enabled: true, accelerator: '' }, { type: 'separator', accelerator: '' },
       { role: 'selectAll', enabled: true, accelerator: '' },
+      { type: 'separator', accelerator: '' }, { label: en.selectionAsk, click: expect.any(Function), accelerator: '' },
     ])
     expect(harness.popup).toHaveBeenCalledWith({ window })
 
     window.webContents.emit('context-menu', {}, { isEditable: false, selectionText: 'text', editFlags })
-    expect(harness.menu).toHaveBeenLastCalledWith([{ role: 'copy', enabled: true, accelerator: '' }])
+    expect(harness.menu).toHaveBeenLastCalledWith([{ role: 'copy', enabled: true, accelerator: '' }, { type: 'separator', accelerator: '' }, { label: en.selectionAsk, click: expect.any(Function), accelerator: '' }])
 
     harness.menu.mockClear()
     window.webContents.emit('context-menu', {}, { isEditable: false, selectionText: '', editFlags })

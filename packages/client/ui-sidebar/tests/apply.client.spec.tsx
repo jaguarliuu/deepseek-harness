@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 /** Sidebar shell slot registration and its Session/layout callbacks. */
 import { Context, type Fiber } from '@deepseek-ai/cordis'
@@ -97,6 +98,19 @@ describe('ui-sidebar apply', () => {
     injected.selectPanel(panelId)
     expect(b.layout.selectPanel).toHaveBeenCalledExactlyOnceWith(panelId)
     expectTypeOf<Parameters<SidebarRootInjected['selectPanel']>[0]>().toEqualTypeOf<MainPanelId>()
+  })
+
+  it('routes compact task commands through shared navigation and removes the listener on unload', async () => {
+    const b = await bench()
+    const plugin = b.ctx.plugin({ inject: [...inject], apply })
+    await plugin.await()
+    window.dispatchEvent(new CustomEvent('dsh-quick-task-command', { detail: 'open' }))
+    expect(b.layout.selectPanel).toHaveBeenCalledWith(null)
+    window.dispatchEvent(new CustomEvent('dsh-quick-task-command', { detail: 'new' }))
+    expect(b.uiWorkspace.startSession).toHaveBeenCalledOnce()
+    await plugin.dispose()
+    window.dispatchEvent(new CustomEvent('dsh-quick-task-command', { detail: 'new' }))
+    expect(b.uiWorkspace.startSession).toHaveBeenCalledOnce()
   })
 
   it('forwards entry clicks to the optional product analytics service without tracking panel selection', async () => {

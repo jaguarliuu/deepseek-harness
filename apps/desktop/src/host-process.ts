@@ -3,6 +3,7 @@
 import { spawn, type ChildProcess } from 'node:child_process'
 import { join } from 'node:path'
 import type { PlatformSession } from '@deepseek-ai/dsh-deepseek-account'
+import type { DesktopTaskResult } from './task-result-api.ts'
 import { desktopNodeEnvironment } from './node-environment.ts'
 
 interface ReadyEvent {
@@ -23,7 +24,7 @@ interface PlatformSessionEvent {
   readonly session: PlatformSession | null
 }
 
-type DesktopHostEvent = ReadyEvent | FatalEvent | PlatformSessionEvent | { readonly type: 'shutdown-complete' } | {
+type DesktopHostEvent = (DesktopTaskResult & { readonly type: 'task-result' }) | ReadyEvent | FatalEvent | PlatformSessionEvent | { readonly type: 'shutdown-complete' } | {
   readonly type: 'file-drag-resource'
   readonly requestId: number
   readonly resource: { readonly path: string; readonly sha256: string; readonly size: number } | null
@@ -59,6 +60,10 @@ function isDesktopHostEvent(message: unknown): message is DesktopHostEvent {
   if (typeof message !== 'object' || message === null || !('type' in message)) return false
   const candidate = message as Record<string, unknown>
   switch (candidate.type) {
+    case 'task-result':
+      return typeof candidate.sessionId === 'string' && candidate.sessionId.length > 0 && candidate.sessionId.length <= 512
+        && typeof candidate.turn === 'number' && Number.isSafeInteger(candidate.turn) && candidate.turn >= 0
+        && (candidate.outcome === 'completed' || candidate.outcome === 'error')
     case 'shutdown-complete':
       return true
     case 'ready':
@@ -176,6 +181,7 @@ export class DesktopHostProcess {
    * @param primaryRuntime - Optional bundled dependency payload; when supplied, missing sibling
    *   `office-skills` resources fail Host startup.
    * @param packageManager - Bundled pnpm entry and Node launcher directory, scoped to package operations.
+   * @param onTaskResult - Live top-level turn outcomes for the companion.
    * @param onPlatformSession - Private credential updates for embedded Platform views.
    */
   constructor(
@@ -189,6 +195,7 @@ export class DesktopHostProcess {
     private readonly packageManager?: { readonly pnpm: string; readonly nodeBin: string },
 
     private readonly onPlatformSession?: (session: PlatformSession | null) => void,
+    private readonly onTaskResult?: (result: DesktopTaskResult) => void,
   ) {}
 
   /**
@@ -222,6 +229,7 @@ export class DesktopHostProcess {
         return
       }
       if (message.type === 'ready') this.readyResolve({ url: message.url, injections: message.injections })
+      else if (message.type === 'task-result') { if (!this.stopping) this.onTaskResult?.(message) }
       else if (message.type === 'platform-session') this.onPlatformSession?.(message.session)
       else if (message.type === 'shutdown-complete') {
         if (this.stopping) this.shutdownCompleted = true

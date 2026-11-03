@@ -1,0 +1,17 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`reacts to repeated head strokes and then returns to ordinary activity 1`] = `
+{
+  "direction": -1,
+  "pose": "shy",
+  "since": 2600,
+}
+`;
+
+exports[`sleeps after inactivity and wakes on interaction or actual work 1`] = `
+{
+  "direction": -1,
+  "pose": "sleep",
+  "since": 90000,
+}
+`;

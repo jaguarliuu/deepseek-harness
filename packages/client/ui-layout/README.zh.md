@@ -7,6 +7,8 @@ kind: "package-reference"
 
 [English](README.md) | 中文
 
+桌面拥有的 `data-quick-task` 文档属性隐藏导航栏并预留小窗工具栏空间。会话、全局浮层和全屏文件预览保持挂载，恢复完整工作区时保留布局状态。
+
 ## 概述
 
 本包提供 Web GUI 的三栏 AppFrame、左右栏宽度与 `ctx.layout` 呈现控制。右栏先让步以保护中栏空间，全屏由占用方呈现，框架保留宽屏底层轨道。主题呈现器负责配色、别名 token、字号、字体列表与 document 元数据；布局状态在刷新后重置。

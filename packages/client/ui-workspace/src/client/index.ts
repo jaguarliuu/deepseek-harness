@@ -28,7 +28,7 @@ import type { RemoteEndpoint } from '@deepseek-ai/dsh-api-remote-access/client'
 import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 import { writeClipboard } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { HostObservable, SnapshotSelectorHook } from '@deepseek-ai/dsh-client-ui-slots'
-import type { SessionId } from '@deepseek-ai/dsh-session/types'
+import { SessionId } from '@deepseek-ai/dsh-session/types'
 // Type-only: pulls the Controller service merges.
 import type {} from '@deepseek-ai/dsh-api-session-controller/client'
 import type {} from '@deepseek-ai/dsh-api-workspace-controller/client'
@@ -126,6 +126,26 @@ export function apply(ctx: Context): void {
   const uiWorkspace = new UiWorkspaceService(
     ctx, ctx.remote.directoryPicker, workspaces, sessions, viewInstance.actions, notify,
   )
+  ctx.effect(() => {
+    const receive = (event: Event): void => {
+      if (!(event instanceof CustomEvent) || typeof event.detail !== 'string'
+        || event.detail.length === 0 || event.detail.length > 512) return
+      ctx.layout.selectPanel(null)
+      uiWorkspace.openSession(SessionId(event.detail))
+    }
+    window.addEventListener('dsh-task-result-open', receive)
+    return () => { window.removeEventListener('dsh-task-result-open', receive) }
+  }, 'ui-workspace: desktop task-result navigation')
+  ctx.effect(() => {
+    const receive = (event: Event): void => {
+      if (!(event instanceof CustomEvent) || typeof event.detail !== 'string'
+        || event.detail.trim().length === 0 || event.detail.length > 20000) return
+      ctx.layout.selectPanel(null)
+      uiWorkspace.startSession(undefined, { prompt: event.detail, whenDraftExists: 'append' })
+    }
+    window.addEventListener('dsh-selection-draft', receive)
+    return () => { window.removeEventListener('dsh-selection-draft', receive) }
+  }, 'ui-workspace: desktop selection draft')
   ctx.slots.provideRoot({
     hooks: { workspaces: workspaces.list },
     keyedHooks: {

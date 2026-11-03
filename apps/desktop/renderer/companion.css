@@ -1,0 +1,63 @@
+:root { color-scheme: light dark; --green: #007f73; --ink: #17443f; --paper: #f4faf7; --line: #c4ddd5; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: transparent; overflow: hidden; user-select: none; font: 13px -apple-system, 'Microsoft YaHei', sans-serif; }
+main { height: 256px; padding: 8px 12px; position: relative; display: flex; align-items: center; flex-direction: column; }
+nav { position: absolute; right: 14px; top: 8px; display: flex; gap: 4px; z-index: 2; opacity: 0; transition: opacity .18s; }
+main:hover nav, main:focus-within nav { opacity: 1; }
+button { font: inherit; cursor: pointer; color: var(--ink); background: var(--paper); border: 1px solid var(--line); -webkit-app-region: no-drag; }
+button:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+nav button { width: 28px; height: 28px; border-radius: 50%; font-size: 18px; }
+.character { height: 240px; width: 196px; position: relative; display: flex; justify-content: center; -webkit-app-region: drag; }
+.fallback { width: 160px; height: 240px; object-fit: contain; pointer-events: none; }
+.sprite { display: none; width: 240px; height: 240px; flex-shrink: 0; background: url(assets/xiaoc-motion.png) 0 0 / 400% 400%; pointer-events: none; }
+body.ready .sprite { display: block; }
+body.ready .fallback { display: none; }
+#greet { touch-action: none; cursor: grab; position: absolute; top: 12px; left: 28px; width: 140px; height: 220px; border: 0; background: transparent; border-radius: 50%; }
+#greet:active { cursor: grabbing; }
+#roam[aria-pressed=false] { opacity: .65; }
+body.compact main { height: 108px; padding-top: 20px; -webkit-app-region: drag; }
+body.compact .character { transform: scale(.34); transform-origin: top center; }
+body.compact nav { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) { .character img, .dot { animation: none !important; } }
+@media (prefers-color-scheme: dark) { :root { --ink: #e2f2ed; --paper: #173c35; --line: #37665b; --green: #6bd6be; } }
+
+.sprite[data-pose=idle] { --row: 0%; }
+.sprite[data-pose=wave] { --row: 33.333333%; }
+.sprite[data-pose=walk] { --row: 66.666667%; }
+.sprite[data-pose=work] { --row: 100%; }
+.sprite[data-frame="0"] { background-position: 0% var(--row); }
+.sprite[data-frame="1"] { background-position: 33.333333% var(--row); }
+.sprite[data-frame="2"] { background-position: 66.666667% var(--row); }
+.sprite[data-frame="3"] { background-position: 100% var(--row); }
+.sprite[data-pose=walk][data-direction=left] { background-image: url(assets/xiaoc-walk-left.png); background-size: 200% 200%; }
+.sprite[data-pose=walk][data-direction=left][data-frame="0"] { background-position: 0% 0%; }
+.sprite[data-pose=walk][data-direction=left][data-frame="1"] { background-position: 100% 0%; }
+.sprite[data-pose=walk][data-direction=left][data-frame="2"] { background-position: 0% 100%; }
+.sprite[data-pose=walk][data-direction=left][data-frame="3"] { background-position: 100% 100%; }
+
+.sprite[data-pose=shy], .sprite[data-pose=sleep] { --row: 0%; transform-origin: 50% 85%; }
+.sprite[data-pose=shy] { animation: shy-sway .45s ease-in-out 5; }
+.sprite[data-pose=sleep] { animation: sleep-breathe 3.6s ease-in-out infinite; }
+.character:has(.sprite[data-pose=sleep])::after { content: 'z Z'; position: absolute; top: 38px; right: 20px; color: var(--green); font-size: 16px; letter-spacing: 5px; pointer-events: none; animation: sleep-drift 3.6s ease-in-out infinite; }
+@keyframes shy-sway { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-4deg); } 75% { transform: rotate(4deg); } }
+@keyframes sleep-breathe { 0%, 100% { transform: rotate(-3deg) scaleY(.98); } 50% { transform: rotate(-2deg) scaleY(1); } }
+@keyframes sleep-drift { 0%, 100% { opacity: .2; transform: translateY(0); } 50% { opacity: .8; transform: translateY(-10px); } }
+@media (prefers-reduced-motion: reduce) { .sprite, .character::after { animation: none !important; } }
+body.compact .sprite, body.compact .character::after { animation: none; }
+
+/* The stage stays full-sized; native bounds shrink only after the visual transition. */
+body[data-dock=left] main, body[data-dock=right] main { position: absolute; top: 0; width: 220px; height: 256px; padding: 8px 12px; }
+body[data-dock=left] main { left: 0; --dock-shift: -78px; }
+body[data-dock=right] main { right: 0; --dock-shift: 78px; }
+body[data-dock=left] .character, body[data-dock=right] .character {
+  transform-origin: 50% 0; transform: translate(0, 0) scale(1); clip-path: inset(0 -24px 0 -24px);
+  transition: transform 360ms cubic-bezier(.22, 1, .36, 1), clip-path 360ms cubic-bezier(.22, 1, .36, 1);
+  will-change: transform;
+}
+body.tucked .character { transform: translate(var(--dock-shift), -8px) scale(.6); clip-path: inset(0 -24px 120px -24px); -webkit-app-region: no-drag; }
+body.tucked nav { opacity: 0; pointer-events: none; }
+body.tucked .sprite { animation: none; transform: none; }
+body.tucked #greet { inset: 0; width: 196px; height: 120px; border-radius: 16px; }
+body.tucked .character::after { display: none; }
+@media (prefers-reduced-motion: reduce) { .character { transition: none !important; } }

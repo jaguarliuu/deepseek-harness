@@ -68,6 +68,16 @@ export function apply(ctx: ClientContext): void {
     subscribe: (listener: () => void) => ctx.slots.subscribe('sidebar.panellist.actions', listener),
   }
 
+  ctx.effect(() => {
+    const receive = (event: Event): void => {
+      if (!(event instanceof CustomEvent)) return
+      if (event.detail === 'new') workspaceNavigation.startSession()
+      else if (event.detail === 'open') ctx.layout.selectPanel(null)
+    }
+    window.addEventListener('dsh-quick-task-command', receive)
+    return () => { window.removeEventListener('dsh-quick-task-command', receive) }
+  }, 'ui-sidebar: desktop quick-task navigation')
+
   const injectProps = (): SidebarRootInjected => ({
     // The shell's New Session button rides the Workspace UI's shared action
     // (current Session Workspace, then recent Workspace).

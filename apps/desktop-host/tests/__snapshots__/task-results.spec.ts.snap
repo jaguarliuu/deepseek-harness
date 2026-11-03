@@ -1,0 +1,25 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`keeps errors separate and ignores cancellation, interrupted history, and child tasks 1`] = `
+[
+  [
+    {
+      "outcome": "error",
+      "sessionId": "task-result-test",
+      "turn": 3,
+    },
+  ],
+]
+`;
+
+exports[`publishes one live completion and does not repeat a duplicate end 1`] = `
+[
+  [
+    {
+      "outcome": "completed",
+      "sessionId": "task-result-test",
+      "turn": 1,
+    },
+  ],
+]
+`;

@@ -8,6 +8,22 @@ English | [中文](README.zh.md)
 
 This internal distribution opens directly into the workspace, including on first launch without credentials. Account sign-in and Desktop onboarding are disabled. Configure API keys in Settings → Models; Plugins and Skills remain available. The desktop profile defaults coding view and DeepSeek Session Log contribution to off, and OTel Session Log mode to `DISABLED`. Saved user settings and explicit configuration overrides take precedence. Web and CLI defaults are unchanged. Branding is unchanged. The upstream account and welcome implementations described below remain in source but are inactive in this distribution.
 
+Desktop quick tasks reuse the current conversation in a compact workspace window. Right-clicking or double-clicking the character opens it; New starts an ordinary conversation through the workspace navigation service. Expand restores the previous window geometry; Hide leaves the Host and task running. The shared composer retains model selection, attachments, Skills, questions, approvals, and transcript results. The desktop adds no second Agent or prompt transport. Voice input still requires a separately configured recognizer.
+
+## Desktop companion
+
+Live top-level turn completions and errors appear as non-focusing bubbles beside the enabled companion for 12 seconds. Clicking opens that exact session in the quick-task window; dismissing clears pending bubbles. The queue holds up to five results, drops the oldest overflow, and suppresses duplicate turns. Hidden companions suppress bubbles. Child tasks, cancellation, blocked turns, and restored history do not produce completion notices. Only session identifiers and outcome categories cross the Host bridge; prompts, answers, credentials, and error details remain in the session.
+
+System occlusion notifications do not stop dock detection; explicitly hiding the companion does. Both native window dragging and character gestures support docking. Dragging within 24 pixels of either display edge docks the character. After the pointer leaves for one second, the window shrinks to a 64 × 72 pixel head; hovering expands it. Dragging away releases docking. Docked characters do not roam, and the visible quick-task window keeps them expanded. A 360 ms visual transition finishes before native bounds shrink; expansion allocates the full window first. Reduced motion disables the transition. Docking uses the current display work area and lasts for the current run.
+
+The character responds to head strokes without pressing the mouse button; three strokes within four seconds trigger a brief shy sway. After 90 seconds without interaction or active work, it dozes with a breathing animation. Pointer entry, dragging, clicking, or active work wakes it. Work takes precedence over playful reactions. These effects are silent and respect reduced motion.
+
+The companion uses bundled frame animations for looking around, blinking, waving, walking in both directions, and working on a tablet. Click its face to greet it. Idle walking stays inside the current display and pauses near the pointer; the arrow button switches to stationary activity. Active tasks use the tablet animation without roaming. Hiding, collapsing, and the system reduced-motion preference stop walking; hidden windows also stop animation timers. Animation never implies task completion.
+
+The original 智维小 C character appears in a transparent, always-on-top window after workspace startup. Drag the character to move it; right-click or double-click the character to open the compact task window, the minus button to collapse, and the close button to hide. Restore it from the application menu or Windows tray. Position and visibility apply to the current run. The companion follows system light/dark appearance and reduced-motion preferences.
+
+While visible, it inspects the Host every three seconds without overlapping requests. Task state drives the character animation without a status strip; idle does not imply successful task completion. Scheduled reminders alone do not count as running work. It has no task execution, credential, or network access of its own. The bundled transparent character requires no download.
+
 ## Summary
 
 Desktop runs the Harness workspace in a native application. This reference covers application behavior, development and integration; the packaging, Windows signing and publication guides own build and release operations.
@@ -394,3 +410,7 @@ The account provider’s `embeddedPageDist` configuration adds a `dist` query pa
 ## Dev Note
 
 Pre-launch CDN and capacity decisions are tracked in the [Desktop update proposal](../../.agents/notes/proposed/feature/2026-09-08-desktop-update-policy-and-installation.md#cdn-and-capacity-qualification).
+
+Select text in the app and choose **Ask 智维小 C** from its context menu, or select text in another application and press **Ctrl/⌘ + Shift + X**. The selection opens in the quick-task draft; existing draft input is preserved and submission remains explicit. The application menu also accepts manually copied text. Native selection is read only on request, with clipboard fallback disabled; unsupported controls require manual copying. macOS requires Accessibility permission, and Windows cannot read higher-privilege applications. Empty selections and selections over 20,000 characters show a notice instead of creating a task. The bundled `selection-hook` N-API binaries require no employee-side download.
+
+Empty quick-task conversations use a 400 × 360 window; conversations with history use 480 × 660, clamped to the display work area. Expanding restores the workspace size.

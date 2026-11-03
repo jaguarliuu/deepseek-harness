@@ -1,0 +1,18 @@
+:root { color-scheme: light dark; --green: #007f73; --ink: #17443f; --paper: #f4faf7; --line: #c4ddd5; }
+* { box-sizing: border-box; }
+body { margin: 0; padding: 8px; background: transparent; font: 13px -apple-system, 'Microsoft YaHei', sans-serif; }
+main { position: relative; height: 86px; border: 1px solid var(--line); border-radius: 18px; background: var(--paper); box-shadow: 0 3px 8px #003f3514; animation: arrive 220ms ease-out; }
+button { color: var(--ink); font: inherit; border: 0; cursor: pointer; background: transparent; }
+#open { width: 100%; height: 100%; padding: 16px 30px 16px 16px; display: flex; align-items: center; gap: 12px; text-align: left; border-radius: 18px; }
+.mark { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 50%; color: var(--green); font-size: 18px; flex-shrink: 0; }
+.copy { min-width: 0; }
+strong { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; }
+#detail { display: block; font-size: 12px; line-height: 1.4; }
+#close { position: absolute; right: 5px; top: 5px; width: 24px; height: 24px; font-size: 18px; border-radius: 50%; }
+button:hover { background: #007f730b; }
+button:focus-visible { outline: 2px solid var(--green); outline-offset: -3px; }
+body[data-outcome=error] .mark { font-size: 0; color: #9a7431; }
+body[data-outcome=error] .mark::after { content: '!'; font-size: 18px; }
+@keyframes arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { main { animation: none; } }
+@media (prefers-color-scheme: dark) { :root { --ink: #e2f2ed; --paper: #173c35; --line: #37665b; --green: #6bd6be; } body[data-outcome=error] .mark { color: #e3bc75; } }

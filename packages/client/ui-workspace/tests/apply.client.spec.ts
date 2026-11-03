@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { createSnapshotStore } from '@deepseek-ai/dsh-client-store'
 import { Context } from '@deepseek-ai/cordis'
 import { describe, expect, it, onTestFinished, vi } from 'vitest'
@@ -58,6 +59,9 @@ const workspaceState = (
 const ALLOWED: HostObservable<boolean> = createSnapshotStore(true)
 
 async function bench(access: 'fake' | 'static' = 'fake') {
+  localStorage.clear()
+  sessionStorage.clear()
+  window.history.replaceState(null, '', '/')
   const ctx = new Context()
   const commands = new Map<string, ShortcutCommand>()
   ctx.provide('shortcuts', {
@@ -160,9 +164,7 @@ async function bench(access: 'fake' | 'static' = 'fake') {
   Object.assign(new TestRemote(ctx, { workspace: {} }), { directoryPicker })
   ctx.provide('remote.directoryPicker', directoryPicker as never)
   const locale = new LocaleRuntime(ctx)
-  // These specs assert the shipped Chinese copy. There is no jsdom `window`
-  // in this lane, so browser-language detection never runs and the locale
-  // comes from FALLBACK_LOCALE (en): state the asserted locale explicitly.
+  // Keep this fixture's asserted copy independent of browser language.
   locale.setLocale('zh')
   ctx.provide('locale', locale)
   return {
@@ -918,4 +920,30 @@ describe('ui-workspace apply', () => {
     expect(b.slots.entries('workspace.toast')).toHaveLength(0)
     expect(b.slots.snapshot('factory:workspace.toast.content')).toEqual([])
   })
+})
+
+it('opens the session identified by a desktop result and removes the listener on disposal', async () => {
+  const b = await bench()
+  await b.ctx.plugin({ inject: [...inject], apply }).await()
+  window.dispatchEvent(new CustomEvent('dsh-task-result-open', { detail: 'result-session' }))
+  await vi.waitFor(() => { expect(b.retain).toHaveBeenCalledWith('result-session', { source: 'mainView' }) })
+  expect(b.selectPanel).toHaveBeenCalledWith(null)
+  await b.ctx.fiber.dispose()
+  b.retain.mockClear()
+  window.dispatchEvent(new CustomEvent('dsh-task-result-open', { detail: 'another-session' }))
+  expect(b.retain).not.toHaveBeenCalled()
+})
+
+it('prepares selected text without sending or replacing an existing draft, and removes the listener', async () => {
+  const b = await bench()
+  await b.ctx.plugin({ inject: [...inject], apply }).await()
+  const start = vi.spyOn(b.ctx.uiWorkspace, 'startSession').mockImplementation(() => undefined)
+  window.dispatchEvent(new CustomEvent('dsh-selection-draft', { detail: '待处理的公文段落' }))
+  expect(start).toHaveBeenCalledWith(undefined, { prompt: '待处理的公文段落', whenDraftExists: 'append' })
+  expect(b.selectPanel).toHaveBeenCalledWith(null)
+  for (const detail of ['', ' ', 123, 'x'.repeat(20001)]) window.dispatchEvent(new CustomEvent('dsh-selection-draft', { detail }))
+  expect(start).toHaveBeenCalledOnce()
+  await b.ctx.fiber.dispose()
+  window.dispatchEvent(new CustomEvent('dsh-selection-draft', { detail: 'after disposal' }))
+  expect(start).toHaveBeenCalledOnce()
 })

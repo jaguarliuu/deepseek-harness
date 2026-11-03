@@ -279,3 +279,28 @@ it.each([undefined, '', 7])('rejects malformed Platform account identity %s on p
   expect(changed.mock.calls).toEqual([[null]])
   await host.stop()
 })
+
+it('delivers a validated live task result from the Host', async () => {
+  const result = { type: 'task-result', sessionId: 'result-session', turn: 2, outcome: 'completed' }
+  const runtime = projectWithHost(HTTP_HOST.replace("process.send({ type: 'ready'",
+    `process.send(${JSON.stringify(result)}); process.send({ type: 'ready'`))
+  const changed = vi.fn()
+  const host = new DesktopHostProcess(process.execPath, runtime, runtime, undefined, process.env,
+    undefined, undefined, undefined, undefined, changed)
+  hosts.push(host)
+  await host.start()
+  expect(changed).toHaveBeenCalledWith(result)
+  await host.stop()
+})
+it.each([{ sessionId: '' }, { turn: -1 }, { outcome: 'aborted' }])('rejects invalid task results %j', async (patch) => {
+  const result = { type: 'task-result', sessionId: 'result-session', turn: 2, outcome: 'completed', ...patch }
+  const runtime = projectWithHost(HTTP_HOST.replace("process.send({ type: 'ready'",
+    `process.send(${JSON.stringify(result)}); process.send({ type: 'ready'`))
+  const changed = vi.fn()
+  const host = new DesktopHostProcess(process.execPath, runtime, runtime, undefined, process.env,
+    undefined, undefined, undefined, undefined, changed)
+  hosts.push(host)
+  await expect(host.start()).rejects.toThrow('invalid IPC event')
+  expect(changed).not.toHaveBeenCalled()
+  await host.stop()
+})

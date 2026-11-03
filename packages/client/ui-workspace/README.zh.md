@@ -92,6 +92,10 @@ Workspace 和 Session 的启动基线均就绪后，空安装环境调用 `works
 <a id="understand-the-implementation"></a>
 ## 理解实现
 
+桌面划词交接通过工作区导航服务初始化未发送草稿。选中文字追加到已有草稿，不会发送消息或替换附件。
+
+桌面任务结果导航接收壳层传入的会话标识，通过现有工作区导航服务打开对应会话；插件释放时移除 DOM 监听。
+
 <details>
 <summary>实现细节——点击展开</summary>
 

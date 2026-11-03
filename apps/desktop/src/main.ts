@@ -1,3 +1,4 @@
+import { DesktopSelectionTask } from './selection-task.ts'
 import type { ProductEventMap, ProductEvent } from '@deepseek-ai/dsh-client-product-analytics/types'
 import { WINDOWS_TITLEBAR_HEIGHT } from './windows-layout.ts'
 /** Electron shell: desktop project ownership, custom protocol, windows, and lifecycle. */
@@ -24,6 +25,7 @@ import {
 } from 'electron'
 import { resolveDesktopPaths } from './paths.ts'
 import { DesktopProjectManager } from './project-manager.ts'
+import { DesktopTaskResultBubble } from './task-result-bubble.ts'
 import { DesktopHostFatalError, DesktopHostProcess, DesktopHostUncleanExitError } from './host-process.ts'
 import { DesktopPlatformView, PLATFORM_IPC, platformBounds } from './platform-view.ts'
 import { installDesktopFileDrag } from './file-drag.ts'
@@ -61,6 +63,8 @@ import { DesktopBrowserGuests } from './browser-guests.ts'
 import { installDesktopShortcuts } from './keyboard.ts'
 import { DesktopUpdateOverlays } from './update-overlay.ts'
 import { DesktopQuitConfirmation } from './quit-confirmation.ts'
+import { DesktopQuickTask } from './quick-task-window.ts'
+import { DesktopCompanion } from './companion.ts'
 import { DesktopTray } from './tray.ts'
 import { DesktopBackgroundNotice } from './background-notice.ts'
 
@@ -207,7 +211,7 @@ function platformLoginUrl(authorizeUrl: string): string {
   return url.href
 }
 
-function createWindow(preload: string, show = false, primary = false): BrowserWindow {
+function createWindow(preload: string, show = false, primary = false, onSelection?: (text: string) => void): BrowserWindow {
   const window = new BrowserWindow({
     width: 1280,
     height: 820,
@@ -292,6 +296,9 @@ function createWindow(preload: string, show = false, primary = false): BrowserWi
       )
     } else if (selectionText.length > 0) {
       items.push({ role: 'copy', enabled: editFlags.canCopy })
+    }
+    if (selectionText.trim().length > 0 && onSelection !== undefined) {
+      items.push({ type: 'separator' }, { label: currentDesktopLocale().messages.selectionAsk, click: () => { onSelection(selectionText) } })
     }
     // Empty accelerators suppress Electron's default shortcut labels for native roles.
     if (items.length > 0) {
@@ -470,7 +477,7 @@ async function main(): Promise<void> {
     const host = new DesktopHostProcess(resources.node, resources.dsh, activeProject,
       hostInspectPort, { ...hostEnvironment, DSH_CLIENT_VERSION: desktopClientVersion() }, onFailure,
       primaryRuntime,
-      resources, (next) => { platformView.setSession(next) })
+      resources, (next) => { platformView.setSession(next) }, (result) => { taskResultBubble.notify(result) })
     return {
       start: async () => {
         const ready = await host.start()
@@ -981,6 +988,25 @@ async function main(): Promise<void> {
       { role: 'hideOthers', label: currentDesktopLocale().messages.hideOtherApplications },
       { role: 'unhide', label: currentDesktopLocale().messages.showAllApplications }, { type: 'separator' }]
     : []
+  const quickTask: DesktopQuickTask = new DesktopQuickTask({
+    window: () => mainWindow, anchor: () => companion.bounds(), locale: currentDesktopLocale, assertSender: assertProductSender,
+  })
+  const companion: DesktopCompanion = new DesktopCompanion({
+    appPath: app.getAppPath(), locale: currentDesktopLocale,
+    open: () => { if (isMandatory()) { mandatoryUI?.focus(); return }; quickTask.show() },
+    isInteracting: () => quickTask.isVisible() || taskResultBubble.isVisible(),
+    inspect: () => backendReady && !shuttingDown ? backend.host?.inspectQuit() : undefined,
+  })
+  const taskResultBubble: DesktopTaskResultBubble = new DesktopTaskResultBubble({
+    appPath: app.getAppPath(), locale: currentDesktopLocale, anchor: () => companion.bounds(),
+    enabled: () => companion.isShown() && !shuttingDown,
+    open: (result) => { if (isMandatory()) { mandatoryUI?.focus(); return }; quickTask.openSession(result.sessionId) },
+  })
+  const selectionTask = new DesktopSelectionTask({
+    locale: currentDesktopLocale,
+    enabled: () => backendReady && !shuttingDown && !isMandatory(),
+    open: (text) => { quickTask.openSelection(text) },
+  })
   const applicationItems = (): MenuItemConstructorOptions[] => [
     // Windows has no system About panel; Electron's fallback is a plain
     // message box, so the shell shows its own dimmed dialog instead.
@@ -989,6 +1015,9 @@ async function main(): Promise<void> {
         click: () => { void showAbout().catch((error: unknown) => { console.error(error) }) } }
       : { label: currentDesktopLocale().messages.aboutMenu, role: 'about' },
     { type: 'separator' },
+    { label: currentDesktopLocale().messages.selectionAsk, click: () => { void selectionTask.capture() } },
+    { label: currentDesktopLocale().messages.selectionClipboard, click: () => { void selectionTask.fromClipboard() } },
+    { label: currentDesktopLocale().messages.companionMenu, click: () => { companion.show() } },
     { label: currentDesktopLocale().messages.checkUpdatesMenu, click: () => { void openUpdatePrompt(true) } },
     ...process.platform === 'darwin' || process.platform === 'win32'
       ? [{ label: currentDesktopLocale().messages.cliCommandMenu, click: () => { void commandManager.show() } }] : [],
@@ -1023,7 +1052,7 @@ async function main(): Promise<void> {
     // The tray is the way back to a hidden window; without it, relaunching the application still focuses it.
     try {
       tray = new DesktopTray({ iconPath: trayIconPath, locale: currentDesktopLocale,
-        open: () => { focusPrimaryWindow() }, quit: () => { app.quit() } })
+        open: () => { focusPrimaryWindow() }, companion: () => { companion.show() }, quit: () => { app.quit() } })
     } catch (error) { console.warn('desktop tray: unavailable', error) }
   }
   const backgroundNotice = process.platform === 'win32'
@@ -1100,7 +1129,7 @@ async function main(): Promise<void> {
     }
   }
   const createMainWindow = (): BrowserWindow => {
-    const window = createWindow(appPreload, false, true)
+    const window = createWindow(appPreload, false, true, (text) => { selectionTask.accept(text) })
     mainWindow = window
     browserGuests.bind(window, (guest, name) => shortcuts.attachGuest(window, guest, name))
     shortcuts.attach(window)
@@ -1155,6 +1184,7 @@ async function main(): Promise<void> {
     if (activate) window.show()
     else window.showInactive()
     enteredWorkspace = true
+    companion.show()
     if (welcomeWindow !== undefined) {
       welcomeWindow.close()
       window.webContents.send(DESKTOP_IPC.enterWorkspace)
@@ -1249,6 +1279,7 @@ async function main(): Promise<void> {
   focusPrimaryWindow = () => {
     if (quitting) return
     if (isMandatory()) { mandatoryUI?.focus(); return }
+    quickTask.restore()
     const window = welcomeWindow ?? mainWindow
     if (window === undefined || window.isDestroyed()) {
       try { createMainWindow() } catch (error) { reportFatal(error, 'main'); return }
@@ -1281,6 +1312,10 @@ async function main(): Promise<void> {
     updateJournal?.action('quit-requested')
     quitConfirmation.dispose()
     backgroundNotice?.dispose()
+    taskResultBubble.dispose()
+    selectionTask.dispose()
+    quickTask.dispose()
+    companion.dispose()
     tray?.dispose()
     stopAccount?.()
     if (welcomeWindow !== undefined && !welcomeWindow.isDestroyed()) welcomeWindow.hide()
@@ -1300,6 +1335,10 @@ async function main(): Promise<void> {
       quitConfirmation.dispose()
       backgroundNotice?.dispose()
       updateJournal?.action('quit-requested')
+      taskResultBubble.dispose()
+      selectionTask.dispose()
+      quickTask.dispose()
+      companion.dispose()
       tray?.dispose()
       updateDialog.dispose()
       mandatoryUI?.dispose()

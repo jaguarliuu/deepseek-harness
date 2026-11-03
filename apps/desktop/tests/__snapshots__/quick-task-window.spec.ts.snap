@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`hides without cancelling work and routes explicit new-task commands to the existing client 1`] = `
+{
+  "active": false,
+  "messages": {
+    "quickTaskExpand": "展开",
+    "quickTaskHide": "收起",
+    "quickTaskHint": "收起小窗，任务继续执行",
+    "quickTaskNew": "新任务",
+    "quickTaskTitle": "小 C · 快捷任务",
+  },
+}
+`;

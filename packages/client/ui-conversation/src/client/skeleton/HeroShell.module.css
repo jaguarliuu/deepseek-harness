@@ -175,3 +175,5 @@
   line-height: 18px;
   color: var(--dsw-alias-state-error-primary);
 }
+
+:global([data-quick-task]) .root { display: none; }

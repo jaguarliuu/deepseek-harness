@@ -610,3 +610,11 @@
 .embeddedBody[data-content-phase='settling'] .composerSeat {
   visibility: hidden;
 }
+
+/* Compact desktop mode shares the normal composer, transcript, questions, and approvals. */
+:global([data-quick-task]) .header { display: none; }
+:global([data-quick-task]) .composerHero { padding: 12px 0 16px; }
+:global([data-quick-task]) .root[data-phase='hero'] .scrollBody,
+:global([data-quick-task]) .embeddedBody[data-content-phase='hero'] .scrollBody {
+  justify-content: flex-start;
+}

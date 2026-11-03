@@ -13,6 +13,7 @@ import { localDragResource } from './file-drag.ts'
 
 import { installDesktopUpdateTaskControl } from './update-tasks.ts'
 import { installDesktopQuitInspection } from './quit-inspection.ts'
+import { installDesktopTaskResults } from './task-results.ts'
 import { installPlatformSessionPublisher } from './platform-session.ts'
 import { installOfficeEngineResolution } from './office-engine.ts'
 
@@ -125,6 +126,11 @@ async function main(): Promise<void> {
   const { ctx } = await application
   control.updateTasks = installDesktopUpdateTaskControl(ctx)
   control.quitInspection = installDesktopQuitInspection(ctx)
+  installDesktopTaskResults(ctx, (result) => {
+    if (!stopping && process.connected) process.send?.({ type: 'task-result', ...result }, (error) => {
+      if (error) console.error('Desktop task result delivery failed', error)
+    })
+  })
   await ctx.plugin(desktopOffice, {
     runtimeDir,
     source: process.argv[4] ?? join(runtimeDir, '..', 'runtime', 'primary-runtime'),

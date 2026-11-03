@@ -1,0 +1,21 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`expires, distinguishes failure, and rejects stale clicks and other frames 1`] = `
+{
+  "close": "关闭提示",
+  "detail": "点击查看对应会话",
+  "outcome": "error",
+  "title": "任务未完成",
+  "token": 2,
+}
+`;
+
+exports[`shows localized completion without focus and opens exactly the originating session 1`] = `
+{
+  "close": "关闭提示",
+  "detail": "点击查看对应会话",
+  "outcome": "completed",
+  "title": "任务已完成",
+  "token": 1,
+}
+`;

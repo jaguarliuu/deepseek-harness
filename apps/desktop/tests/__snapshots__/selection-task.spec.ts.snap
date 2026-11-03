@@ -1,0 +1,22 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`rejects empty and oversized selections without truncating or opening a task 1`] = `
+[
+  {
+    "buttons": [
+      "确认",
+    ],
+    "message": "选中文字后按 Ctrl/⌘ + Shift + X；若无法读取，请先复制，再选择“将已复制文字交给小 C”",
+    "title": "交给小 C",
+    "type": "info",
+  },
+  {
+    "buttons": [
+      "确认",
+    ],
+    "message": "选中文字过长，请缩小到 20,000 个字符以内",
+    "title": "交给小 C",
+    "type": "info",
+  },
+]
+`;

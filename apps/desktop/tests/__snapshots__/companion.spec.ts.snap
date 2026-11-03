@@ -1,0 +1,31 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`reports real active work without treating armed schedules as running work 1`] = `
+{
+  "collapsed": false,
+  "dock": null,
+  "dockRevision": 0,
+  "messages": {
+    "aboutProduct": "智维小 C",
+    "companionBusy": "任务进行中",
+    "companionCollapse": "收起",
+    "companionExpand": "展开",
+    "companionGreet": "打个招呼",
+    "companionHide": "隐藏小 C",
+    "companionIdle": "随时待命",
+    "companionRoam": "桌面走动",
+    "companionStay": "原地活动",
+    "companionUnknown": "状态暂不可用 · 打开工作区查看",
+    "openApplication": "小 C · 快捷任务",
+  },
+  "motion": {
+    "direction": -1,
+    "pose": "idle",
+    "since": 0,
+  },
+  "reduced": true,
+  "roaming": true,
+  "state": "busy",
+  "tucked": false,
+}
+`;

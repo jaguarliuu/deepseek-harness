@@ -92,6 +92,10 @@ The package injects the Client `remoteAccess` service and provides the root stan
 <a id="understand-the-implementation"></a>
 ## Understand the implementation
 
+Desktop selection handoff initializes an unsent draft through the workspace navigation service. Selected text appends to existing draft input; it does not submit a message or replace attachments.
+
+Desktop task-result navigation receives the shell's session identifier and opens it through the existing workspace navigation service. The DOM listener is removed on plugin disposal.
+
 <details>
 <summary>Implementation internals — click to expand</summary>
 
