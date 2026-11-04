@@ -1,0 +1,41 @@
+diff --git a/lib/client.js b/lib/client.js
+index e36bd0fda6cb211837bbed946c5036ea77c466d6..6b01f9ddf32549520fecae2864eb66b7aa378c67 100644
+--- a/lib/client.js
++++ b/lib/client.js
+@@ -67,9 +67,9 @@ window.__ModuleLoader__.load({
+ 			zh: {
+ 				action: "截图并放入输入框",
+ 				floatAction: "截图",
+-				hint: "点击：DSH 窗口 · Shift+点击：整个屏幕 · Alt+点击：当前窗口",
++				hint: "点击：小 C 窗口 · Shift+点击：整个屏幕 · Alt+点击：当前窗口",
+ 				floatHint:
+-					"任意页面可用：有输入框时直接放进草稿，没有输入框时放进剪贴板。\n点击：DSH 窗口 · Shift+点击：整个屏幕 · Alt+点击：当前窗口 · 拖动可移动",
++					"任意页面可用：有输入框时直接放进草稿，没有输入框时放进剪贴板。\n点击：小 C 窗口 · Shift+点击：整个屏幕 · Alt+点击：当前窗口 · 拖动可移动",
+ 				done: "已放入输入框",
+ 				copied: "已复制到剪贴板",
+ 				copiedHint: "到对话页直接粘贴即可",
+@@ -82,9 +82,9 @@ window.__ModuleLoader__.load({
+ 			en: {
+ 				action: "Screenshot into the composer",
+ 				floatAction: "Screenshot",
+-				hint: "Click: the DSH window · Shift+click: the whole desktop · Alt+click: the active window",
++				hint: "Click: the Zhiwei Xiao C window · Shift+click: the whole desktop · Alt+click: the active window",
+ 				floatHint:
+-					"Works on every page: with a composer the shot lands in the draft, without one it goes to the clipboard.\nClick: the DSH window · Shift+click: the whole desktop · Alt+click: the active window · drag to move",
++					"Works on every page: with a composer the shot lands in the draft, without one it goes to the clipboard.\nClick: the Zhiwei Xiao C window · Shift+click: the whole desktop · Alt+click: the active window · drag to move",
+ 				done: "Added to the composer",
+ 				copied: "Copied to the clipboard",
+ 				copiedHint: "paste it into the conversation",
+diff --git a/lib/index.js b/lib/index.js
+index 1f5af5e150a905c259202e3e3041b7b1fcbb8a1e..6a1138e701f578fe954b9e785aa2e7e20e4f4df3 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -50,7 +50,7 @@ export const CAPTURE_DIR = join(tmpdir(), "dsh-screenshot");
+ const MODES = ["window", "active", "screen"];
+ 
+ /** Window title matched by the default `window` mode (the desktop app's title suffix). */
+-const DEFAULT_TITLE_PATTERN = "DeepSeek Harness";
++const DEFAULT_TITLE_PATTERN = "智维小 C";
+ 
+ /** A request may not widen the title match beyond this many characters. */
+ const MAX_TITLE_PATTERN = 200;

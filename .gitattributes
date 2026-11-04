@@ -13,3 +13,6 @@ docs/persistence-schema.json linguist-generated=true
 docs/persistence-changes/*.schema.json linguist-generated=true
 docs/persistence-changes/releases/*.schema.json linguist-generated=true
 docs/persistence-changes/historical-formats/*.schema.json linguist-generated=true
+
+# Unified patch context must retain upstream indentation and trailing spaces.
+patches/*.patch whitespace=-blank-at-eol,-space-before-tab

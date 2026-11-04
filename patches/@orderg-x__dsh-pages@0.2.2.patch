@@ -1,0 +1,143 @@
+diff --git a/lib/client.js b/lib/client.js
+index efa528af6c0cdb7f9ebc76675675bdc75df43001..f7d980b4ac221930fc57dc702aa8f876f296a722 100644
+--- a/lib/client.js
++++ b/lib/client.js
+@@ -47,7 +47,7 @@ window.__ModuleLoader__.load({
+     const COLLAPSE_AT = 760
+     const COLLAPSED_H = 600
+     const HARD_H = 4000
+-    const SANDBOX = 'allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals'
++    const SANDBOX = 'allow-scripts allow-modals'
+ 
+     const ZH = {
+       tabTitle: '页面',
+@@ -126,7 +126,7 @@ window.__ModuleLoader__.load({
+   background:var(--dsw-alias-bg-layer-1,#fff);font-family:var(--dsw-font-family,inherit);color:var(--dsw-alias-label-primary,#1f2329);
+   transition:border-color .15s,box-shadow .15s}
+ .dsp-card:hover{border-color:var(--dsw-alias-border-l4,#c9cdd4);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+-.dsp-card:focus-visible,.dsp-row:focus-visible,.dsp-btn:focus-visible,.dsp-gitem:focus-visible,.dsp-more:focus-visible,.dsp-gdel:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary,#4d6bfe);outline-offset:2px}
++.dsp-card:focus-visible,.dsp-row:focus-visible,.dsp-btn:focus-visible,.dsp-gitem:focus-visible,.dsp-more:focus-visible,.dsp-gdel:focus-visible{outline:2px solid var(--dsw-alias-state-business-primary,#007f76);outline-offset:2px}
+ .dsp-tail{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+ .dsp-row{display:inline-flex;align-items:center;gap:8px;max-width:100%;margin:2px 0;padding:4px 10px 4px 6px;border:1px solid var(--dsw-alias-border-l2,#e5e6eb);border-radius:8px;
+   background:transparent;cursor:pointer;font-size:13px;color:var(--dsw-alias-label-secondary,#4e5969);font-family:var(--dsw-font-family,inherit)}
+@@ -136,13 +136,13 @@ window.__ModuleLoader__.load({
+ .dsp-row span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .dsp-head{display:flex;align-items:center;gap:8px;padding:10px 12px}
+ .dsp-icon{flex:none;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;
+-  background:var(--dsw-alias-state-business-primary,#4d6bfe);color:#fff}
++  background:var(--dsw-alias-state-business-primary,#007f76);color:#fff}
+ .dsp-titles{flex:1;min-width:0}
+ .dsp-title{font-size:14px;font-weight:600;line-height:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .dsp-sub{font-size:12px;line-height:16px;color:var(--dsw-alias-label-tertiary,#86909c)}
+ .dsp-go{flex:none;font-size:12px;color:var(--dsw-alias-label-secondary,#4e5969);padding:4px 8px;border-radius:6px;
+   background:var(--dsw-alias-interactive-bg-hover,rgba(0,0,0,.04))}
+-.dsp-card:hover .dsp-go{color:var(--dsw-alias-state-business-primary,#4d6bfe)}
++.dsp-card:hover .dsp-go{color:var(--dsw-alias-state-business-primary,#007f76)}
+ .dsp-thumb{position:relative;height:${THUMB_H}px;overflow:hidden;background:var(--dsw-alias-bg-layer-1,#fff);border-top:1px solid var(--dsw-alias-border-l2,#e5e6eb)}
+ .dsp-thumb .dsp-shot{display:block;width:100%;height:100%;object-fit:cover;object-position:top}
+ .dsp-thumb iframe{position:absolute;left:0;top:0;border:0;transform-origin:0 0;pointer-events:none;background:transparent}
+@@ -191,7 +191,7 @@ body[data-ds-dark-theme] .dsp-bar::after{background:linear-gradient(90deg,transp
+ .dsp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+ .dsp-search{display:block;width:100%;box-sizing:border-box;margin:0 0 10px;padding:6px 10px;border-radius:8px;font:inherit;font-size:13px;
+   border:1px solid var(--dsw-alias-border-l2,#e5e6eb);background:transparent;color:inherit;outline:none}
+-.dsp-search:focus{border-color:var(--dsw-alias-state-business-primary,#4d6bfe)}
++.dsp-search:focus{border-color:var(--dsw-alias-state-business-primary,#007f76)}
+ .dsp-gcell{position:relative;display:flex}
+ .dsp-gcell .dsp-gitem{flex:1;min-width:0}
+ .dsp-gdel{position:absolute;top:6px;right:6px;min-width:24px;height:24px;padding:0 6px;border-radius:12px;cursor:pointer;font:inherit;font-size:12px;line-height:22px;
+diff --git a/lib/design.js b/lib/design.js
+index 9a26ba0fb289c67c7239be83c05ce8bf9504b1a9..aff4bf2a8106777c4ac51fdc4653c56f9821c8f6 100644
+--- a/lib/design.js
++++ b/lib/design.js
+@@ -1,8 +1,8 @@
+ /**
+  * 设计：模板和模型手写的页面共用一套（颜色变量 + 元素本身的样子 + 现成的类）。
+  *
+- *   · 靠字号、字重和留白分层：标题上方一条蓝色短线 + 类别小字（眉题），大数字当主角
+- *   · 只有一个强调色（DeepSeek 蓝）；绿 / 红 / 琥珀只表示好 / 不好 / 要留意
++ *   · 靠字号、字重和留白分层：标题上方一条绿色短线 + 类别小字（眉题），大数字当主角
++ *   · 只有一个强调色（国网绿）；绿 / 红 / 琥珀只表示好 / 不好 / 要留意
+  *   · 面板一律白底 + 发丝线 + 很淡的阴影（圆角 14）；控件圆角 8，标签全圆；列表靠细线分隔，不套灰底框
+  *   · 图表配色是校验过色盲区分度的固定顺序（第一色就是强调色），按序列取、不循环
+  *
+@@ -11,12 +11,12 @@
+  */
+ 
+ const LIGHT = 'color-scheme:light;--bg:#fbfbfc;--surface:#fff;--sunk:#f3f4f6;--hover:#f6f7f9;--line:#e8e9ed;--line2:#d8dae0;' +
+-  '--fg:#15171c;--fg2:#3b414b;--muted:#6b717c;--faint:#9ca1aa;--accent:#4d6bfe;--accent-ink:#3a56e8;--accent-soft:#eef1ff;--on-accent:#fff;' +
++  '--fg:#15171c;--fg2:#3b414b;--muted:#6b717c;--faint:#9ca1aa;--accent:#007f76;--accent-ink:#00665f;--accent-soft:#e8f4f1;--on-accent:#fff;' +
+   '--good:#16a34a;--good-ink:#11803b;--good-soft:#e9f7ef;--bad:#e5484d;--bad-ink:#c8292f;--bad-soft:#fdeeee;--warn:#e38b00;--warn-ink:#975a00;--warn-soft:#fff4df;' +
+   '--shadow:0 1px 2px rgba(18,22,33,.04),0 3px 12px rgba(18,22,33,.04);--lift:0 2px 4px rgba(18,22,33,.04),0 16px 36px -10px rgba(18,22,33,.16);' +
+-  '--c1:#4d6bfe;--c2:#eb6834;--c3:#1baf7a;--c4:#eda100;--c5:#e87ba4;--c6:#008300;--c7:#6250d6;--c8:#e34948'
++  '--c1:#007f76;--c2:#eb6834;--c3:#1baf7a;--c4:#eda100;--c5:#e87ba4;--c6:#008300;--c7:#6250d6;--c8:#e34948'
+ const DARK = 'color-scheme:dark;--bg:#17181b;--surface:#1e1f23;--sunk:#26272c;--hover:#232429;--line:#2d2f35;--line2:#3b3e45;' +
+-  '--fg:#eceef2;--fg2:#c4c8cf;--muted:#969ca5;--faint:#6d737c;--accent:#4d6bfe;--accent-ink:#93a5ff;--accent-soft:rgba(98,128,255,.15);--on-accent:#fff;' +
++  '--fg:#eceef2;--fg2:#c4c8cf;--muted:#969ca5;--faint:#6d737c;--accent:#007f76;--accent-ink:#83d4c4;--accent-soft:rgba(0,127,118,.15);--on-accent:#fff;' +
+   '--good:#2fb866;--good-ink:#5bd68c;--good-soft:rgba(47,184,102,.14);--bad:#ec4f55;--bad-ink:#ff878b;--bad-soft:rgba(236,79,85,.14);--warn:#e39b2f;--warn-ink:#f2be6c;--warn-soft:rgba(227,155,47,.14);' +
+   '--shadow:none;--lift:0 18px 40px -14px rgba(0,0,0,.55);' +
+   '--c1:#6f88ff;--c2:#d95926;--c3:#199e70;--c4:#c98500;--c5:#d55181;--c6:#008300;--c7:#9085e9;--c8:#e66767'
+@@ -50,7 +50,7 @@ button{font:inherit;font-size:13px;line-height:20px;font-weight:600;color:var(--
+ button:hover:not(:disabled){background:var(--hover);border-color:var(--faint);color:var(--fg)}
+ button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+ button:disabled{opacity:.4;cursor:default}
+-button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);box-shadow:0 1px 2px rgba(77,107,254,.3)}
++button.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent);box-shadow:0 1px 2px rgba(0,127,118,.3)}
+ button.primary:hover:not(:disabled){background:var(--accent);border-color:var(--accent);color:var(--on-accent);filter:brightness(1.08)}
+ button.quiet{border-color:transparent;background:none;color:var(--muted)}
+ :where(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=file],[type=button],[type=submit],[type=reset],[type=image]),select,textarea){min-width:0;font:inherit;font-size:14px;line-height:20px;color:var(--fg);background:var(--surface);border:1px solid var(--line2);border-radius:9px;padding:7px 11px;transition:border-color .15s,box-shadow .15s}
+diff --git a/lib/index.js b/lib/index.js
+index 72b6aee2ef5e831c18a757b6ec3d5d5c42d699d2..89fc191749aced5f59486e015963ca366af0e3a4 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -50,14 +50,14 @@ const MARK = { 'X-DSH-Pages': PKG }
+ 
+ // 页面里能用的外部资源：常见 CDN 的库、字体、图标图片；不能 fetch / XHR / WebSocket，也不能载别处的图片、音视频
+ // （不然页面能把用户填的东西拼进图片地址发出去）
+-const CDN = 'https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com'
+-export const SANDBOX = 'allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-modals'
++const CDN = ''
++export const SANDBOX = 'allow-scripts allow-modals'
+ export const CSP = [
+   `sandbox ${SANDBOX}`,
+   "default-src 'none'",
+   `script-src 'unsafe-inline' 'unsafe-eval' ${CDN}`,
+-  `style-src 'unsafe-inline' ${CDN} https://fonts.googleapis.com`,
+-  `font-src data: ${CDN} https://fonts.gstatic.com`,
++  `style-src 'unsafe-inline' ${CDN}`,
++  `font-src data: ${CDN}`,
+   `img-src data: blob: ${CDN}`,
+   'media-src data: blob:',
+   "connect-src 'none'",
+@@ -73,9 +73,9 @@ function escapeHtml(s) {
+ 
+ // 老页面（存的时候还没套设计）只给了一段 HTML 时套的外壳：基本排版 + 一套跟着深浅色变的颜色变量（页面里可以直接用 var(--fg) 这些）
+ // 新存的一段 HTML 在 withDesign 里就套成整页了，走不到这里
+-const BASE_STYLE = ':root{color-scheme:light dark;--fg:#1f2329;--muted:#646a73;--bg:#fff;--card:#f5f6f7;--line:#e5e6eb;--accent:#3370ff}' +
+-  ':root[data-theme=dark]{--fg:#e6e8eb;--muted:#9aa0a8;--bg:#18191c;--card:#232428;--line:#33353a;--accent:#6b93ff}' +
+-  '@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--fg:#e6e8eb;--muted:#9aa0a8;--bg:#18191c;--card:#232428;--line:#33353a;--accent:#6b93ff}}' +
++const BASE_STYLE = ':root{color-scheme:light dark;--fg:#1f2329;--muted:#646a73;--bg:#fff;--card:#f5f6f7;--line:#e5e6eb;--accent:#007f76}' +
++  ':root[data-theme=dark]{--fg:#e6e8eb;--muted:#9aa0a8;--bg:#18191c;--card:#232428;--line:#33353a;--accent:#83d4c4}' +
++  '@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--fg:#e6e8eb;--muted:#9aa0a8;--bg:#18191c;--card:#232428;--line:#33353a;--accent:#83d4c4}}' +
+   'body{margin:0;padding:20px 24px;font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;line-height:1.6;color:var(--fg);background:var(--bg)}' +
+   'a{color:var(--accent)}table{border-collapse:collapse}th,td{border-bottom:1px solid var(--line);padding:6px 10px;text-align:left}'
+ 
+@@ -511,5 +511,5 @@ export function apply(ctx) {
+     return { text: lines.join('\n'), id, v, title, display, ...(template ? { template } : {}) }
+   }
+ 
+-  ctx.tools.register(pageTool(run))
++  ctx.effect(() => ctx.tools.register(pageTool(run)), 'dsh-pages: page tool')
+ }
+diff --git a/lib/store.js b/lib/store.js
+index 42133bd9b9a8f87fe87543109c7bb0da9006456e..458783beaa2007cb8201c168ab0dbd7c6fd4a3cc 100644
+--- a/lib/store.js
++++ b/lib/store.js
+@@ -22,7 +22,7 @@ export const ID_RE = /^[a-z0-9]{6,16}-[a-f0-9]{8}$/
+ const MAX_VERSIONS = 200
+ 
+ export function dataDir() {
+-  return path.join(os.homedir(), '.dsh', 'dsh-pages', 'pages')
++  return path.join(process.env.DSH_HOME || path.join(os.homedir(), '.dsh'), 'dsh-pages', 'pages')
+ }
+ 
+ export function newId() {

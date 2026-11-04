@@ -312,6 +312,34 @@
     - id: ui-sidebar-files
       name: '@deepseek-ai/dsh-client-ui-sidebar-files'
 
+    - id: genui
+      name: 'dsh-genui'
+      config:
+        sectionOrder: 80
+        sectionName: 'genui:cards'
+
+    - id: screenshot
+      name: 'dsh-quick-screenshot'
+
+    - id: orderg-x-pages
+      name: '@orderg-x/dsh-pages'
+
+    - id: knowledge-base
+      name: 'dsh-knowledge-base'
+      config:
+        categories: []
+    - id: knowledge-base-web
+      name: 'dsh-knowledge-base/web'
+      config:
+        categories: []
+    - id: everything
+      name: 'dsh-plugin-everything'
+      disabled: !!js process.platform !== 'win32' || process.arch !== 'x64'
+      config:
+        autoStart: true
+    - id: better-sidebar
+      name: 'dsh-better-sidebar'
+
     - id: ui-settings
       name: '@deepseek-ai/dsh-client-ui-settings'
       config:

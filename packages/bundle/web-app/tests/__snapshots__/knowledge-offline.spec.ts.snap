@@ -1,0 +1,14 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`imports and searches Word and PDF offline with authenticated disposable routes 1`] = `
+{
+  "matched": 1,
+  "rows": [
+    {
+      "detail": "数据库巡检规范：检查实例状态，核对备份记录。",
+      "name": "巡检规范.docx · 数据库巡检规范：检查实例状态，核对备份记录。",
+      "source": "巡检规范.docx",
+    },
+  ],
+}
+`;

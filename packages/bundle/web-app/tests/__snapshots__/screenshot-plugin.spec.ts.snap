@@ -1,0 +1,9 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`targets Zhiwei Xiao C and registers the screenshot route through the shared bridge 1`] = `
+{
+  "code": "METHOD_NOT_ALLOWED",
+  "error": "method not allowed",
+  "ok": false,
+}
+`;

@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`creates versioned offline pages with authenticated state and HTML export 1`] = `
+{
+  "display": "inline",
+  "offline": true,
+  "template": "report",
+  "title": "数据库巡检报告",
+  "version": 2,
+}
+`;

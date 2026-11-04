@@ -117,7 +117,7 @@ it('installs SSH dependencies offline without executing their optional build scr
   })
   const dependencies: Record<string, string> = {}
   const marker = join(root, 'unexpected-build')
-  for (const name of ['ssh2', 'cpu-features']) {
+  for (const name of ['ssh2', 'cpu-features', 'dsh-better-sidebar']) {
     const directory = join(root, 'fixtures', name)
     mkdirSync(directory, { recursive: true })
     writeFileSync(join(directory, 'package.json'), JSON.stringify({ name, version: '1.0.0', scripts: { install: 'node install.cjs' } }))
@@ -133,11 +133,12 @@ it('installs SSH dependencies offline without executing their optional build scr
   })
   await run()
   expect(existsSync(marker)).toBe(false)
-  for (const name of ['ssh2', 'cpu-features']) expect(existsSync(join(root, 'node_modules', name, 'package.json'))).toBe(true)
+  for (const name of ['ssh2', 'cpu-features', 'dsh-better-sidebar']) expect(existsSync(join(root, 'node_modules', name, 'package.json'))).toBe(true)
   const path = join(root, 'pnpm-workspace.yaml')
   const settings = yaml.load(readFileSync(path, 'utf8')) as { allowBuilds: Record<string, boolean> }
   delete settings.allowBuilds.ssh2
   delete settings.allowBuilds['cpu-features']
+  delete settings.allowBuilds['dsh-better-sidebar']
   writeFileSync(path, yaml.dump(settings))
   rmSync(join(root, 'node_modules'), { recursive: true, force: true })
   await expect(run()).rejects.toThrow('ERR_PNPM_IGNORED_BUILDS')

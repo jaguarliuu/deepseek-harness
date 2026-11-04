@@ -24,6 +24,8 @@ description: "Desktop 在原生应用中运行 Harness 工作区。本参考文�
 
 可见时每三秒检查后台任务，请求不重叠；隐藏时暂停检查。任务状态通过角色动作呈现，不显示底部状态条，不把空闲等同于执行成功，仅设置定时提醒也不算正在执行。悬浮窗本身没有执行任务、读取密钥或访问网络的权限。
 
+Windows x64 打包包含经过审查的 Everything 1.4.1.1032 便携版 ZIP、SDK DLL、随包 Koffi 二进制与许可证。`prepareEverything` 在运行时清单生成前校验官方压缩包的 SHA256；缺失二进制或压缩包字节变化会使打包失败。员工电脑无需下载或本地编译。程序按需启动，设置和索引写入 `$DSH_HOME/everything`，关闭更新检查与网络服务，默认无需提权索引用户目录。已经运行的 Everything 保留其现有索引；全盘 NTFS 索引需要配置相应服务或管理员权限。其他平台禁用此插件。
+
 ## 概述
 
 Desktop 在原生应用中运行 Harness 工作区。本参考文档说明应用行为、开发与集成；打包、Windows 签名和发布指南分别维护构建与发布操作。
@@ -116,7 +118,7 @@ electron-builder 只把清单中的 `dependencies` 复制进 `app.asar/node_modu
 
 Windows 签名打包按 PE 文件内容扫描第一方运行时和应用生产依赖，包括没有常规扩展名的文件。最终扫描覆盖整个解包应用。目录链接、格式错误的 `MZ` 文件以及非 PE 的 `.exe`、`.dll` 或 `.pyd` 文件会使打包停止；以 `MZ` 开头的数据文件也会被拒绝，除非包含有效 PE 头。它保留有效的上游签名，并在记录运行时哈希或执行冒烟检查前为未签名代码补签。公钥验签每个进程处理最多 32 个文件，同时最多运行四个进程；硬件令牌签名仍串行执行，每个新签名必须匹配配置的证书且带时间戳。硬件签名或验签失败会停止本轮执行；独立的时间戳请求遵循[有界重试规则](windows-signing/README.zh.md#windows-ev-signing)。electron-builder 只有在验签和逐字节比对通过后，才保留复制后运行时可执行文件的签名。写入发布完成记录前，必须通过最终 PE 签名检查，以及使用全新缓存的 ASAR 载荷和 Host 冒烟检查。开发、仅准备和未签名构建不使用硬件令牌，可能被 Windows 代码完整性策略阻止；任何构建模式都不会关闭该策略。冒烟检查通过不代表兼容所有企业策略。
 
-生产运行时的独立安装配置明确禁用 `ssh2` 和 `cpu-features` 的可选构建脚本。SSH 使用 JavaScript 实现，依赖脚本的严格审批检查保持启用。
+生产运行时使用 Better Sidebar 的预构建资源，独立安装配置明确禁用其准备脚本，以及 `ssh2` 和 `cpu-features` 的可选构建脚本。SSH 使用 JavaScript 实现，依赖脚本的严格审批检查保持启用。
 
 Desktop 携带独立的 Python、Node.js 和 pnpm 分发包。Python 包含 numpy、pandas、python-docx、python-pptx、openpyxl、Pillow、lxml、XlsxWriter 及其完整依赖。`load_workspace_dependencies` 工具首次使用时，将该产物离线安装到 `$DSH_HOME/dsh-runtimes/dsh-primary-runtime`（通常为 `~/.dsh/dsh-runtimes/dsh-primary-runtime`），并返回解释器、pnpm 脚本和库目录的绝对路径，以及记录内置分发包名称与版本的 `pythonDistributions`。版本报告不包含用户自行安装的包。Office 任务默认使用这些库，用户或工作区指令指定其他环境时遵循其要求。pnpm 脚本通过返回的 Node 可执行文件运行。返回的 Node 库目录为随包交付的库预留，不是 pnpm 的全局安装目录。
 

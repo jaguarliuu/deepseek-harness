@@ -1,0 +1,800 @@
+diff --git a/lib/client.js b/lib/client.js
+index 863c7b394a6306c8fd86a1a7bcd22f9052019ca7..3e86d394dfbbe142638ab2920eb708d955eb6252 100644
+--- a/lib/client.js
++++ b/lib/client.js
+@@ -19,31 +19,31 @@ window.__ModuleLoader__.load({
+ 		* 数据交互走同插件的 /api/kb/* 端点。
+ 		*/
+ 		const card = {
+-			border: "1px solid #e5e7eb",
++			border: "1px solid var(--dsw-alias-border-l2)",
+ 			borderRadius: 10,
+ 			padding: "14px 16px",
+-			background: "#fff",
++			background: "var(--dsw-alias-bg-layer-1)",
+ 			boxShadow: "0 1px 3px rgba(16,24,40,.06)"
+ 		};
+ 		const heading = {
+ 			margin: "0 0 4px",
+-			fontSize: 16,
+-			fontWeight: 600
++			fontSize: 24,
++			fontWeight: 500
+ 		};
+ 		const sub = {
+ 			margin: "0 0 12px",
+ 			fontSize: 12.5,
+-			color: "#6b7280"
++			color: "var(--dsw-alias-label-secondary)"
+ 		};
+ 		const dropZone = {
+-			border: "2px dashed #cbd5e1",
++			border: "2px dashed var(--dsw-alias-border-l2)",
+ 			borderRadius: 8,
+ 			padding: "18px",
+ 			textAlign: "center",
+ 			fontSize: 13,
+-			color: "#6b7280",
++			color: "var(--dsw-alias-label-secondary)",
+ 			cursor: "pointer",
+-			background: "#f9fafb",
++			background: "var(--dsw-alias-bg-layer-2)",
+ 			transition: "border-color .15s"
+ 		};
+ 		const breadcrumb = {
+@@ -52,26 +52,26 @@ window.__ModuleLoader__.load({
+ 			gap: 6,
+ 			fontSize: 13.5,
+ 			padding: "2px 0 10px",
+-			color: "#6b7280",
++			color: "var(--dsw-alias-label-secondary)",
+ 			flexWrap: "wrap"
+ 		};
+ 		const crumb = {
+ 			cursor: "pointer",
+-			color: "#2563eb",
++			color: "var(--dsw-alias-brand-text)",
+ 			fontWeight: 500
+ 		};
+ 		const crumbCurrent = {
+-			color: "#1f2937",
+-			fontWeight: 600
++			color: "var(--dsw-alias-label-primary)",
++			fontWeight: 500
+ 		};
+ 		const backBtn = {
+-			border: "1px solid #d1d5db",
+-			background: "#fff",
++			border: "1px solid var(--dsw-alias-border-l2)",
++			background: "var(--dsw-alias-bg-layer-1)",
+ 			borderRadius: 6,
+ 			padding: "2px 10px",
+ 			fontSize: 12,
+ 			cursor: "pointer",
+-			color: "#374151"
++			color: "var(--dsw-alias-label-primary)"
+ 		};
+ 		const row = {
+ 			display: "flex",
+@@ -89,17 +89,17 @@ window.__ModuleLoader__.load({
+ 			flexShrink: 0
+ 		};
+ 		const smallBtn = {
+-			border: "1px solid #d1d5db",
+-			background: "#fff",
++			border: "1px solid var(--dsw-alias-border-l2)",
++			background: "var(--dsw-alias-bg-layer-1)",
+ 			borderRadius: 6,
+ 			padding: "2px 8px",
+ 			fontSize: 11.5,
+ 			cursor: "pointer",
+-			color: "#374151"
++			color: "var(--dsw-alias-label-primary)"
+ 		};
+ 		const primaryBtn = {
+-			border: "1px solid #2563eb",
+-			background: "#2563eb",
++			border: "1px solid var(--dsw-alias-brand-text)",
++			background: "var(--dsw-alias-brand-text)",
+ 			color: "#fff",
+ 			borderRadius: 6,
+ 			padding: "2px 8px",
+@@ -107,7 +107,7 @@ window.__ModuleLoader__.load({
+ 			cursor: "pointer"
+ 		};
+ 		const renameInput = {
+-			border: "1px solid #2563eb",
++			border: "1px solid var(--dsw-alias-brand-text)",
+ 			borderRadius: 6,
+ 			padding: "3px 8px",
+ 			fontSize: 13,
+@@ -120,14 +120,14 @@ window.__ModuleLoader__.load({
+ 		};
+ 		const meta = {
+ 			fontSize: 11.5,
+-			color: "#9ca3af",
++			color: "var(--dsw-alias-label-secondary)",
+ 			flex: 1,
+ 			overflow: "hidden",
+ 			textOverflow: "ellipsis",
+ 			whiteSpace: "nowrap"
+ 		};
+ 		const inputStyle = {
+-			border: "1px solid #d1d5db",
++			border: "1px solid var(--dsw-alias-border-l2)",
+ 			borderRadius: 8,
+ 			padding: "8px 12px",
+ 			fontSize: 13,
+@@ -135,19 +135,19 @@ window.__ModuleLoader__.load({
+ 			flex: 1
+ 		};
+ 		const button = {
+-			border: "1px solid #d1d5db",
+-			background: "#fff",
++			border: "1px solid var(--dsw-alias-border-l2)",
++			background: "var(--dsw-alias-bg-layer-1)",
+ 			borderRadius: 8,
+ 			padding: "8px 14px",
+ 			fontSize: 13,
+ 			cursor: "pointer",
+-			color: "#2563eb"
++			color: "var(--dsw-alias-brand-text)"
+ 		};
+ 		const primaryButton = {
+ 			...button,
+-			background: "#2563eb",
+-			color: "#fff",
+-			borderColor: "#2563eb"
++			background: "var(--dsw-alias-button-primary-fill)",
++			color: "var(--dsw-alias-label-primary-foreground)",
++			borderColor: "var(--dsw-alias-button-primary-fill)"
+ 		};
+ 		async function postJson(url, body) {
+ 			const res = await fetch(url, {
+@@ -172,7 +172,8 @@ window.__ModuleLoader__.load({
+ 					resolve(idx === -1 ? raw : raw.slice(idx + 1));
+ 				};
+ 				reader.onerror = () => reject(reader.error);
+-				reader.readAsDataURL(file);
++				if (file.size > 32 * 1024 * 1024) { reject(new Error("单文件不能超过 32 MiB")); return; }
++                reader.readAsDataURL(file);
+ 			});
+ 		}
+ 		/** 从扁平条目派生"分类 → 文件"结构。 */
+@@ -453,10 +454,10 @@ window.__ModuleLoader__.load({
+ 			const isRoot = view.kind === "root";
+ 			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+ 				style: {
+-					maxWidth: "var(--dsh-chat-content-width)",
++					maxWidth: 1120,
+ 					width: "100%",
+ 					margin: "0 auto",
+-					padding: "20px 24px"
++					padding: "max(32px, var(--dsh-frame-top-clearance, 0px)) 32px 32px", color: "var(--dsw-alias-label-primary)", overflow: "auto", height: "100%", boxSizing: "border-box"
+ 				},
+ 				children: [
+ 					/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+@@ -467,11 +468,11 @@ window.__ModuleLoader__.load({
+ 						children: [
+ 							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("h3", {
+ 								style: heading,
+-								children: "知识库"
++								children: "工作知识库"
+ 							}),
+ 							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("p", {
+ 								style: sub,
+-								children: "支持 md / txt / json / yml / docx / pdf，无大小限制；文件按章节切块，同名重导 = 覆盖更新。"
++								children: "国家电网 · 智维小 C ｜ 本地资料，随用随查。支持 Word、PDF 与文本，单文件最多 32 MiB"
+ 							}),
+ 							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+ 								style: dropZone,
+@@ -493,8 +494,8 @@ window.__ModuleLoader__.load({
+ 								style: {
+ 									marginTop: 10,
+ 									fontSize: 12.5,
+-									color: "#16a34a",
+-									background: "#ecfdf3",
++									color: "var(--dsw-alias-brand-text)",
++									background: "var(--dsw-alias-bg-layer-2)",
+ 									borderRadius: 8,
+ 									padding: "8px 12px"
+ 								},
+@@ -513,21 +514,21 @@ window.__ModuleLoader__.load({
+ 									display: "flex",
+ 									gap: 8,
+ 									marginTop: 12,
+-									borderTop: "1px solid #f3f4f6",
++									borderTop: "1px solid var(--dsw-alias-bg-layer-2)",
+ 									paddingTop: 12,
+ 									alignItems: "center"
+ 								},
+ 								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+-									style: primaryButton,
++									style: { display: "none" },
+ 									onClick: () => void runClassify(),
+ 									disabled: classifying,
+ 									children: classifying ? "AI 分析中…" : "🤖 AI 整理"
+ 								}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 									style: {
+ 										fontSize: 11.5,
+-										color: "#9ca3af"
++										color: "var(--dsw-alias-label-secondary)"
+ 									},
+-									children: "对未分类文件自动建议分类 / 文件名 / 标签，确认后应用"
++									children: "导入后，可在会话中让小 C 检索资料、归纳要点并注明来源"
+ 								})]
+ 							})
+ 						]
+@@ -535,15 +536,15 @@ window.__ModuleLoader__.load({
+ 					suggestions !== null && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+ 						style: {
+ 							...card,
+-							border: "1px solid #bfdbfe",
+-							background: "#eff6ff",
++							border: "1px solid var(--dsw-alias-border-l2)",
++							background: "var(--dsw-alias-bg-layer-2)",
+ 							marginBottom: 14
+ 						},
+ 						children: [
+ 							/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+ 								style: {
+ 									fontSize: 13,
+-									fontWeight: 600,
++									fontWeight: 500,
+ 									marginBottom: 8
+ 								},
+ 								children: "🤖 AI 建议（只建议，不改动；勾选后点\"应用\"）"
+@@ -554,7 +555,7 @@ window.__ModuleLoader__.load({
+ 									alignItems: "center",
+ 									gap: 8,
+ 									padding: "6px 0",
+-									borderTop: "1px solid #dbeafe",
++									borderTop: "1px solid var(--dsw-alias-bg-layer-2)",
+ 									fontSize: 12.5
+ 								},
+ 								children: [
+@@ -589,19 +590,19 @@ window.__ModuleLoader__.load({
+ 										children: ["⚠️ ", s.error]
+ 									}) : /* @__PURE__ */ (0, react_jsx_runtime.jsxs)(react_jsx_runtime.Fragment, { children: [
+ 										/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+-											style: { color: "#9ca3af" },
++											style: { color: "var(--dsw-alias-label-secondary)" },
+ 											children: "→"
+ 										}),
+ 										/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 											style: {
+-												color: "#2563eb",
++												color: "var(--dsw-alias-brand-text)",
+ 												fontWeight: 500
+ 											},
+ 											children: s.category
+ 										}),
+ 										/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+ 											style: {
+-												color: "#6b7280",
++												color: "var(--dsw-alias-label-secondary)",
+ 												flex: 1,
+ 												overflow: "hidden",
+ 												textOverflow: "ellipsis",
+@@ -647,7 +648,7 @@ window.__ModuleLoader__.load({
+ 							children: [
+ 								/* @__PURE__ */ (0, react_jsx_runtime.jsx)("input", {
+ 									style: inputStyle,
+-									placeholder: "检索知识库…（如：ISO9001、参数、安装）",
++									placeholder: "搜索规程、巡检记录或文档关键词",
+ 									value: query,
+ 									onChange: (e) => {
+ 										setQuery(e.target.value);
+@@ -685,7 +686,7 @@ window.__ModuleLoader__.load({
+ 										children: "← 上一级"
+ 									}),
+ 									breadcrumbs.length > 0 && /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+-										style: { color: "#9ca3af" },
++										style: { color: "var(--dsw-alias-label-secondary)" },
+ 										children: "/"
+ 									}),
+ 									breadcrumbs.map((c, i) => /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+@@ -788,9 +789,9 @@ window.__ModuleLoader__.load({
+ 										gap: 12,
+ 										padding: "11px 12px",
+ 										borderRadius: 8,
+-										border: editing !== null && editing.kind === "category" && editing.value === folder.category ? "2px solid #2563eb" : hoveredFolder === folder.category ? "1px solid #2563eb" : "1px solid transparent",
++										border: editing !== null && editing.kind === "category" && editing.value === folder.category ? "2px solid var(--dsw-alias-brand-text)" : hoveredFolder === folder.category ? "1px solid var(--dsw-alias-brand-text)" : "1px solid transparent",
+ 										cursor: "pointer",
+-										background: hoveredFolder === folder.category ? "#f9fafb" : "transparent",
++										background: hoveredFolder === folder.category ? "var(--dsw-alias-bg-layer-2)" : "transparent",
+ 										transition: "border-color .15s, background .15s",
+ 										position: "relative"
+ 									},
+@@ -810,9 +811,9 @@ window.__ModuleLoader__.load({
+ 										}),
+ 										/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 											style: {
+-												fontWeight: 600,
++												fontWeight: 500,
+ 												fontSize: 14,
+-												color: "#1f2937",
++												color: "var(--dsw-alias-label-primary)",
+ 												whiteSpace: "nowrap",
+ 												overflow: "hidden",
+ 												textOverflow: "ellipsis"
+@@ -822,7 +823,7 @@ window.__ModuleLoader__.load({
+ 										/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 											style: {
+ 												fontSize: 11.5,
+-												color: "#9ca3af",
++												color: "var(--dsw-alias-label-secondary)",
+ 												marginLeft: 4,
+ 												flexShrink: 0
+ 											},
+@@ -839,13 +840,13 @@ window.__ModuleLoader__.load({
+ 											children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+ 												style: {
+ 													...smallBtn,
+-													border: "1px solid #d1d5db",
+-													background: "#fff",
++													border: "1px solid var(--dsw-alias-border-l2)",
++													background: "var(--dsw-alias-bg-layer-1)",
+ 													borderRadius: 6,
+ 													padding: "1px 8px",
+ 													fontSize: 12,
+ 													cursor: "pointer",
+-													color: "#374151"
++													color: "var(--dsw-alias-label-primary)"
+ 												},
+ 												onClick: () => setEditing({
+ 													kind: "category",
+@@ -857,7 +858,7 @@ window.__ModuleLoader__.load({
+ 												style: {
+ 													...smallBtn,
+ 													border: "1px solid #fecaca",
+-													background: "#fff",
++													background: "var(--dsw-alias-bg-layer-1)",
+ 													borderRadius: 6,
+ 													padding: "1px 8px",
+ 													fontSize: 12,
+@@ -890,7 +891,7 @@ window.__ModuleLoader__.load({
+ 									const collapsed = collapsedFiles?.has(file.source) ?? false;
+ 									return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+ 										style: {
+-											border: "1px solid #f0f1f4",
++											border: "1px solid var(--dsw-alias-bg-layer-2)",
+ 											borderRadius: 10
+ 										},
+ 										children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+@@ -904,7 +905,7 @@ window.__ModuleLoader__.load({
+ 											},
+ 											onClick: () => toggleFile(file.source),
+ 											onMouseEnter: (e) => {
+-												e.currentTarget.style.background = "#f9fafb";
++												e.currentTarget.style.background = "var(--dsw-alias-bg-layer-2)";
+ 											},
+ 											onMouseLeave: (e) => {
+ 												e.currentTarget.style.background = "transparent";
+@@ -913,7 +914,7 @@ window.__ModuleLoader__.load({
+ 												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 													style: {
+ 														fontSize: 11,
+-														color: "#9ca3af",
++														color: "var(--dsw-alias-label-secondary)",
+ 														width: 12,
+ 														flexShrink: 0
+ 													},
+@@ -925,9 +926,9 @@ window.__ModuleLoader__.load({
+ 												}),
+ 												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 													style: {
+-														fontWeight: 600,
++														fontWeight: 500,
+ 														fontSize: 13.5,
+-														color: "#1f2937"
++														color: "var(--dsw-alias-label-primary)"
+ 													},
+ 													children: file.source
+ 												}),
+@@ -946,7 +947,7 @@ window.__ModuleLoader__.load({
+ 														moving?.source === file.source && /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("select", {
+ 															autoFocus: true,
+ 															style: {
+-																border: "1px solid #2563eb",
++																border: "1px solid var(--dsw-alias-brand-text)",
+ 																borderRadius: 6,
+ 																padding: "2px 6px",
+ 																fontSize: 11.5
+@@ -995,14 +996,14 @@ window.__ModuleLoader__.load({
+ 												...row,
+ 												cursor: "default",
+ 												paddingLeft: 34,
+-												borderTop: "1px solid #f5f6f8",
++												borderTop: "1px solid var(--dsw-alias-bg-layer-2)",
+ 												borderRadius: 0
+ 											},
+ 											children: [
+ 												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 													style: {
+ 														fontSize: 12,
+-														color: "#cbd5e1"
++														color: "var(--dsw-alias-border-l2)"
+ 													},
+ 													children: "·"
+ 												}),
+@@ -1018,7 +1019,7 @@ window.__ModuleLoader__.load({
+ 														/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 															style: {
+ 																fontWeight: 500,
+-																color: "#374151",
++																color: "var(--dsw-alias-label-primary)",
+ 																flex: "0 1 auto",
+ 																whiteSpace: "nowrap",
+ 																overflow: "hidden",
+@@ -1029,7 +1030,7 @@ window.__ModuleLoader__.load({
+ 														/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 															style: {
+ 																fontSize: 11.5,
+-																color: "#9ca3af",
++																color: "var(--dsw-alias-label-secondary)",
+ 																flex: "1 1 auto",
+ 																whiteSpace: "nowrap",
+ 																overflow: "hidden",
+@@ -1041,8 +1042,8 @@ window.__ModuleLoader__.load({
+ 															style: {
+ 																display: "inline-block",
+ 																fontSize: 11,
+-																color: "#374151",
+-																background: "#f3f4f6",
++																color: "var(--dsw-alias-label-primary)",
++																background: "var(--dsw-alias-bg-layer-2)",
+ 																borderRadius: 999,
+ 																padding: "1px 8px",
+ 																flexShrink: 0
+@@ -1054,7 +1055,7 @@ window.__ModuleLoader__.load({
+ 												/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+ 													style: {
+ 														...smallBtn,
+-														color: "#9ca3af",
++														color: "var(--dsw-alias-label-secondary)",
+ 														borderColor: "transparent",
+ 														fontSize: 13,
+ 														padding: "1px 6px",
+@@ -1100,6 +1101,7 @@ window.__ModuleLoader__.load({
+ 						}), searchResults.map((entry) => /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+ 							style: {
+ 								...row,
++                                flexDirection: "column", alignItems: "stretch",
+ 								cursor: "default"
+ 							},
+ 							children: [/* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+@@ -1107,12 +1109,12 @@ window.__ModuleLoader__.load({
+ 									flex: 1,
+ 									minWidth: 0,
+ 									display: "flex",
+-									alignItems: "baseline",
++									alignItems: "baseline", flexWrap: "wrap",
+ 									gap: 8
+ 								},
+ 								children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 									style: {
+-										color: "#374151",
++										color: "var(--dsw-alias-label-primary)",
+ 										flex: "0 1 auto",
+ 										whiteSpace: "nowrap",
+ 										overflow: "hidden",
+@@ -1121,7 +1123,7 @@ window.__ModuleLoader__.load({
+ 									children: entry.name
+ 								}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("span", {
+ 									style: {
+-										color: "#9ca3af",
++										color: "var(--dsw-alias-label-secondary)",
+ 										fontSize: 11.5,
+ 										flexShrink: 0
+ 									},
+@@ -1133,10 +1135,10 @@ window.__ModuleLoader__.load({
+ 								})]
+ 							}), /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+ 								style: {
+-									color: "#6b7280",
++									color: "var(--dsw-alias-label-secondary)",
+ 									fontSize: 12,
+-									marginTop: 2,
+-									whiteSpace: "nowrap",
++									marginTop: 2, lineHeight: 1.6,
++									whiteSpace: "normal",
+ 									overflow: "hidden",
+ 									textOverflow: "ellipsis"
+ 								},
+@@ -1157,6 +1159,8 @@ window.__ModuleLoader__.load({
+ 				en: { "view.knowledgeBase": "Knowledge Base" }
+ 			}), "dsh-knowledge-base: dictionaries");
+ 			const t = ctx.get("locale").bind(NS);
++            ctx.slots.inject('main', () => ctx.slots.register({ name: 'main', key: 'knowledge-base', locale: NS }, KnowledgePanel));
++            ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({ name: 'sidebar.panellist', id: 'knowledge-base', order: 14, locale: NS, label: () => t('view.knowledgeBase') }, () => react.createElement('span', {style: {fontSize: 16}}, '▤')));
+ 			ctx.slots.inject("conversation.view", () => ctx.slots.register({
+ 				name: "conversation.view",
+ 				id: "knowledge-base",
+diff --git a/lib/index.js b/lib/index.js
+index 11900d8ea934d33b8d3e74f726f79372cb573ffd..239dda4b225674adb8b790a1fb829b2dd042d927 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -21,7 +21,12 @@ const Config = Schema.object({ categories: Schema.array(String).default([]) });
+ const inject = ["tools"];
+ function apply(ctx, config) {
+ 	const db = openKb();
+-	ctx.tools.register(defineTool({
++ ctx.effect(() => () => db.close());
++ const register = tool => {
++   if (tool.name !== 'kb_query' && tool.name !== 'kb_list') return;
++   ctx.effect(() => ctx.tools.register(tool));
++ };
++	register(defineTool({
+ 		name: "kb_query",
+ 		description: "检索知识库（kb = Knowledge Base，知识库）。按关键词在名称/摘要/内容/标签上匹配，可按分类过滤。知识库内容来自 kb_import 或 Web 界面导入的文档。典型用法：回答业务问题前先查知识库是否有相关资料。",
+ 		parameters: {
+@@ -65,7 +70,7 @@ function apply(ctx, config) {
+ 			});
+ 		}
+ 	}));
+-	ctx.tools.register(defineTool({
++	register(defineTool({
+ 		name: "kb_import",
+ 		description: "导入本机文件到知识库（支持 md/txt/json/yml/docx/pdf）。文件按标题/段落自动切块，每块成为一条可检索条目；同名文件重新导入 = 覆盖更新。导入时给出 category（分类）与 tags（标签）；未指定则自动建议分类。典型用法：把产品手册、规范书、认证文件等导入知识库。",
+ 		parameters: {
+@@ -113,7 +118,7 @@ function apply(ctx, config) {
+ 			});
+ 		}
+ 	}));
+-	ctx.tools.register(defineTool({
++	register(defineTool({
+ 		name: "kb_list",
+ 		description: "列出知识库条目（可按分类过滤），返回 id/分类/名称/来源/更新时间。",
+ 		parameters: { category: {
+@@ -144,7 +149,7 @@ function apply(ctx, config) {
+ 			});
+ 		}
+ 	}));
+-	ctx.tools.register(defineTool({
++	register(defineTool({
+ 		name: "kb_update",
+ 		description: "修改知识库条目的分类与标签（导入后分类不当时使用）。",
+ 		parameters: {
+@@ -179,7 +184,7 @@ function apply(ctx, config) {
+ 			});
+ 		}
+ 	}));
+-	ctx.tools.register(defineTool({
++	register(defineTool({
+ 		name: "kb_delete",
+ 		description: "删除知识库条目。",
+ 		parameters: { id: {
+@@ -199,9 +204,7 @@ function apply(ctx, config) {
+ 			return JSON.stringify({ deleted: args.id });
+ 		}
+ 	}));
+-	return () => {
+-		db.close();
+-	};
++	
+ }
+ /** payload 可能是 JSON 或 Markdown：能解析则解析，否则原样返回。 */
+ function safeJson(text) {
+diff --git a/lib/parse-ByetpssQ.js b/lib/parse-ByetpssQ.js
+index 3e79183300f206e53a0f5d0f495862f8a09a1b62..2d8a7f406a2ddf04bde564b02e02d42ecf3e23bc 100644
+--- a/lib/parse-ByetpssQ.js
++++ b/lib/parse-ByetpssQ.js
+@@ -1,6 +1,7 @@
++import { createRequire } from 'node:module';
+ import { DatabaseSync } from "node:sqlite";
+ import { homedir } from "node:os";
+-import { mkdirSync, readFileSync } from "node:fs";
++import { chmodSync, mkdirSync, readFileSync } from "node:fs";
+ import { basename, dirname, extname, join } from "node:path";
+ import { spawnSync } from "node:child_process";
+ import { fileURLToPath, pathToFileURL } from "node:url";
+@@ -56,8 +57,9 @@ CREATE VIRTUAL TABLE IF NOT EXISTS kb_fts USING fts5(
+ /** 打开（必要时创建）知识库，并保证 FTS 索引与数据一致。 */
+ function openKb() {
+ 	const path = kbPath();
+-	mkdirSync(dirname(path), { recursive: true });
++	mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
+ 	const db = new DatabaseSync(path);
++    chmodSync(path, 0o600);
+ 	db.exec(SCHEMA);
+ 	syncFts(db);
+ 	return db;
+@@ -299,26 +301,12 @@ async function readTextFile(filePath) {
+ 		case ".json":
+ 		case ".yml":
+ 		case ".yaml": return readFileSync(filePath, "utf8");
+-		case ".docx":
+-		case ".doc": {
+-			const viaTextutil = run("textutil", [
+-				"-convert",
+-				"txt",
+-				"-stdout",
+-				filePath
+-			]);
+-			if (viaTextutil.ok) return viaTextutil.stdout;
+-			const viaPandoc = run("pandoc", [
+-				filePath,
+-				"-t",
+-				"plain"
+-			]);
+-			if (viaPandoc.ok) return viaPandoc.stdout;
+-			throw new Error("无法解析 docx：需要 macOS textutil 或 pandoc 之一（请安装 pandoc 后重试）");
+-		}
++        case ".docx": {
++            const { default: mammoth } = await import('mammoth');
++            return (await mammoth.extractRawText({ buffer: readFileSync(filePath) })).value;
++        }
++        case ".doc": throw new Error('请先将旧版 Word 文件另存为 .docx 后导入');
+ 		case ".pdf": {
+-			const viaPdftotext = run("pdftotext", [filePath, "-"]);
+-			if (viaPdftotext.ok) return viaPdftotext.stdout;
+ 			try {
+ 				return await extractPdfWithPdfjs(filePath);
+ 			} catch (error) {
+@@ -335,9 +323,11 @@ async function extractPdfWithPdfjs(filePath) {
+ 	const { getDocument } = await import("pdfjs-dist/legacy/build/pdf.mjs");
+ 	const loadingTask = getDocument({
+ 		data: new Uint8Array(readFileSync(filePath)),
+-		cMapUrl: pathToFileURL(join(fileURLToPath(new URL("../node_modules/pdfjs-dist/", import.meta.url)), "cmaps") + "/").href,
++		cMapUrl: pathToFileURL(join(dirname(createRequire(import.meta.url).resolve("pdfjs-dist/package.json")), "cmaps") + "/").href,
+ 		cMapPacked: true,
+-		standardFontDataUrl: pathToFileURL(join(fileURLToPath(new URL("../node_modules/pdfjs-dist/", import.meta.url)), "standard_fonts") + "/").href
++        isEvalSupported: false,
++        useSystemFonts: false,
++		standardFontDataUrl: pathToFileURL(join(dirname(createRequire(import.meta.url).resolve("pdfjs-dist/package.json")), "standard_fonts") + "/").href
+ 	});
+ 	const doc = await loadingTask.promise;
+ 	try {
+diff --git a/lib/web.js b/lib/web.js
+index 96fbcad5411dcad4f20b4fa0ba7bb2952184c40f..443286d9cae3d500912a45e9f64a9779e78a67b7 100644
+--- a/lib/web.js
++++ b/lib/web.js
+@@ -1,6 +1,6 @@
+ import { _ as upsertEntry, a as deleteFile, c as listEntries, d as removeCategory, f as renameCategory, g as updateEntry, h as searchKb, i as deleteEntry, l as moveFile, m as renameFile, n as suggestCategory, o as getCustomCategories, p as renameCustomCategory, r as addCategory, s as kbRoot, t as parseDocument, u as openKb } from "./parse-ByetpssQ.js";
+ import Schema from "@deepseek-ai/schemastery";
+-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
++import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+ import { join } from "node:path";
+ //#region lib/types/web.js
+ /**
+@@ -21,15 +21,29 @@ import { join } from "node:path";
+ */
+ const name = "dsh-knowledge-base/web";
+ const Config = Schema.object({ categories: Schema.array(String).default([]) });
+-const inject = [
+-	"tools",
+-	"webServer",
+-	"llm",
+-	"agentDefaultModel"
+-];
++const inject = ["webServer", "connection"];
+ function apply(ctx, config) {
+ 	const db = openKb();
+-	const { webServer } = ctx;
++	const active = new Set();
++ let stopping = false;
++ ctx.effect(() => async () => { stopping = true; await Promise.allSettled([...active]); db.close(); });
++ const webServer = { register(route) {
++   if (route.path === '/api/kb/classify') return;
++   const handler = route.handler;
++   ctx.effect(() => ctx.webServer.register({ ...route, handler(req, res) {
++     const rejection = ctx.connection.requestRejection(req);
++     if (rejection !== undefined) { res.writeHead(rejection); res.end(); return; }
++     const method = ['/api/kb/list', '/api/kb/search', '/api/kb/files'].includes(route.path) ? 'GET' : 'POST';
++     if (req.method !== method) { res.writeHead(405, {Allow: method}); res.end(); return; }
++     if (method === 'POST' && !req.headers['content-type']?.startsWith('application/json')) {
++       sendJson(res, 415, { error: '请使用 JSON 请求' }); return;
++     }
++     if (stopping) { res.writeHead(503); res.end(); return; }
++     const task = Promise.resolve().then(() => handler(req,res));
++     active.add(task);
++     return task.finally(() => active.delete(task));
++   }}));
++ }};
+ 	webServer.register({
+ 		kind: "exact",
+ 		path: "/api/kb/import",
+@@ -41,14 +55,21 @@ function apply(ctx, config) {
+ 				if (name === "" || contentBase64 === "") return sendJson(res, 400, { error: "name 与 contentBase64 必填" });
+ 				const inbox = join(kbRoot(), "inbox");
+ 				mkdirSync(inbox, { recursive: true });
+-				const tmpPath = join(inbox, sanitize(name));
+-				writeFileSync(tmpPath, Buffer.from(contentBase64, "base64"));
++				const upload = mkdtempSync(join(inbox, "upload-"));
++                const tmpPath = join(upload, sanitize(name));
++				const bytes = Buffer.from(contentBase64, 'base64');
++                if (bytes.length > 32 * 1024 * 1024) { rmSync(upload, { recursive: true, force: true }); throw new Error('单文件不能超过 32 MiB'); }
++                writeFileSync(tmpPath, bytes);
+ 				try {
+ 					const parsed = await parseDocument(tmpPath);
+ 					const suggested = suggestCategory(name, parsed.chunks[0]?.payload ?? "", config.categories);
+ 					const category = typeof body.category === "string" && body.category !== "" ? body.category : suggested ?? defaultCategory(config.categories);
+-					const ids = [];
+-					for (const chunk of parsed.chunks) ids.push(upsertEntry(db, {
++					if (parsed.chunks.length === 0 || parsed.chunks.every(chunk => !chunk.payload.trim())) throw new Error('文档没有可检索文字，扫描件请先使用内网 OCR');
++                    const ids = [];
++                    db.exec('BEGIN IMMEDIATE');
++                    try {
++                    deleteFile(db, parsed.source);
++                    for (const chunk of parsed.chunks) ids.push(upsertEntry(db, {
+ 						category,
+ 						name: chunk.name,
+ 						summary: chunk.summary,
+@@ -56,8 +77,10 @@ function apply(ctx, config) {
+ 						tags: [],
+ 						source: parsed.source
+ 					}));
+-					return sendJson(res, 200, {
+-						imported: parsed.chunks.length,
++                    db.exec('COMMIT');
++                    } catch (error) { db.exec('ROLLBACK'); throw error; }
++                    return sendJson(res, 200, {
++                        imported: parsed.chunks.length,
+ 						source: parsed.source,
+ 						ids,
+ 						category,
+@@ -69,7 +92,7 @@ function apply(ctx, config) {
+ 						}))
+ 					});
+ 				} finally {
+-					rmSync(tmpPath, { force: true });
++					rmSync(upload, { recursive: true, force: true });
+ 				}
+ 			} catch (error) {
+ 				return sendJson(res, 400, { error: error instanceof Error ? error.message : String(error) });
+@@ -331,18 +354,20 @@ function apply(ctx, config) {
+ 			}
+ 		}
+ 	});
+-	return () => {
+-		db.close();
+-	};
++	
+ }
+ /** 读取并解析 JSON 请求体（不设大小上限；大文件以 base64 上传时注意内存占用）。 */
+ function readJsonBody(req) {
+ 	return new Promise((resolve, reject) => {
+ 		const chunks = [];
++        let size = 0;
+ 		req.on("data", (chunk) => {
+-			chunks.push(chunk);
++			size += chunk.length;
++            if (size > 48 * 1024 * 1024) { reject(new Error('文件过大，请使用不超过 32 MiB 的文档')); return; }
++            chunks.push(chunk);
+ 		});
+-		req.on("end", () => {
++		req.on("aborted", () => reject(new Error("上传已中断")));
++        req.on("end", () => {
+ 			try {
+ 				const raw = Buffer.concat(chunks).toString("utf8");
+ 				resolve(JSON.parse(raw));
+diff --git a/package.json b/package.json
+index a4d45a2cd9289d890016408be67e7b7a798ab7bf..658b971293933ad110f7fe026ef1aec2c7e8ea7d 100644
+--- a/package.json
++++ b/package.json
+@@ -67,7 +67,6 @@
+     "client": {
+       "inject": [
+         "@deepseek-ai/dsh-client-locale",
+-        "@deepseek-ai/dsh-client-runtime",
+         "@deepseek-ai/dsh-client-ui-conversation"
+       ],
+       "platform": "web"
+@@ -81,7 +80,6 @@
+   "peerDependencies": {
+     "@deepseek-ai/cordis": "*",
+     "@deepseek-ai/dsh-client-locale": "*",
+-    "@deepseek-ai/dsh-client-runtime": "*",
+     "@deepseek-ai/dsh-client-ui-conversation": "*",
+     "@deepseek-ai/dsh-client-ui-slots": "*",
+     "@deepseek-ai/dsh-tools": "*",
+@@ -93,6 +91,7 @@
+     "tsdown": "*"
+   },
+   "dependencies": {
+-    "pdfjs-dist": "^6.2.108"
++    "pdfjs-dist": "^6.2.108",
++    "mammoth": "1.13.0"
+   }
+ }

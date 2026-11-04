@@ -1,0 +1,48 @@
+diff --git a/index.js b/index.js
+index 1ed4562a7de5040c296502e4bbbbce54b6c4cf95..076e53b423b5fa0925a7cdc61ea0c113b31db7c1 100644
+--- a/index.js
++++ b/index.js
+@@ -18,6 +18,7 @@
+ import { spawn } from 'node:child_process';
+ import fs from 'node:fs';
+ import path from 'node:path';
++import { homedir } from 'node:os';
+ import { fileURLToPath } from 'node:url';
+ import { Worker } from 'node:worker_threads';
+ 
+@@ -25,7 +26,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
+ const WORKER_FILE = path.join(HERE, 'sdk-worker.cjs');
+ const KOFFI_FILE = path.join(HERE, 'vendor', 'koffi', 'index.cjs');
+ const BUNDLED_DLL = path.join(HERE, 'native', 'Everything64.dll');
+-const DEFAULT_EVERYTHING_EXE = 'C:\\Program Files\\Everything\\Everything.exe';
++const DEFAULT_EVERYTHING_EXE = path.join(HERE, 'portable', 'everything.exe');
+ const SUPPORTED = process.platform === 'win32' && process.arch === 'x64';
+ const PLATFORM = `${process.platform}-${process.arch}`;
+ const MAX_RESULTS_CEILING = 500;
+@@ -171,7 +172,7 @@ function normalizeConfig(raw) {
+   return {
+     maxResults: integer(config.maxResults, 50, 1, MAX_RESULTS_CEILING),
+     queryTimeoutMs: integer(config.queryTimeoutMs, 10000, 500, 120000),
+-    autoStart: config.autoStart === true,
++    autoStart: config.autoStart !== false,
+     everythingPath: text(config.everythingPath, DEFAULT_EVERYTHING_EXE),
+     sdkPath: text(config.sdkPath, BUNDLED_DLL)
+   };
+@@ -201,7 +202,16 @@ function failureError(reply) {
+ async function startEverythingClient(executable) {
+   if (!fs.existsSync(executable)) return false;
+   try {
+-    const child = spawn(executable, [], { detached: true, stdio: 'ignore', windowsHide: false });
++    const args = [];
++    if (executable === DEFAULT_EVERYTHING_EXE) {
++      const data = path.join(process.env.DSH_HOME || path.join(homedir(), '.dsh'), 'everything');
++      fs.mkdirSync(data, {recursive: true});
++      const ini = path.join(data, 'Everything.ini');
++      if (!fs.existsSync(ini)) fs.writeFileSync(ini, '[Everything]\r\napp_data=0\r\nrun_as_admin=0\r\ncheck_for_updates_on_startup=0\r\nhttp_server_enabled=0\r\netp_server_enabled=0\r\nauto_include_fixed_volumes=0\r\nauto_include_removable_volumes=0\r\nauto_include_fixed_refs_volumes=0\r\nauto_include_removable_refs_volumes=0\r\nfolders="' + homedir().replaceAll('"','') + '"\r\nfolder_monitor_changes=1\r\n', {flag:'wx'});
++      args.push('-config', ini, '-db', path.join(data, 'Everything.db'), '-startup');
++    }
++    const child = spawn(executable, args, { detached: true, stdio: 'ignore', windowsHide: true });
++    await new Promise((resolve, reject) => {child.once('spawn', resolve); child.once('error', reject);});
+     child.unref();
+   } catch {
+     return false;

@@ -15,6 +15,16 @@ kind: "package-bundle"
 
 `desktop` 配置将助手身份设为面向国家电网员工的「智维小 C」，省略固定的 Harness 身份和框架开发上下文，保留工具与安全指引。显式配置的人设覆盖仍然优先。
 
+本 bundle 将 Better Sidebar（`dsh-better-sidebar@0.28.2`）作为固定版本的生产依赖挂载。Web 与 Desktop 内置文件与编辑器、Git、任务、侧边对话和底部终端页面，无需员工另行安装。其 Harness peer 依赖复用随应用交付的工作区包，编辑器与预览懒加载文件在本地交付。
+
+内置知识库与文件检索固定使用 `dsh-knowledge-base@0.1.5` 和仅 Windows x64 启用的 `dsh-plugin-everything@1.1.0`。知识库面板支持本地导入 DOCX、文字型 PDF 和文本文件（单文件 32 MiB），按目录管理并通过 SQLite FTS5 检索；扫描件需先 OCR。Agent 仅获得只读的 `kb_query` 与 `kb_list`，导入和编辑由经过鉴权的面板操作完成。共享补丁移除了独立分类模型调用，采用离线 Mammoth/PDF.js 解析，并沿用国网主题变量。知识库数据保存在 `$DSH_HOME/knowledge-base`。
+
+内置 `@orderg-x/dsh-pages@0.2.2`。`show_page` 工具可在对话与右侧栏中生成可交互的报告、清单和看板，支持版本历史与 HTML 导出。共享补丁使用国网配色，将数据保存在 `$DSH_HOME/dsh-pages`，移除外部 CDN 权限并禁用页面自行弹窗。模板可离线运行；自动检查及 PNG/PDF 导出需要电脑已有 Chrome 或 Edge，不会下载浏览器。
+
+内置 Quick Screenshot，固定到 `JackEngineer/dsh-quick-screenshot` 的提交 `c8e7c11b7f16198b39f7300ce877206554a0694d`（1.0.0），并通过共享补丁识别智维小 C 窗口。相机按钮或 `Ctrl+Shift+S` 将 PNG 放入当前输入框；Shift 截取桌面，Alt 截取活动窗口，没有输入框的页面则使用剪贴板。Windows 使用随包 PowerShell 代码和系统绘图接口；macOS 使用系统屏幕截图，可能需要屏幕录制权限。Linux 需要已安装的受支持截图工具。员工电脑不会下载截图依赖。
+
+内置 `dsh-genui@0.3.2`，在助手回复中渲染表单、图表、计算器等可交互界面卡片，用户操作可通过现有输入流程继续对话。Vue/OpenTiny 运行时随包本地提供，桌面打包会保留。共享补丁为运行时与提示词控制接口增加鉴权，将国网配色限定在卡片内，并补充离线界面生成指引。输入框的 GenUI 菜单可选择关闭、精简、标准或全量；Pages 仍用于带版本历史的整页报告。
+
 ## 概述
 
 运行 `dsh --profile web`，获得浏览器内的聊天、模型与设置管理以及会话历史，并与其他 dsh 表层共用同一套模型访问、工具与安全默认值。启动时会打印带 token 的 URL，通常还会在默认浏览器中打开；SSH 会话和 `--no-open` 需要手动打开。你可以更改端口、允许额外 authority、绑定一个具体的本机 IP，并用自己提供的证书直接提供 HTTPS；通配地址会被拒绝。跨机访问使用剥离前缀代理后公告的 HTTP(S) URL、监听器 TLS，或非 loopback 绑定上的明文 HTTP。一次性的命令行任务应使用 headless 配置。

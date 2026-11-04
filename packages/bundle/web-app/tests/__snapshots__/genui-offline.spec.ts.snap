@@ -1,0 +1,10 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`serves the offline runtime and authenticates reversible prompt controls 1`] = `
+{
+  "authenticated": true,
+  "defaultMode": "standard",
+  "offlineRuntime": true,
+  "selectedMode": "mini",
+}
+`;
