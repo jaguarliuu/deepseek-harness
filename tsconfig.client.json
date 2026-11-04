@@ -58,6 +58,7 @@
   "references": [
     { "path": "./packages/client/ui-mcp/tsconfig.client.json" },
     { "path": "./packages/client/ui-intranet-ai/tsconfig.client.json" },
+    { "path": "./packages/client/ui-remote-ops/tsconfig.client.json" },
     { "path": "./packages/experimental/client-ui-action-cards" },
     { "path": "./packages/experimental/client-ui-creation-recommendations" },
     { "path": "./packages/experimental/client-ui-plugin-recommendations" },

@@ -23,6 +23,8 @@ flowchart LR
   pkg_hmr["hmr"]
   svc_hmr["ctx.hmr<br/>Serialized module and configuration reloads"]
   pkg_app_boot["app-boot"]
+  pkg_client_ui_remote_ops["client-ui-remote-ops"]
+  svc_remoteOps["ctx.remoteOps<br/>Local remote operations workspace"]
   pkg_client_ui_intranet_ai["client-ui-intranet-ai"]
   svc_intranetAi["ctx.intranetAi<br/>Internal AI platform capabilities"]
   pkg_client_ui_mcp["client-ui-mcp"]
@@ -340,6 +342,7 @@ flowchart LR
   pkg_client_ui_intranet_ai --> svc_intranetAi
   pkg_client_ui_mcp --> svc_mcpManager
   pkg_client_ui_plugin_manager --> svc_pluginRegistryProbe
+  pkg_client_ui_remote_ops --> svc_remoteOps
   pkg_command_feedback --> svc_sessionFeedback
   pkg_commands --> svc_commands
   pkg_compaction --> svc_compaction
@@ -542,6 +545,7 @@ flowchart LR
   svc_remoteAccess --> pkg_api_gateway
   svc_remoteAccess --> pkg_api_session_controller
   svc_remoteAccess --> pkg_api_workspace_controller
+  svc_remoteOps --> pkg_client_ui_remote_ops
   svc_sandbox --> pkg_bash_sandbox
   svc_sandbox --> pkg_terminal_bash
   svc_sandboxPolicy --> pkg_bash_sandbox
@@ -645,6 +649,7 @@ flowchart LR
 | `ctx.cotTranslation` | `service` | [`experimental-client-ui-cot-translation`](../packages/experimental/client-ui-cot-translation) | - | - | - | Serves reasoning translations, reuses saved results, and joins ordinary Session activation for uncached inactive Sessions. |
 | `ctx.translator` | `service` | [`experimental-translator`](../packages/experimental/translator) | - | [`experimental-client-ui-cot-translation`](../packages/experimental/client-ui-cot-translation) | - | Resolves Google or Bing requests and retains shared experimental records through the active Session writer. |
 | `ctx.hmr` | `core` | [`hmr`](../packages/boot/hmr) | - | [`app-boot`](../packages/boot/app-boot) | - | Owns module and exact configuration watchers; application mutations share its queue and automatic reloads await the application file lock. |
+| `ctx.remoteOps` | `core` | [`client-ui-remote-ops`](../packages/client/ui-remote-ops) | - | [`client-ui-remote-ops`](../packages/client/ui-remote-ops) | - | Owns local SSH credentials, pinned interactive terminals and commands approved through the existing Session policy. |
 | `ctx.intranetAi` | `core` | [`client-ui-intranet-ai`](../packages/client/ui-intranet-ai) | - | [`client-ui-intranet-ai`](../packages/client/ui-intranet-ai) | - | Owns platform authorization, asynchronous image/speech/OCR tasks and local results. |
 | `ctx.mcpManager` | `core` | [`client-ui-mcp`](../packages/client/ui-mcp) | - | [`client-ui-mcp`](../packages/client/ui-mcp) | - | Reconciles configured MCP clients and probes unsaved connections without invoking tools. |
 | `ctx.pluginRegistryProbe` | `core` | [`client-ui-plugin-manager`](../packages/client/ui-plugin-manager) | - | [`client-ui-plugin-manager`](../packages/client/ui-plugin-manager) | - | Races public registry responses on the Host; the Client owns the initial registry recommendation. |

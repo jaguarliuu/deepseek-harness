@@ -30,6 +30,7 @@
     "paths": {
       "@deepseek-ai/dsh-client-ui-mcp": ["./packages/client/ui-mcp/src"],
     "@deepseek-ai/dsh-client-ui-intranet-ai": ["./packages/client/ui-intranet-ai/src"],
+    "@deepseek-ai/dsh-client-ui-remote-ops": ["./packages/client/ui-remote-ops/src"],
       "@deepseek-ai/dsh-client-ui-entry-customization": ["./packages/client/ui-entry-customization/src/index.ts"],
       "@deepseek-ai/dsh-client-ui-entry-customization/client": ["./packages/client/ui-entry-customization/src/client/index.ts"],
       "@deepseek-ai/dsh-client-ui-entry-customization/src/*": ["./packages/client/ui-entry-customization/src/*"],

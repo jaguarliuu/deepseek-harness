@@ -29,6 +29,9 @@ peerDependencyRules:
 # default and only allow scripts we need. esbuild (native binary) and lefthook
 # (git hooks) genuinely need theirs.
 allowBuilds:
+  # SSH uses its JavaScript implementation; optional CPU/crypto native optimizations are unnecessary.
+  ssh2: false
+  cpu-features: false
   # selection-hook ships N-API prebuilts for all desktop targets.
   selection-hook: false
   esbuild: true

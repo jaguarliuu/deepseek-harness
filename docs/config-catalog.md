@@ -666,6 +666,32 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@deepseek-ai/dsh-client-ui-plugin-manager -->
 
+<!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-client-ui-remote-ops -->
+<a id="deepseek-aidsh-client-ui-remote-ops"></a>
+
+## `@deepseek-ai/dsh-client-ui-remote-ops`
+
+- `inject`: `credentials` · `tools` · `approval`
+- `source`: [`packages/client/ui-remote-ops/src/index.ts:15`](../packages/client/ui-remote-ops/src/index.ts)
+
+```ts config-catalog
+/** Runtime resource limits; authentication is configured through the local workspace. */
+export interface Config extends ConnectionLimits {}
+
+/** Deployment limits shared by UI and model command channels. */
+export interface ConnectionLimits {
+  /** SSH handshake and authentication deadline in milliseconds. */
+  connectTimeoutMs: number
+  /** Maximum duration of one remote command in milliseconds. */
+  commandTimeoutMs: number
+  /** Maximum retained characters per terminal or command result. */
+  outputCharacters: number
+  /** Maximum open or opening interactive terminals per Host. */
+  maxTerminals: number
+}
+```
+<!-- END GENERATED config-catalog:@deepseek-ai/dsh-client-ui-remote-ops -->
+
 <!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-client-ui-settings-account -->
 <a id="deepseek-aidsh-client-ui-settings-account"></a>
 

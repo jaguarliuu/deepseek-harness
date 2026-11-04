@@ -25,6 +25,8 @@ flowchart LR
   pkg_hmr["hmr"]
   svc_hmr["ctx.hmr<br/>Serialized module and configuration reloads"]
   pkg_app_boot["app-boot"]
+  pkg_client_ui_remote_ops["client-ui-remote-ops"]
+  svc_remoteOps["ctx.remoteOps<br/>Local remote operations workspace"]
   pkg_client_ui_intranet_ai["client-ui-intranet-ai"]
   svc_intranetAi["ctx.intranetAi<br/>Internal AI platform capabilities"]
   pkg_client_ui_mcp["client-ui-mcp"]
@@ -342,6 +344,7 @@ flowchart LR
   pkg_client_ui_intranet_ai --> svc_intranetAi
   pkg_client_ui_mcp --> svc_mcpManager
   pkg_client_ui_plugin_manager --> svc_pluginRegistryProbe
+  pkg_client_ui_remote_ops --> svc_remoteOps
   pkg_command_feedback --> svc_sessionFeedback
   pkg_commands --> svc_commands
   pkg_compaction --> svc_compaction
@@ -544,6 +547,7 @@ flowchart LR
   svc_remoteAccess --> pkg_api_gateway
   svc_remoteAccess --> pkg_api_session_controller
   svc_remoteAccess --> pkg_api_workspace_controller
+  svc_remoteOps --> pkg_client_ui_remote_ops
   svc_sandbox --> pkg_bash_sandbox
   svc_sandbox --> pkg_terminal_bash
   svc_sandboxPolicy --> pkg_bash_sandbox
@@ -647,6 +651,7 @@ flowchart LR
 | `ctx.cotTranslation` | `service` | [`experimental-client-ui-cot-translation`](../packages/experimental/client-ui-cot-translation) | - | - | - | 为展开的思考内容提供有界的 Session 翻译请求，不改变模型可见历史。 |
 | `ctx.translator` | `service` | [`experimental-translator`](../packages/experimental/translator) | - | [`experimental-client-ui-cot-translation`](../packages/experimental/client-ui-cot-translation) | - | 解析 Google 或 Bing 请求，并可选保留统一的实验性 Session 记录。 |
 | `ctx.hmr` | `core` | [`hmr`](../packages/boot/hmr) | - | [`app-boot`](../packages/boot/app-boot) | - | 负责模块和精确配置监听；应用修改共用其队列，自动重载等待应用文件锁。 |
+| `ctx.remoteOps` | `core` | [`client-ui-remote-ops`](../packages/client/ui-remote-ops) | - | [`client-ui-remote-ops`](../packages/client/ui-remote-ops) | - | 管理本地 SSH 凭据、固定服务器指纹的交互式终端，以及经现有 Session 策略审批的命令。 |
 | `ctx.intranetAi` | `core` | [`client-ui-intranet-ai`](../packages/client/ui-intranet-ai) | - | [`client-ui-intranet-ai`](../packages/client/ui-intranet-ai) | - | 负责平台授权、异步生图、语音合成和 OCR 任务，以及本地结果。 |
 | `ctx.mcpManager` | `core` | [`client-ui-mcp`](../packages/client/ui-mcp) | - | [`client-ui-mcp`](../packages/client/ui-mcp) | - | 协调已配置的 MCP 客户端，并测试尚未保存的连接，不执行工具。 |
 | `ctx.pluginRegistryProbe` | `core` | [`client-ui-plugin-manager`](../packages/client/ui-plugin-manager) | - | [`client-ui-plugin-manager`](../packages/client/ui-plugin-manager) | - | 在 Host 上并发比较公共安装源响应；初始安装源推荐由 Client 负责。 |

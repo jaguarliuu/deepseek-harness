@@ -4,6 +4,8 @@ English | [中文](ssh.zh.md)
 
 The [SSH provider family](../../packages/ssh/README.md) supplies one remote filesystem/process world through a deployment-owned OpenSSH connection. The Harness, model transport and Session storage remain on the host. The family implements the existing filesystem, subprocess and sandbox APIs; it introduces no SSH-specific model tools.
 
+The [remote operations workspace](../../packages/client/ui-remote-ops/README.md) connects Windows or POSIX clients to ordinary SSH servers without a remote helper. It owns local connection credentials and interactive consoles; its AI commands use the existing model tools and Session approval service. It does not replace the filesystem/process execution world.
+
 ## Execution coordinates
 
 Filesystem identities, executable lookup, process cwd, sandbox workspace roots and language-server file URLs refer to the SSH host. Providers canonicalize paths where the files exist, preserving filesystem interpretation of `symlink/..`. The policy resolver carries absolute execution-world spelling without trying to resolve remote paths on the Harness host.
@@ -111,6 +113,81 @@ declare class SshConnection extends Service {
 ## Cordis API
 
 Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+
+<a id="ctxremoteops--remoteops"></a>
+
+### `ctx.remoteOps` — `RemoteOps`
+
+Own local server inventory, SSH transports and approved model tools.
+
+```ts cordis-catalog
+/**
+ * List local servers without credential fields.
+ * @returns saved connection metadata without secrets.
+ */
+@Remote async list(): Promise<ServerView[]>
+
+/**
+ * Probe an untrusted host without credentials.
+ * @param host - server address.
+ * @param port - SSH port.
+ * @returns untrusted fingerprint or redacted error.
+ */
+@Remote async probe(host: string, port: number): Promise<OpsResult>
+
+/**
+ * Save local credentials with an explicitly confirmed server fingerprint.
+ * @param input - user connection form.
+ * @returns redacted save outcome.
+ */
+@Remote async save(input: ServerInput): Promise<OpsResult>
+
+/**
+ * Remove an unused connection; open terminals must be disconnected first.
+ * @param id - saved server id.
+ * @returns redacted removal outcome.
+ */
+@Remote async deleteServer(id: ServerId): Promise<OpsResult>
+
+/**
+ * Verify saved credentials against the pinned host.
+ * @param id - saved server id.
+ * @returns authentication outcome.
+ */
+@Remote async test(id: ServerId): Promise<OpsResult>
+
+/**
+ * Start an interactive terminal, isolated from AI command channels.
+ * @param id - saved server id.
+ * @returns terminal identity.
+ */
+@Remote async connect(id: ServerId): Promise<TerminalId>
+
+/**
+ * Read bounded output after a cursor.
+ * @param id - terminal identity.
+ * @param cursor - consumed character cursor.
+ * @returns terminal status and incremental output.
+ */
+@Remote read(id: TerminalId, cursor: number): Promise<TerminalView>
+
+/**
+ * Send manual keyboard input or resize the PTY.
+ * @param id - terminal identity.
+ * @param data - user keystrokes, empty for resize only.
+ * @param cols - columns.
+ * @param rows - rows.
+ */
+@Remote write(id: TerminalId, data: string, cols: number, rows: number): Promise<void>
+
+/**
+ * Close an interactive terminal without replaying any commands.
+ * @param id - terminal identity.
+ */
+@Remote async disconnect(id: TerminalId): Promise<void>
+```
+
+Source: [`packages/client/ui-remote-ops/src/index.ts`](../../packages/client/ui-remote-ops/src/index.ts)
 
 <a id="ctxssh--sshconnection"></a>
 

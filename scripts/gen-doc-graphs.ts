@@ -155,6 +155,14 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Owns module and exact configuration watchers; application mutations share its queue and automatic reloads await the application file lock.',
   },
   {
+    key: 'remoteOps',
+    pkg: 'client-ui-remote-ops',
+    title: 'Local remote operations workspace',
+    mode: 'core',
+    consumers: ['client-ui-remote-ops'],
+    note: 'Owns local SSH credentials, pinned interactive terminals and commands approved through the existing Session policy.',
+  },
+  {
     key: 'intranetAi',
     pkg: 'client-ui-intranet-ai',
     title: 'Internal AI platform capabilities',

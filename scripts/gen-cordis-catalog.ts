@@ -113,6 +113,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   sandbox: 'sandbox.md',
   sandboxPolicy: 'sandbox.md',
   ssh: 'ssh.md',
+  remoteOps: 'ssh.md',
   sessionPersistence: 'persistence.md',
   sessionQuery: 'session-query.md',
   sessionFileReferences: 'session-reference.md',
@@ -914,6 +915,13 @@ export const FOUNDATION_TYPE_NAMES: ReadonlySet<string> = new Set([
 
 /** Project types deliberately documented outside the subsystems catalog. */
 export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
+  ServerView: 'Remote operations API fields are owned by packages/client/ui-remote-ops/src/types.ts and its package README.',
+  ServerInput: 'Remote operations API fields are owned by packages/client/ui-remote-ops/src/types.ts and its package README.',
+  ServerId: 'Remote operations API fields are owned by packages/client/ui-remote-ops/src/types.ts and its package README.',
+  TerminalId: 'Remote operations API fields are owned by packages/client/ui-remote-ops/src/types.ts and its package README.',
+  TerminalView: 'Remote operations API fields are owned by packages/client/ui-remote-ops/src/types.ts and its package README.',
+  OpsResult: 'Remote operations API fields are owned by packages/client/ui-remote-ops/src/types.ts and its package README.',
+
   AiResult: 'Internal AI API fields are owned by packages/client/ui-intranet-ai/src/types.ts and its package README.',
   AccountStatus: 'Internal AI API fields are owned by packages/client/ui-intranet-ai/src/types.ts and its package README.',
   AiInput: 'Internal AI API fields are owned by packages/client/ui-intranet-ai/src/types.ts and its package README.',

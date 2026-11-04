@@ -2251,6 +2251,75 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'remoteOps',
+    summary: 'Own local server inventory, SSH transports and approved model tools.',
+    description: 'Own local server inventory, SSH transports and approved model tools.',
+    methods: [
+      {
+        signature: 'readonly repository: ServerRepository',
+        description: 'Local credential record owner; not exposed over RPC.',
+        parameters: [],
+      },
+      {
+        signature: 'readonly connections: Connections',
+        description: 'Socket and terminal owner; not exposed over RPC.',
+        parameters: [],
+      },
+      {
+        signature: '@Remote async list(): Promise<ServerView[]>',
+        description: 'List local servers without credential fields.',
+        parameters: [],
+        returns: 'saved connection metadata without secrets.',
+      },
+      {
+        signature: '@Remote async probe(host: string, port: number): Promise<OpsResult>',
+        description: 'Probe an untrusted host without credentials.',
+        parameters: [{ name: 'host', description: 'server address.' }, { name: 'port', description: 'SSH port.' }],
+        returns: 'untrusted fingerprint or redacted error.',
+      },
+      {
+        signature: '@Remote async save(input: ServerInput): Promise<OpsResult>',
+        description: 'Save local credentials with an explicitly confirmed server fingerprint.',
+        parameters: [{ name: 'input', description: 'user connection form.' }],
+        returns: 'redacted save outcome.',
+      },
+      {
+        signature: '@Remote async deleteServer(id: ServerId): Promise<OpsResult>',
+        description: 'Remove an unused connection; open terminals must be disconnected first.',
+        parameters: [{ name: 'id', description: 'saved server id.' }],
+        returns: 'redacted removal outcome.',
+      },
+      {
+        signature: '@Remote async test(id: ServerId): Promise<OpsResult>',
+        description: 'Verify saved credentials against the pinned host.',
+        parameters: [{ name: 'id', description: 'saved server id.' }],
+        returns: 'authentication outcome.',
+      },
+      {
+        signature: '@Remote async connect(id: ServerId): Promise<TerminalId>',
+        description: 'Start an interactive terminal, isolated from AI command channels.',
+        parameters: [{ name: 'id', description: 'saved server id.' }],
+        returns: 'terminal identity.',
+      },
+      {
+        signature: '@Remote read(id: TerminalId, cursor: number): Promise<TerminalView>',
+        description: 'Read bounded output after a cursor.',
+        parameters: [{ name: 'id', description: 'terminal identity.' }, { name: 'cursor', description: 'consumed character cursor.' }],
+        returns: 'terminal status and incremental output.',
+      },
+      {
+        signature: '@Remote write(id: TerminalId, data: string, cols: number, rows: number): Promise<void>',
+        description: 'Send manual keyboard input or resize the PTY.',
+        parameters: [{ name: 'id', description: 'terminal identity.' }, { name: 'data', description: 'user keystrokes, empty for resize only.' }, { name: 'cols', description: 'columns.' }, { name: 'rows', description: 'rows.' }],
+      },
+      {
+        signature: '@Remote async disconnect(id: TerminalId): Promise<void>',
+        description: 'Close an interactive terminal without replaying any commands.',
+        parameters: [{ name: 'id', description: 'terminal identity.' }],
+      },
+    ],
+  },
+  {
     key: 'sandbox',
     summary: 'Abstract process-sandbox service.',
     description: 'Abstract process-sandbox service. confine must return enforcing argv or fail closed at wrap or runner-execution time; silent unconfined passthrough is forbidden. Functional probes arbitrate multi-runner chains and may be skipped for a sole candidate, whose own refusal remains the fail-closed end.',
@@ -5477,10 +5546,6 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface CommandInvocation {\n    readonly commandId: CommandId;\n    readonly agent: Agent;\n    readonly rawInput: string;\n    readonly attachments: readonly (ImageBlock | FileBlock)[];\n    readonly signal: AbortSignal;\n}',
   },
   {
-    name: 'CommandResult',
-    declaration: 'export type CommandResult = {\n    readonly kind: \'success\';\n    readonly text?: string;\n    readonly sourceEventSeq?: SessionSeq;\n} | {\n    readonly kind: \'error\';\n    readonly text: string;\n};',
-  },
-  {
     name: 'CommandRunInput',
     declaration: 'export interface CommandRunInput {\n    command: string;\n    args: string;\n    origin: PromptOrigin;\n}',
   },
@@ -5557,6 +5622,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface ConnectionIndexResponse {\n    writeHead(status: number, headers?: Readonly<Record<string, string>>): unknown;\n    end(body?: string): unknown;\n}',
   },
   {
+    name: 'ConnectionLimits',
+    declaration: 'export interface ConnectionLimits {\n    connectTimeoutMs: number;\n    commandTimeoutMs: number;\n    outputCharacters: number;\n    maxTerminals: number;\n}',
+  },
+  {
     name: 'ConnectionRequestBodyMode',
     declaration: 'export type ConnectionRequestBodyMode = \'buffered\' | \'streaming\';',
   },
@@ -5587,6 +5656,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ConnectionRpcResult',
     declaration: 'export type ConnectionRpcResult<T> = {\n    readonly ok: true;\n    readonly value: T;\n} | {\n    readonly ok: false;\n    readonly error: ConnectionRpcFailure;\n};',
+  },
+  {
+    name: 'Connections',
+    declaration: 'export class Connections {\n    constructor(private readonly limits: ConnectionLimits);\n    async probe(endpoint: {\n        host: string;\n        port: number;\n    }): Promise<string>;\n    async test(server: StoredServer): Promise<void>;\n    async connect(server: StoredServer): Promise<TerminalId>;\n    read(id: TerminalId, cursor: number): TerminalView;\n    write(id: TerminalId, data: string, cols: number, rows: number): void;\n    async disconnect(id: TerminalId): Promise<void>;\n    async execute(server: StoredServer, command: string, signal?: AbortSignal): Promise<CommandResult>;\n    async close(): Promise<void>;\n}',
   },
   {
     name: 'ConnectionTrustRequest',
@@ -6813,6 +6886,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type OneShotScheduleRecord = AfterScheduleRecord | AtScheduleRecord;',
   },
   {
+    name: 'OpsResult',
+    declaration: 'export interface OpsResult {\n    ok: boolean;\n    code: string;\n    fingerprint?: string;\n}',
+  },
+  {
     name: 'OptionalSessionSeq',
     declaration: 'export type OptionalSessionSeq = SessionSeq | null;',
   },
@@ -7537,8 +7614,24 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type SerializedNode = SerializedElement | string;',
   },
   {
+    name: 'ServerId',
+    declaration: 'export type ServerId = Branded<\'RemoteOpsServerId\'>;',
+  },
+  {
+    name: 'ServerInput',
+    declaration: 'export interface ServerInput {\n    id?: ServerId;\n    name: string;\n    group: string;\n    host: string;\n    port: number;\n    username: string;\n    auth: \'password\' | \'key\' | \'agent\';\n    secret: string;\n    passphrase: string;\n    fingerprint: string;\n}',
+  },
+  {
+    name: 'ServerRepository',
+    declaration: 'export class ServerRepository {\n    constructor(private readonly ctx: Context);\n    async records(): Promise<StoredServer[]>;\n    async list(): Promise<ServerView[]>;\n    async get(id: string): Promise<StoredServer>;\n    async save(input: ServerInput): Promise<ServerView>;\n    async remove(id: ServerId): Promise<void>;\n}',
+  },
+  {
     name: 'ServerResponse',
     declaration: 'export interface ServerResponse {\n    readonly type: \'server-response\';\n    readonly rpcId: RpcId;\n    readonly result: ConnectionRpcResult<unknown>;\n}',
+  },
+  {
+    name: 'ServerView',
+    declaration: 'export interface ServerView {\n    id: ServerId;\n    name: string;\n    group: string;\n    host: string;\n    port: number;\n    username: string;\n    auth: \'password\' | \'key\' | \'agent\';\n    fingerprint: string;\n}',
   },
   {
     name: 'Session',
@@ -8393,6 +8486,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface StoredImageAttachment {\n    ref: ImageAttachmentRef;\n    data: Uint8Array;\n}',
   },
   {
+    name: 'StoredServer',
+    declaration: 'export type StoredServer = z.infer<typeof storedSchema>;',
+  },
+  {
     name: 'StreamChunk',
     declaration: 'export type StreamChunk = {\n    type: \'block-start\';\n    index: number;\n    blockType: ContentBlockType;\n} | {\n    type: \'text-delta\';\n    index: number;\n    text: string;\n} | {\n    type: \'reasoning-delta\';\n    index: number;\n    text: string;\n} | {\n    type: \'tool-call-delta\';\n    index: number;\n    id: ToolCallId;\n    name?: string;\n    argumentsDelta: string;\n} | {\n    type: \'block-end\';\n    index: number;\n    block: ContentBlock;\n} | {\n    type: \'usage\';\n    usage: TokenUsage;\n} | {\n    type: \'finish\';\n    reason: FinishReason;\n    replayState?: ReplayEnvelope;\n};',
   },
@@ -8669,6 +8766,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export type TerminalFrame = {\n    readonly type: \'snapshot\';\n    readonly sequence: number;\n    readonly screen: string;\n    readonly info: WebTerminalInfo;\n    readonly writable: boolean;\n    readonly inputWindow?: RemoteUplinkWindow;\n} | {\n    readonly type: \'output\';\n    readonly sequence: number;\n    readonly data: string;\n} | {\n    readonly type: \'state\';\n    readonly info: WebTerminalInfo;\n    readonly writable: boolean;\n} | {\n    readonly type: \'ack\';\n    readonly sequence: number;\n    readonly refusal?: \'read-only\' | \'not-running\';\n};',
   },
   {
+    name: 'TerminalId',
+    declaration: 'export type TerminalId = Branded<\'RemoteOpsTerminalId\'>;',
+  },
+  {
     name: 'TerminalInput',
     declaration: 'export type TerminalInput = {\n    readonly type: \'write\';\n    readonly sequence: number;\n    readonly data: string;\n} | {\n    readonly type: \'resize\';\n    readonly sequence: number;\n    readonly cols: number;\n    readonly rows: number;\n};',
   },
@@ -8739,6 +8840,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'TerminalSpawnResult',
     declaration: 'export interface TerminalSpawnResult extends TerminalSessionSnapshot {\n    motd: string;\n}',
+  },
+  {
+    name: 'TerminalView',
+    declaration: 'export interface TerminalView {\n    id: TerminalId;\n    serverId: ServerId;\n    data: string;\n    cursor: number;\n    truncated: boolean;\n    state: \'connected\' | \'closed\' | \'failed\';\n}',
   },
   {
     name: 'TerminalWaitReason',

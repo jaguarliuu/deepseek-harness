@@ -2266,6 +2266,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     occupants: [
       'client-ui-conversation ConversationPanel key \'conversation\'',
       'client-ui-plugin-manager PluginManagerPage',
+      'client-ui-remote-ops OpsPage',
       'client-ui-schedule TaskManagerPage',
       'client-ui-workspace SessionTrashPage',
     ],
@@ -3510,6 +3511,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
       'client-ui-chat QuotaNoticeHost id \'chat.quota-notice\'',
       'client-ui-file-drag FileDragFeedback id \'file-drag.feedback\'',
       'client-ui-plugin-manager PluginRefreshToast id \'plugin-manager.refresh-toast\'',
+      'client-ui-remote-ops OpsToast id \'remote-ops-notice\'',
       'client-ui-schedule ScheduleDeleteToast id \'schedule.delete-toast\'',
       'client-ui-settings-account DesktopOnboardingEntry id \'desktop-onboarding\'',
       'client-ui-settings-account AccountPlatformHost id \'account.platform-page\'',
@@ -3807,6 +3809,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     declaredBy: 'an entry in \'sidebar\' (client-ui-sidebar), so it exists while that entry is mounted',
     occupants: [
       'client-ui-plugin-manager PluginsPanelIcon',
+      'client-ui-remote-ops OpsIcon id \'remote-ops\'',
       'client-ui-schedule TaskManagerIcon',
       'client-ui-workspace SessionTrashIcon id \'recycle-bin\'',
     ],
