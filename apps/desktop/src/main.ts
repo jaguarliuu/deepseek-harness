@@ -477,7 +477,7 @@ async function main(): Promise<void> {
     const host = new DesktopHostProcess(resources.node, resources.dsh, activeProject,
       hostInspectPort, { ...hostEnvironment, DSH_CLIENT_VERSION: desktopClientVersion() }, onFailure,
       primaryRuntime,
-      resources, (next) => { platformView.setSession(next) }, (result) => { taskResultBubble.notify(result) })
+      resources, (next) => { platformView.setSession(next) }, (result) => { taskResultBubble.notify(result); if (result.outcome === 'completed') companion.completed() })
     return {
       start: async () => {
         const ready = await host.start()

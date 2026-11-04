@@ -554,6 +554,50 @@ export interface Config {
 ```
 <!-- END GENERATED config-catalog:@deepseek-ai/dsh-client-shortcuts -->
 
+<!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-client-ui-intranet-ai -->
+<a id="deepseek-aidsh-client-ui-intranet-ai"></a>
+
+## `@deepseek-ai/dsh-client-ui-intranet-ai`
+
+- `inject`: `credentials` · `tools` · `jobs` · `fs`
+- `refs`: `Volatile` (`@deepseek-ai/cosmokit`)
+- `source`: [`packages/client/ui-intranet-ai/src/index.ts:17`](../packages/client/ui-intranet-ai/src/index.ts)
+
+```ts config-catalog
+/** Deployment configuration; only non-secret settings are editable by the user. */
+export interface Config {
+  /** Platform origin. */
+  baseUrl: Volatile<string>
+  /** Allowed image model ids. */
+  imageModels: Volatile<string[]>
+  /** Allowed voice ids. */
+  voices: Volatile<string[]>
+  /** Profile-local task and output directory. */
+  dataPath: string
+  /** Per-request deadline. */
+  requestTimeoutMs: number
+  /** Poll interval for ordinary tasks. */
+  pollMs: number
+  /** Poll interval after extended queuing. */
+  queuePollMs: number
+  /** Maximum local monitoring duration; remote tasks remain resumable. */
+  monitorMs: number
+  /** Maximum parsed JSON bytes. */
+  maxResponseBytes: number
+  /** Maximum uploaded OCR file bytes. */
+  maxUploadBytes: number
+  /** Maximum downloaded output bytes. */
+  maxArtifactBytes: number
+  /** Maximum retained task records. */
+  maxTasks: number
+  /** Maximum records per list response. */
+  listLimit: number
+  /** Maximum OCR preview characters per task. */
+  previewCharacters: number
+}
+```
+<!-- END GENERATED config-catalog:@deepseek-ai/dsh-client-ui-intranet-ai -->
+
 <!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-client-ui-mcp -->
 <a id="deepseek-aidsh-client-ui-mcp"></a>
 

@@ -61,3 +61,85 @@ body.tucked .sprite { animation: none; transform: none; }
 body.tucked #greet { inset: 0; width: 196px; height: 120px; border-radius: 16px; }
 body.tucked .character::after { display: none; }
 @media (prefers-reduced-motion: reduce) { .character { transition: none !important; } }
+
+/* Separate limbs reuse the original artwork, keeping the helmet emblem intact. */
+.sprite { position: relative; }
+.part, .work-scene, .result-mark, .dizzy-orbit { display: none; pointer-events: none; }
+.sprite:is([data-pose=lift], [data-pose=land], [data-pose=dizzy], [data-pose=adjust], [data-pose=pet], [data-pose=guard], [data-pose=celebrate]) { background: none; transform-origin: 50% 90%; }
+.sprite:is([data-pose=lift], [data-pose=land], [data-pose=dizzy], [data-pose=adjust], [data-pose=pet], [data-pose=guard], [data-pose=celebrate]) .part {
+  display: block; position: absolute; inset: 0; background: url(assets/xiaoc-motion.png) 0 0 / 400% 400%;
+}
+.part.torso { clip-path: polygon(0 0, 100% 0, 100% 41%, 73% 41%, 69% 51%, 63% 53%, 63% 66%, 37% 66%, 37% 53%, 31% 51%, 27% 41%, 0 41%); }
+.part.arm-left { clip-path: polygon(23% 41%, 37% 41%, 37% 73%, 23% 73%); transform-origin: 34% 44%; }
+.part.arm-right { clip-path: polygon(63% 41%, 77% 41%, 77% 73%, 63% 73%); transform-origin: 66% 44%; }
+.part.leg-left { clip-path: polygon(38% 65%, 50% 65%, 50% 99%, 24% 99%, 30% 80%, 38% 75%); transform-origin: 42% 66%; }
+.part.leg-right { clip-path: polygon(50% 65%, 62% 65%, 62% 75%, 70% 80%, 76% 99%, 50% 99%); transform-origin: 58% 66%; }
+.sprite[data-pose=lift] { animation: lifted-sway 1.1s ease-in-out infinite; transform-origin: 50% 12%; }
+.sprite[data-pose=lift] .leg-left { animation: dangling-leg .65s ease-in-out infinite alternate; }
+.sprite[data-pose=lift] .leg-right { animation: dangling-leg .65s ease-in-out infinite alternate-reverse; }
+.sprite[data-pose=lift] .arm-left { transform: rotate(12deg); }
+.sprite[data-pose=lift] .arm-right { transform: rotate(-12deg); }
+.sprite[data-pose=land] { animation: soft-landing .45s ease-out both; }
+.sprite[data-pose=dizzy] { animation: dizzy-sway .36s ease-in-out 3; }
+.sprite[data-pose=adjust] .arm-left { animation: helmet-adjust .9s ease-in-out both; }
+.sprite[data-pose=guard] .arm-left { animation: helmet-guard-left .4s ease-out both; }
+.sprite[data-pose=guard] .arm-right { animation: helmet-guard-right .4s ease-out both; }
+.sprite[data-pose=guard] { animation: shy-step 2.4s ease-in-out both; }
+.sprite[data-pose=pet] .torso { background-position: 66.666667% 0; }
+.sprite[data-pose=pet] { animation: happy-lean 1.8s ease-in-out both; }
+.sprite[data-pose=celebrate] .arm-left { animation: completion-salute 1.3s ease-in-out both; }
+.character:has(.sprite[data-pose=work]) .work-scene {
+  display: grid; gap: 5px; position: absolute; left: 86px; top: 112px; width: 78px; padding: 10px;
+  border: 1px solid #6bd6be; border-radius: 7px; background: #12483eed; transform: rotate(-8deg);
+  box-shadow: 0 0 15px #60dab533; animation: terminal-open .35s ease-out both;
+}
+.work-scene i { height: 3px; width: 85%; background: #80dec8; border-radius: 2px; animation: terminal-read 1.8s ease-in-out infinite; }
+.work-scene i:nth-child(2) { width: 55%; animation-delay: .3s; }
+.work-scene i:nth-child(3) { width: 70%; animation-delay: .6s; }
+.character:has(.sprite[data-pose=celebrate]) .result-mark {
+  display: block; position: absolute; right: 16px; top: 76px; width: 28px; height: 28px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 50%; animation: result-arrive .35s ease-out both;
+}
+.result-mark::after { content: ''; position: absolute; width: 11px; height: 6px; border-left: 2px solid var(--green); border-bottom: 2px solid var(--green); transform: rotate(-45deg); left: 7px; top: 8px; }
+.character:has(.sprite[data-pose=dizzy]) .dizzy-orbit { display: flex; gap: 9px; position: absolute; top: 12px; left: 70px; animation: dizzy-sway .4s ease-in-out 3; }
+.dizzy-orbit i { width: 5px; height: 5px; background: #e4bc62; border-radius: 50%; }
+@keyframes lifted-sway { 0%, 100% { transform: translateY(-3px) rotate(-3deg); } 50% { transform: translateY(-5px) rotate(3deg); } }
+@keyframes dangling-leg { from { transform: rotate(-9deg); } to { transform: rotate(9deg); } }
+@keyframes soft-landing { 0% { transform: translateY(-5px) scaleY(1.03); } 40% { transform: scaleY(.94) scaleX(1.03); } 75% { transform: scaleY(1.015); } 100% { transform: none; } }
+@keyframes dizzy-sway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes helmet-adjust { 0%, 100% { transform: rotate(0); } 30%, 65% { transform: rotate(175deg); } }
+@keyframes helmet-guard-left { to { transform: rotate(175deg); } }
+@keyframes helmet-guard-right { to { transform: rotate(-175deg); } }
+@keyframes shy-step { 0%, 100% { transform: none; } 20%, 75% { transform: translateY(-4px) scale(.95); } }
+@keyframes happy-lean { 0%, 100% { transform: none; } 30%, 65% { transform: rotate(-4deg) scaleY(.98); } }
+@keyframes completion-salute { 0%, 100% { transform: rotate(0); } 30%, 65% { transform: rotate(125deg); } }
+@keyframes terminal-open { from { opacity: 0; transform: translateY(8px) rotate(-8deg) scale(.8); } to { opacity: 1; transform: rotate(-8deg) scale(1); } }
+@keyframes terminal-read { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
+@keyframes result-arrive { from { opacity: 0; transform: translateY(5px) scale(.8); } to { opacity: 1; transform: none; } }
+body.tucked .work-scene, body.tucked .result-mark, body.tucked .dizzy-orbit,
+body.compact .work-scene, body.compact .result-mark, body.compact .dizzy-orbit { display: none !important; }
+@media (prefers-reduced-motion: reduce) { .part, .work-scene, .work-scene i, .result-mark, .dizzy-orbit { animation: none !important; } }
+
+/* Gaze moves only the head and visor; the pointer target and dock transform remain fixed. */
+.look-head { display: none; pointer-events: none; position: absolute; left: -22px; top: 0; width: 240px; height: 240px;
+  background: url(assets/xiaoc-motion.png) 0 0 / 400% 400%; clip-path: inset(0 0 59% 0);
+  transform-origin: 50% 39%; transition: transform 180ms ease-out;
+}
+.pointer-play .sprite { clip-path: inset(41% 0 0 0); }
+.pointer-play .look-head { display: block; transform: rotate(var(--look-angle, 0deg)); }
+.look-visor { position: absolute; left: 86px; top: 58px; width: 68px; height: 27px; display: flex; align-items: center; justify-content: center; gap: 17px;
+  border-radius: 9px; background: radial-gradient(ellipse at center, #1b302e, #172321);
+}
+.look-visor i { width: 12px; height: 4px; border-radius: 4px; background: #80f3dd; box-shadow: 0 0 5px #80f3dd80;
+  transform: translate(var(--look-x, 0px), var(--look-y, 0px)); transition: transform 120ms ease-out;
+}
+.pointer-shy .look-head { transform: translateY(-3px) rotate(var(--look-angle, 0deg)) scale(.95); }
+.pointer-shy .look-visor i { height: 3px; }
+.pointer-curious .look-head { animation: curious-tilt 900ms ease-in-out both; }
+@keyframes curious-tilt { 0%, 100% { transform: rotate(var(--look-angle, 0deg)); } 35%, 70% { transform: rotate(-9deg) translateY(-1px); } }
+body.tucked .look-head, body.compact .look-head { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .look-head, .look-visor i { transition: none; animation: none !important; }
+  .pointer-play .sprite { clip-path: none; }
+  .pointer-play .look-head { display: none; }
+}

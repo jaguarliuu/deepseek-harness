@@ -193,7 +193,8 @@
     "@deepseek-ai/dsh-harness-dev-context": "workspace:*",
     "@deepseek-ai/dsh-deliverable-file-references": "workspace:*",
     "@deepseek-ai/dsh-client-ui-file-drag": "workspace:*",
-    "@deepseek-ai/dsh-client-ui-mcp": "workspace:*"
+    "@deepseek-ai/dsh-client-ui-mcp": "workspace:*",
+    "@deepseek-ai/dsh-client-ui-intranet-ai": "workspace:*"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",

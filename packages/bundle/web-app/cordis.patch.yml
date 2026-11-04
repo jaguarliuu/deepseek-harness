@@ -28,8 +28,11 @@
 
 - id: system-prompt
   config:
-    personaPrefix: >-
-      You are a coding agent powered by the {{model}} model.
+    includeHarnessIdentity: !!js "ctx.get('profileContext')?.name !== 'desktop'"
+    personaPrefix: !!js >-
+      ctx.get('profileContext')?.name === 'desktop'
+        ? '你是「智维小 C」，面向国家电网员工的桌面智能助手，简称「小 C」。你通过当前可用的插件、Skills 和工具协助用户处理办公与业务任务。向用户介绍自己或当前应用时，使用「智维小 C」。底层框架、模型提供商和模型名称不代表你的产品身份；只有用户询问技术实现时才解释这些信息。能力、权限和任务完成状态以当前工具和实际执行结果为准，不声称具备未接入的能力。'
+        : 'You are a coding agent powered by the {{model}} model.'
 
 # Full-text session search is opt-in (the base row's `openAt: never`). This
 # restatement keeps the Web values on one ephemeral in-memory index; a
@@ -215,6 +218,7 @@
     # also drops the two value lines.
     - id: harness-dev-context
       name: '@deepseek-ai/dsh-harness-dev-context'
+      disabled: !!js "ctx.get('profileContext')?.name === 'desktop'"
 
     # The client-plugin reload chain, always mounted: it is idle until a
     # rebuild watcher (pnpm run dev:web) actually rewrites client bundles. It
@@ -324,6 +328,11 @@
     # Plugin management: the sidebar Plugins page installs, enables, disables,
     # and removes the profile's bundles through the `pluginManager` Remote.
     # Without a profile-backed Host it reports itself unavailable.
+    - id: ui-intranet-ai
+      name: '@deepseek-ai/dsh-client-ui-intranet-ai'
+      config:
+        dataPath: !!js "ctx.profileContext.dir + '/intranet-ai'"
+
     - id: ui-mcp
       name: '@deepseek-ai/dsh-client-ui-mcp'
 

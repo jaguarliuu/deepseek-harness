@@ -1,6 +1,8 @@
 name: 智维小 C · Windows 办公离线测试包
 
 on:
+  push:
+    branches: [master]
   workflow_dispatch:
 
 permissions:

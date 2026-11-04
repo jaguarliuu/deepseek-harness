@@ -1,0 +1,46 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/client/ui-intranet-ai/README.md
+/:
+  en: 3de90df65ecbd72a
+  zh: 0ca5c48f3008e629
+/deepseek-ai-dsh-client-ui-intranet-ai:
+  en: 909fe5c0be220065
+  zh: 7946256c60b672d9
+/deepseek-ai-dsh-client-ui-intranet-ai/summary:
+  en: b56e5f05305ede50
+  zh: 3086308acd56ce0e
+/deepseek-ai-dsh-client-ui-intranet-ai/table-of-contents:
+  en: 766c2c4604cf3289
+  zh: 2f1ea11f8e31e1d0
+/deepseek-ai-dsh-client-ui-intranet-ai/use-this-package:
+  en: 9cb06350c99c6259
+  zh: a6f11d8377eae994
+/deepseek-ai-dsh-client-ui-intranet-ai/use-this-package/internal-environment-acceptance:
+  en: 76284ea4bd3d36a5
+  zh: 759a88f9442308da
+/deepseek-ai-dsh-client-ui-intranet-ai/understand-the-implementation:
+  en: fbfe46ff4606e60c
+  zh: ddcfc33b22e4905d
+/deepseek-ai-dsh-client-ui-intranet-ai/dev-note:
+  en: f3c698886ef928a7
+  zh: eaac63c14c20b932
+/deepseek-ai-dsh-client-ui-intranet-ai/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/deepseek-ai-dsh-client-ui-intranet-ai/model-experience/internal-ai-tools:
+  en: 140619acaa7894a3
+  zh: f2e57a59a835ab7e
+/deepseek-ai-dsh-client-ui-intranet-ai/model-experience/internal-ai-tools/what-the-model-sees:
+  en: 044d60e270b6d792
+  zh: 368ae3f833087fc5
+/deepseek-ai-dsh-client-ui-intranet-ai/model-experience/internal-ai-tools/token-effect:
+  en: 3a55674db6cd9795
+  zh: 32324d03fcf72256
+/deepseek-ai-dsh-client-ui-intranet-ai/model-experience/internal-ai-tools/kv-cache-effect:
+  en: 4de6b034d1b54998
+  zh: 1ea34397dd55c4d4
+/deepseek-ai-dsh-client-ui-intranet-ai/known-limitations-and-deferred-work:
+  en: 3832884f5e496631
+  zh: ee60d7206c3793e8

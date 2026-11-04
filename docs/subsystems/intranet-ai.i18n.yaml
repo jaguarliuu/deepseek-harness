@@ -1,0 +1,7 @@
+# Bilingual-pair consistency record for intranet-ai.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write docs/subsystems/intranet-ai.md
+/internal-ai-capabilities:
+  en: 0441b0e68e9e5314
+  zh: 0e05c9711ebbe13a

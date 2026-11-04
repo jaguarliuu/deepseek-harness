@@ -80,5 +80,55 @@ it('does not accumulate isolated head strokes into a repeated-stroke reaction', 
   const motion = new CompanionChoreography(0)
   for (const now of [1000, 6000, 11000]) motion.pet(now)
   motion.tick({ ...base, now: 11000 })
-  expect(motion.view().pose).toBe('wave')
+  expect(motion.view().pose).toBe('pet')
+})
+
+it('lands gently, reacts to a fast drag, adjusts the helmet and resumes idle', () => {
+  const motion = new CompanionChoreography(0)
+  motion.lift(3000)
+  motion.tick({ ...base, now: 3100 })
+  expect(motion.view().pose).toBe('lift')
+  motion.drop(3200, true)
+  const poses = [3200, 3700, 4800, 5800].map((now) => {
+    expect(motion.tick({ ...base, now, roaming: false })).toBe(0)
+    return motion.view().pose
+  })
+  expect(poses).toMatchInlineSnapshot(`
+    [
+      "land",
+      "dizzy",
+      "adjust",
+      "idle",
+    ]
+  `)
+  motion.lift(6000)
+  motion.drop(6100, false)
+  motion.tick({ ...base, now: 6600 })
+  expect(motion.view().pose).toBe('adjust')
+})
+it('protects the helmet after repeated taps and clears playful reactions for work', () => {
+  const motion = new CompanionChoreography(0)
+  motion.tapHat(3000)
+  motion.tick({ ...base, now: 3000 })
+  expect(motion.view().pose).toBe('adjust')
+  motion.tapHat(3700)
+  motion.tapHat(4400)
+  motion.tick({ ...base, now: 4400 })
+  expect(motion.view().pose).toBe('guard')
+  motion.tick({ ...base, now: 4500, busy: true })
+  expect(motion.view().pose).toBe('work')
+})
+it('celebrates only explicit completion and suppresses all new reactions under reduced motion', () => {
+  const motion = new CompanionChoreography(0)
+  motion.tick({ ...base, now: 3000, busy: true })
+  motion.tick({ ...base, now: 3100 })
+  expect(motion.view().pose).not.toBe('celebrate')
+  motion.complete(3200)
+  motion.tick({ ...base, now: 3200 })
+  expect(motion.view().pose).toBe('celebrate')
+  motion.lift(3300)
+  motion.tick({ ...base, now: 3300, reduced: true })
+  expect(motion.view().pose).toBe('idle')
+  motion.tick({ ...base, now: 3400 })
+  expect(motion.view().pose).toBe('idle')
 })

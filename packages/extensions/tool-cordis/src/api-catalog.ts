@@ -1482,6 +1482,77 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'intranetAi',
+    summary: 'Own the authenticated internal-AI platform connection and model tools.',
+    description: 'Own the authenticated internal-AI platform connection and model tools.',
+    methods: [
+      {
+        signature: 'readonly platform: PlatformClient',
+        description: 'Platform request and credential owner; never exposed over Remote.',
+        parameters: [],
+      },
+      {
+        signature: 'readonly tasks: TaskStore',
+        description: 'Durable task owner; model tools share the same records as the UI.',
+        parameters: [],
+      },
+      {
+        signature: '@Remote async check(baseUrl: string): Promise<AiResult>',
+        description: 'Check an unsaved platform origin without sending credentials.',
+        parameters: [{ name: 'baseUrl', description: 'platform origin.' }],
+        returns: 'network-only result.',
+      },
+      {
+        signature: '@Remote async account(): Promise<AccountStatus>',
+        description: 'Return the currently authorized account without exposing tokens.',
+        parameters: [],
+        returns: 'account state.',
+      },
+      {
+        signature: '@Remote async login(account: string, password: string): Promise<AiResult>',
+        description: 'Sign in to the configured platform; the password is not persisted.',
+        parameters: [{ name: 'account', description: 'platform login id.' }, { name: 'password', description: 'password.' }],
+        returns: 'redacted result.',
+      },
+      {
+        signature: '@Remote async logout(): Promise<AiResult>',
+        description: 'Remove local authorization and request server revocation.',
+        parameters: [],
+        returns: 'revocation result; local credentials are cleared even on network failure.',
+      },
+      {
+        signature: '@Remote async submit(input: AiInput): Promise<AiResult>',
+        description: 'Submit a capability task and start local monitoring.',
+        parameters: [{ name: 'input', description: 'capability input; OCR bytes are transient.' }],
+        returns: 'redacted submission status.',
+      },
+      {
+        signature: '@Remote async list(): Promise<AiTask[]>',
+        description: 'List task projections for the authorized endpoint and account.',
+        parameters: [],
+        returns: 'current local tasks.',
+      },
+      {
+        signature: '@Remote async resume(id: string): Promise<AiResult>',
+        description: 'Resume polling and artifact download without a second submission.',
+        parameters: [{ name: 'id', description: 'local task id.' }],
+        returns: 'whether monitoring started.',
+      },
+      {
+        signature: '@Remote async cancel(id: string): Promise<AiResult>',
+        description: 'Request server-confirmed task cancellation.',
+        parameters: [{ name: 'id', description: 'local task id.' }],
+        returns: 'redacted cancellation result.',
+      },
+      {
+        signature: '@Remote async artifact(id: string, name: string): Promise<AiArtifact>',
+        description: 'Read one account-owned local artifact.',
+        parameters: [{ name: 'id', description: 'local task id.' }, { name: 'name', description: 'artifact filename.' }],
+        returns: 'content for browser playback and download.',
+      },
+    ],
+  },
+  {
     key: 'jobController',
     summary: 'Host service backing the generated `ctx.remote.job` namespace.',
     description: 'Host service backing the generated `ctx.remote.job` namespace.',
@@ -4982,6 +5053,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface AccountProfile {\n    readonly id: AccountUserId | null;\n    readonly name: string | null;\n    readonly contact: string | null;\n    readonly avatarUrl?: string | null;\n}',
   },
   {
+    name: 'AccountStatus',
+    declaration: 'export interface AccountStatus {\n    connected: boolean;\n    account: string;\n}',
+  },
+  {
     name: 'AccountUserId',
     declaration: 'export type AccountUserId = Branded<\'AccountUserId\'>;',
   },
@@ -5096,6 +5171,30 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'AgentStatus',
     declaration: 'export type AgentStatus = \'idle\' | \'running\';',
+  },
+  {
+    name: 'AiArtifact',
+    declaration: 'export interface AiArtifact {\n    name: string;\n    mime: string;\n    base64: string;\n}',
+  },
+  {
+    name: 'AiInput',
+    declaration: 'export interface AiInput {\n    capability: Capability;\n    text: string;\n    model?: string | undefined;\n    size?: string | undefined;\n    n?: number | undefined;\n    voice?: string | undefined;\n    speed?: number | undefined;\n    instructions?: string | undefined;\n    filename?: string | undefined;\n    fileBase64?: string | undefined;\n}',
+  },
+  {
+    name: 'AiResult',
+    declaration: 'export interface AiResult {\n    ok: boolean;\n    code: string;\n}',
+  },
+  {
+    name: 'AiSettings',
+    declaration: 'export interface AiSettings {\n    baseUrl: string;\n    imageModels: string[];\n    voices: string[];\n}',
+  },
+  {
+    name: 'AiTask',
+    declaration: 'export interface AiTask {\n    id: AiTaskId;\n    capability: Capability;\n    remoteId: number;\n    baseUrl: string;\n    account: string;\n    status: string;\n    notice: string;\n    files: string[];\n    markdown: string;\n    previewTruncated: boolean;\n    totalPages: number;\n    pages: number;\n    truncated: boolean;\n}',
+  },
+  {
+    name: 'AiTaskId',
+    declaration: 'export type AiTaskId = Branded<\'IntranetAiTaskId\'>;',
   },
   {
     name: 'AnalyticsPreset',
@@ -5324,6 +5423,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ButtonProps',
     declaration: 'export interface ButtonProps {\n    readonly label: string;\n    readonly hotkey?: string | undefined;\n    readonly disabled?: boolean | undefined;\n    readonly onPress?: (() => unknown) | undefined;\n}',
+  },
+  {
+    name: 'Capability',
+    declaration: 'export type Capability = \'image\' | \'tts\' | \'ocr\';',
   },
   {
     name: 'ChangeResult',
@@ -6760,6 +6863,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'PermissionCatalog',
     declaration: 'export interface PermissionCatalog {\n    options: PresetOption[];\n    defaultOptions: PresetOption[];\n    defaultPreset: string;\n}',
+  },
+  {
+    name: 'PlatformClient',
+    declaration: 'export class PlatformClient {\n    constructor(private readonly ctx: Context, private readonly settings: () => AiSettings, signal: AbortSignal, private readonly timeoutMs: number, private readonly maxResponseBytes: number);\n    async health(baseUrl: string): Promise<void>;\n    async status(): Promise<AccountStatus>;\n    async login(account: string, password: string): Promise<void>;\n    async logout(): Promise<void>;\n    async request(base: string, path: string, init: RequestInit = {}, signal?: AbortSignal, expectedAccount?: string): Promise<Response>;\n    async assertAccount(base: string, account: string): Promise<void>;\n}',
   },
   {
     name: 'PlatformSession',
@@ -8492,6 +8599,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'TableValueOf',
     declaration: 'export type TableValueOf<S extends DomainSpec, N extends keyof S[\'tables\']> = S[\'tables\'][N] extends DomainTableSpec<string, infer V> ? V : never;',
+  },
+  {
+    name: 'TaskOptions',
+    declaration: 'export interface TaskOptions {\n    dataPath: string;\n    maxResponseBytes: number;\n    maxUploadBytes: number;\n    maxArtifactBytes: number;\n    pollMs: number;\n    queuePollMs: number;\n    monitorMs: number;\n    maxTasks: number;\n    listLimit: number;\n    previewCharacters: number;\n}',
+  },
+  {
+    name: 'TaskStore',
+    declaration: 'export class TaskStore {\n    readonly ready: Promise<void>;\n    constructor(private readonly platform: PlatformClient, private readonly settings: () => AiSettings, private readonly options: TaskOptions, private readonly signal: AbortSignal);\n    async list(): Promise<AiTask[]>;\n    async submit(input: AiInput, signal?: AbortSignal): Promise<AiTask>;\n    async monitor(id: string, signal?: AbortSignal): Promise<AiTask>;\n    async cancel(id: string): Promise<void>;\n    async artifact(id: string, name: string): Promise<AiArtifact>;\n    modelResult(task: AiTask): string;\n    async close(): Promise<void>;\n}',
   },
   {
     name: 'TeamId',

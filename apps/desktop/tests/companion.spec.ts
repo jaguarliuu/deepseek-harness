@@ -236,3 +236,32 @@ it('keeps the full canvas until shrink animation finishes and ignores an obsolet
   expect(() => settle({}, revision)).toThrow('Untrusted')
   expect(() => settle(f.sender, 'invalid')).toThrow('Invalid dock revision')
 })
+
+it('shows lift only after displacement and lands without opening a task', async () => {
+  const f = setup()
+  await vi.advanceTimersByTimeAsync(0)
+  f.action('reduce-off')
+  native.cursor = { x: 700, y: 400 }
+  f.action('drag-start')
+  expect(f.view().motion.pose).not.toBe('lift')
+  native.cursor = { x: 740, y: 400 }
+  await vi.advanceTimersByTimeAsync(16)
+  expect(f.view().motion.pose).toBe('lift')
+  f.action('drag-end')
+  expect(f.view().motion.pose).toBe('land')
+  expect(f.open).not.toHaveBeenCalled()
+})
+it('accepts a genuine completion gesture without changing task state', async () => {
+  const f = setup()
+  await vi.advanceTimersByTimeAsync(0)
+  f.action('reduce-off')
+  companion!.completed()
+  expect(f.view().motion.pose).toBe('celebrate')
+  expect(f.view().state).toBe('idle')
+  f.action('hide')
+  await vi.advanceTimersByTimeAsync(5000)
+  companion!.completed()
+  companion!.show()
+  await vi.advanceTimersByTimeAsync(0)
+  expect(f.view().motion.pose).not.toBe('celebrate')
+})

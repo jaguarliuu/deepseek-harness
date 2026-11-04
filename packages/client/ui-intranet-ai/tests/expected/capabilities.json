@@ -1,0 +1,35 @@
+[
+  {
+    "capability": "image",
+    "status": "succeeded",
+    "files": [
+      "result-1.png"
+    ],
+    "markdown": "# 识别正文\n设备巡检完成。",
+    "truncated": true,
+    "pages": 20,
+    "totalPages": 30
+  },
+  {
+    "capability": "tts",
+    "status": "succeeded",
+    "files": [
+      "result-1.wav"
+    ],
+    "markdown": "# 识别正文\n设备巡检完成。",
+    "truncated": true,
+    "pages": 20,
+    "totalPages": 30
+  },
+  {
+    "capability": "ocr",
+    "status": "succeeded",
+    "files": [
+      "document.md"
+    ],
+    "markdown": "# 识别正文\n设备巡检完成。",
+    "truncated": true,
+    "pages": 20,
+    "totalPages": 30
+  }
+]

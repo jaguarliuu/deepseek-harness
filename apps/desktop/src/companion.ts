@@ -31,7 +31,17 @@ export class DesktopCompanion {
   private state: CompanionView['state'] = 'unknown'
   private timer: ReturnType<typeof setTimeout> | undefined
   private inspecting = false
-  private drag: { x: number; y: number; cursorX: number; cursorY: number; moved: boolean } | undefined
+  private drag: {
+    x: number
+    y: number
+    cursorX: number
+    cursorY: number
+    moved: boolean
+    lastX: number
+    lastY: number
+    lastAt: number
+    fast: boolean
+  } | undefined
   private roaming = true
   private reduced = true
   private nativeDragTimer: ReturnType<typeof setTimeout> | undefined
@@ -57,6 +67,7 @@ export class DesktopCompanion {
       if (action === 'open') { this.motion.wake(Date.now()); options.open() }
       else if (action === 'wake') this.motion.wake(Date.now())
       else if (action === 'pet') { if (this.state === 'idle') this.motion.pet(Date.now()) }
+      else if (action === 'hat') { if (this.state === 'idle') this.motion.tapHat(Date.now()) }
       else if (action === 'drag-start') {
         this.motion.wake(Date.now())
         if (this.tucked) { this.tucked = false; this.fit() }
@@ -64,15 +75,17 @@ export class DesktopCompanion {
         if (!window) throw new Error('Companion window unavailable')
         const bounds = window.getBounds()
         const cursor = screen.getCursorScreenPoint()
-        this.drag = { x: bounds.x, y: bounds.y, cursorX: cursor.x, cursorY: cursor.y, moved: false }
+        this.drag = { x: bounds.x, y: bounds.y, cursorX: cursor.x, cursorY: cursor.y, moved: false,
+          lastX: cursor.x, lastY: cursor.y, lastAt: Date.now(), fast: false }
       }
       else if (action === 'drag-end') {
         this.moveDrag()
         const moved = this.drag?.moved
+        if (moved) this.motion.drop(Date.now(), this.drag?.fast === true)
         this.drag = undefined
         if (moved) this.snapToEdge()
       }
-      else if (action === 'hide') { this.shown = false; this.drag = undefined; this.window?.hide() }
+      else if (action === 'hide') { this.motion.drop(Date.now(), false); this.shown = false; this.drag = undefined; this.window?.hide() }
       else if (action === 'greet') this.motion.greet(Date.now())
       else if (action === 'roam') this.roaming = !this.roaming
       else if (action === 'reduce-on' || action === 'reduce-off') {
@@ -100,6 +113,13 @@ export class DesktopCompanion {
 
   /** @returns Whether the user has left the companion enabled in this run. */
   isShown(): boolean { return this.shown && !this.disposed }
+
+  /** React to a Host-confirmed completion only while the companion is visible. */
+  completed(): void {
+    if (!this.shown || this.disposed || this.reduced) return
+    this.motion.complete(Date.now())
+    this.animate()
+  }
 
   /** @returns Current native position used to anchor the task window. */
   bounds(): Electron.Rectangle | undefined { return this.window?.getBounds() }
@@ -136,11 +156,12 @@ export class DesktopCompanion {
     window.on('moved', this.fit)
     window.on('will-move', () => {
       this.dock = null
-      this.motion.wake(Date.now())
+      if (!this.reduced) this.motion.lift(Date.now())
       clearTimeout(this.nativeDragTimer)
       this.nativeDragTimer = setTimeout(() => {
         this.nativeDragTimer = undefined
         if (this.disposed || !this.shown) return
+        this.motion.drop(Date.now(), false)
         this.fit()
         this.snapToEdge()
         this.animate()
@@ -237,6 +258,11 @@ export class DesktopCompanion {
     const dx = cursor.x - this.drag.cursorX
     const dy = cursor.y - this.drag.cursorY
     if (Math.hypot(dx, dy) < 4) return
+    const now = Date.now()
+    const elapsed = now - this.drag.lastAt
+    if (elapsed > 0 && Math.hypot(cursor.x - this.drag.lastX, cursor.y - this.drag.lastY) / elapsed > 1.4) this.drag.fast = true
+    this.drag.lastX = cursor.x; this.drag.lastY = cursor.y; this.drag.lastAt = now
+    if (!this.reduced) this.motion.lift(now)
     this.drag.moved = true
     this.dock = null
     this.tucked = false

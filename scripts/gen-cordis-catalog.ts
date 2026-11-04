@@ -69,6 +69,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   hmr: 'boot.md',
   mcpResources: 'mcp.md',
   mcpManager: 'mcp.md',
+  intranetAi: 'intranet-ai.md',
   agentLoop: 'core.md',
   agentDefaultModel: 'core.md',
   agentPresets: 'core.md',
@@ -913,6 +914,12 @@ export const FOUNDATION_TYPE_NAMES: ReadonlySet<string> = new Set([
 
 /** Project types deliberately documented outside the subsystems catalog. */
 export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
+  AiResult: 'Internal AI API fields are owned by packages/client/ui-intranet-ai/src/types.ts and its package README.',
+  AccountStatus: 'Internal AI API fields are owned by packages/client/ui-intranet-ai/src/types.ts and its package README.',
+  AiInput: 'Internal AI API fields are owned by packages/client/ui-intranet-ai/src/types.ts and its package README.',
+  AiTask: 'Internal AI API fields are owned by packages/client/ui-intranet-ai/src/types.ts and its package README.',
+  AiArtifact: 'Internal AI API fields are owned by packages/client/ui-intranet-ai/src/types.ts and its package README.',
+
   ActionCardDecision: 'packages/experimental/action-cards/README.md',
   ActionCardKind: 'packages/experimental/action-cards/README.md',
   ActionCardResult: 'packages/experimental/action-cards/README.md',

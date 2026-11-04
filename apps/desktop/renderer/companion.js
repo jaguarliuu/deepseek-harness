@@ -12,11 +12,15 @@ let animationTimer
 let timer
 let pointerDrag
 let dragged = false
+let hatPress = false
 let strokeDistance = 0
 let lastStrokePoint
 let lastStrokeAt = 0
 let dockRevision = -1
 let dockSettleTimer
+const pointerPlay = window.installXiaocPointerPlay(document.querySelector('.character'), document.querySelector('main'), () =>
+  spritesReady && !document.hidden && !pointerDrag && presentation?.state === 'idle'
+    && !presentation.reduced && !presentation.collapsed && !presentation.tucked && presentation.motion.pose === 'idle')
 async function refresh() {
   clearTimeout(timer)
   try {
@@ -34,6 +38,7 @@ async function refresh() {
     document.body.dataset.dock = view.dock ?? ''
     document.body.classList.toggle('compact', view.collapsed)
     presentation = view
+    pointerPlay.refresh()
     animate()
     const m = view.messages
     document.title = m.aboutProduct
@@ -47,6 +52,7 @@ async function refresh() {
     for (const button of [collapse, hide, greet, roam]) button.setAttribute('aria-label', button.title)
   } catch (error) {
     presentation = undefined
+    pointerPlay.refresh()
     clearTimeout(animationTimer)
     sprite.dataset.pose = 'idle'
     sprite.dataset.frame = '0'
@@ -58,7 +64,7 @@ async function refresh() {
 for (const [button, action] of [[collapse, 'collapse'], [hide, 'hide'], [greet, 'greet'], [roam, 'roam']]) {
   button.addEventListener('click', async () => {
     if (button === greet && dragged) return
-    try { await api.action(action); await refresh() }
+    try { await api.action(button === greet && hatPress ? 'hat' : action); await refresh() }
     catch (error) { console.error('Companion action failed', error); await refresh() }
   })
 }
@@ -76,7 +82,7 @@ greet.addEventListener('pointerenter', () => {
 greet.addEventListener('pointerleave', () => { lastStrokePoint = undefined; strokeDistance = 0 })
 greet.addEventListener('pointermove', (event) => {
   const rect = greet.getBoundingClientRect()
-  if (event.buttons || event.clientY > rect.top + rect.height * .42) {
+  if (event.buttons || event.clientY > rect.top + rect.height * .27) {
     lastStrokePoint = undefined; strokeDistance = 0; return
   }
   if (lastStrokePoint) strokeDistance += Math.hypot(event.clientX - lastStrokePoint.x, event.clientY - lastStrokePoint.y)
@@ -89,6 +95,8 @@ greet.addEventListener('pointermove', (event) => {
 greet.addEventListener('pointerdown', (event) => {
   if (event.button !== 0) return
   dragged = false
+  const rect = greet.getBoundingClientRect()
+  hatPress = event.clientY < rect.top + rect.height * .27
   pointerDrag = { id: event.pointerId, x: event.screenX, y: event.screenY }
   greet.setPointerCapture(event.pointerId)
   void api.action('drag-start').catch(error => console.error('Companion drag failed', error))
@@ -115,6 +123,7 @@ function animate() {
     else if (motion.pose === 'wave') frame = [0, 1, 2, 3, 2, 3, 2, 1][Math.floor(elapsed / 220) % 8]
     else if (motion.pose === 'sleep') frame = 2
     else if (motion.pose === 'shy') frame = 3
+    else if (motion.pose === 'pet') frame = 2
     else if (motion.pose === 'work') frame = [0, 1, 2, 3, 2, 1][Math.floor(elapsed / 320) % 6]
     else { const t = elapsed % 6200; frame = t < 3000 ? 0 : t < 3650 ? 1 : t < 3820 ? 2 : t < 4500 ? 3 : 0 }
   }
@@ -129,7 +138,7 @@ async function setMotionPreference() {
 }
 reducedMotion.addEventListener('change', setMotionPreference)
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) { clearTimeout(timer); clearTimeout(animationTimer) }
+  if (document.hidden) { clearTimeout(timer); clearTimeout(animationTimer); pointerPlay.refresh() }
   else void refresh()
 })
 Promise.all(['xiaoc-motion.png', 'xiaoc-walk-left.png'].map(file => new Promise((resolve, reject) => {
@@ -140,4 +149,4 @@ Promise.all(['xiaoc-motion.png', 'xiaoc-walk-left.png'].map(file => new Promise(
 }))).then(() => { spritesReady = true; document.body.classList.add('ready'); void setMotionPreference() }).catch((error) => { console.error('Companion sprites unavailable', error) })
 void setMotionPreference()
 const stopDockUpdates = api.onChange(() => { void refresh() })
-window.addEventListener('pagehide', () => { clearTimeout(dockSettleTimer); stopDockUpdates() })
+window.addEventListener('pagehide', () => { clearTimeout(dockSettleTimer); stopDockUpdates(); pointerPlay.dispose() })

@@ -259,6 +259,7 @@
   ],
   "references": [
     { "path": "./packages/client/ui-mcp/tsconfig.host.json" },
+    { "path": "./packages/client/ui-intranet-ai/tsconfig.host.json" },
     { "path": "./packages/experimental/action-cards" },
     { "path": "./packages/experimental/creation-recommendations" },
     { "path": "./packages/experimental/plugin-recommendations" },

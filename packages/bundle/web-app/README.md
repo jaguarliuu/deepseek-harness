@@ -13,6 +13,8 @@ Desktop analytics schedules partial batches every 30 seconds, with a 15-second e
 
 The internal `desktop` profile disables the account UI plugin and defaults coding view to off. The ordinary Settings launcher, Models, Plugins and Skills remain available; saved coding-view preferences take precedence. The `web` profile keeps its account UI and coding-view defaults.
 
+The `desktop` profile introduces the assistant as 智维小 C for State Grid employees. It omits the fixed Harness identity and harness-development context; tools and safety guidance remain enabled. Explicit persona overrides still take precedence.
+
 ## Summary
 
 Run `dsh --profile web` for browser chat, model and settings management, and session history, with the same model access, tools, and safety defaults as other dsh surfaces. Startup prints a tokenized URL and normally opens the default browser; SSH sessions and `--no-open` require manual opening. You can change the port, allow extra authorities, bind one concrete local IP, and serve HTTPS from a certificate you supply; wildcard addresses are rejected. Remote access uses an advertised HTTP(S) URL behind a prefix-stripping proxy, listener TLS, or plain HTTP on a non-loopback bind. Use the headless profile for one-shot command-line tasks.

@@ -13,8 +13,10 @@
           - id: persona
             name: '@deepseek-ai/dsh-persona'
             config:
-              prefix: >-
-                You are a coding agent powered by the {{model}} model.
+              prefix: !!js >-
+                ctx.get('profileContext')?.name === 'desktop'
+                  ? '你是「智维小 C」，面向国家电网员工的桌面智能助手，简称「小 C」。自我介绍时使用产品名称，模型和底层框架不代表你的身份。根据当前可用工具与实际结果协助用户，不声称具备未接入的能力。'
+                  : 'You are a coding agent powered by the {{model}} model.'
           - id: agent-instructions
             name: '@deepseek-ai/dsh-agent-instructions'
             config:

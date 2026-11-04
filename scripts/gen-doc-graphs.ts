@@ -155,6 +155,14 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Owns module and exact configuration watchers; application mutations share its queue and automatic reloads await the application file lock.',
   },
   {
+    key: 'intranetAi',
+    pkg: 'client-ui-intranet-ai',
+    title: 'Internal AI platform capabilities',
+    mode: 'core',
+    consumers: ['client-ui-intranet-ai'],
+    note: 'Owns platform authorization, asynchronous image/speech/OCR tasks and local results.',
+  },
+  {
     key: 'mcpManager',
     pkg: 'client-ui-mcp',
     title: 'Managed MCP connections',

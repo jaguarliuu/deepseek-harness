@@ -25,5 +25,5 @@ export interface CompanionApi {
   /** @param revision - Completed dock transition; stale acknowledgements are ignored. */
   settleDock(revision: number): Promise<void>
   /** @param action - Open the workspace, toggle compact mode, or hide this window. */
-  action(action: 'open' | 'collapse' | 'hide' | 'greet' | 'roam' | 'reduce-on' | 'reduce-off' | 'drag-start' | 'drag-end' | 'pet' | 'wake'): Promise<void>
+  action(action: 'open' | 'collapse' | 'hide' | 'greet' | 'roam' | 'reduce-on' | 'reduce-off' | 'drag-start' | 'drag-end' | 'pet' | 'hat' | 'wake'): Promise<void>
 }
