@@ -1,5 +1,11 @@
 import { createHash } from 'node:crypto'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { readFileSync, existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { execFile } from 'node:child_process'
+import { promisify } from 'node:util'
+import yaml from 'js-yaml'
+import { pnpmCommand } from '../../../scripts/release/process.ts'
+import { createRuntimeProjectMetadata } from '../src/project-manager.ts'
+import { DESKTOP_HOST_PROTOCOL_VERSION } from '../src/host-protocol.ts'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
@@ -101,3 +107,39 @@ describe('desktop core package set', () => {
     }).toThrow(/outside the local package set/u)
   })
 })
+
+
+it('installs SSH dependencies offline without executing their optional build scripts', async () => {
+  const { root } = packageSetProject()
+  createRuntimeProjectMetadata(root, {
+    schemaVersion: 1, version: '1.2.3', hostProtocolVersion: DESKTOP_HOST_PROTOCOL_VERSION,
+    nodeVersion: '24.22.1', pnpmVersion: '11.28.5',
+  })
+  const dependencies: Record<string, string> = {}
+  const marker = join(root, 'unexpected-build')
+  for (const name of ['ssh2', 'cpu-features']) {
+    const directory = join(root, 'fixtures', name)
+    mkdirSync(directory, { recursive: true })
+    writeFileSync(join(directory, 'package.json'), JSON.stringify({ name, version: '1.0.0', scripts: { install: 'node install.cjs' } }))
+    writeFileSync(join(directory, 'install.cjs'), `require('node:fs').writeFileSync(${JSON.stringify(marker)}, 'executed')`)
+    dependencies[name] = `file:./fixtures/${name}`
+  }
+  writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'runtime-script-policy-fixture', private: true, dependencies }))
+  const [command, ...prefix] = pnpmCommand()
+  const args = [...prefix, 'install', '--offline', '--config.strict-dep-builds=true', '--config.ignore-scripts=false', '--store-dir', join(root, 'store')]
+  const run = () => promisify(execFile)(command, args, { cwd: root, timeout: 30000 }).catch((error: unknown) => {
+    if (error instanceof Error && 'stdout' in error) throw new Error(String(error.stdout), { cause: error })
+    throw error
+  })
+  await run()
+  expect(existsSync(marker)).toBe(false)
+  for (const name of ['ssh2', 'cpu-features']) expect(existsSync(join(root, 'node_modules', name, 'package.json'))).toBe(true)
+  const path = join(root, 'pnpm-workspace.yaml')
+  const settings = yaml.load(readFileSync(path, 'utf8')) as { allowBuilds: Record<string, boolean> }
+  delete settings.allowBuilds.ssh2
+  delete settings.allowBuilds['cpu-features']
+  writeFileSync(path, yaml.dump(settings))
+  rmSync(join(root, 'node_modules'), { recursive: true, force: true })
+  await expect(run()).rejects.toThrow('ERR_PNPM_IGNORED_BUILDS')
+  expect(existsSync(marker)).toBe(false)
+}, 60000)
