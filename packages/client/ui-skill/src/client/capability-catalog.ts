@@ -30,4 +30,5 @@ export const OFFICE_SKILL_TITLES = {
  */
 export function isOfficeSkill(name: string): boolean {
   return Object.hasOwn(OFFICE_SKILL_TITLES, name) || name === 'office' || name.startsWith('office-')
+    || name === 'univer' || name.startsWith('univer-')
 }

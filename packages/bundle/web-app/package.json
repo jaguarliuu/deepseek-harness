@@ -67,6 +67,7 @@
     "@deepseek-ai/dsh-api-workspace-controller": "workspace:*",
     "@deepseek-ai/dsh-api-workspace-files": "workspace:*",
     "@deepseek-ai/dsh-app-boot": "workspace:*",
+    "@deepseek-ai/dsh-attachment": "workspace:*",
     "@deepseek-ai/dsh-client-connection": "workspace:*",
     "@deepseek-ai/dsh-client-file-upload": "workspace:*",
     "@deepseek-ai/dsh-client-hmr": "workspace:*",
@@ -168,9 +169,11 @@
     "@deepseek-ai/dsh-session-stats": "workspace:*",
     "@deepseek-ai/dsh-session-turn-outline": "workspace:*",
     "@deepseek-ai/dsh-settings": "workspace:*",
+    "@deepseek-ai/dsh-skill": "workspace:*",
     "@deepseek-ai/dsh-skill-filesystem": "workspace:*",
     "@deepseek-ai/dsh-subagent": "workspace:*",
     "@deepseek-ai/dsh-subprocess": "workspace:*",
+    "@deepseek-ai/dsh-system-prompt": "workspace:*",
     "@deepseek-ai/dsh-terminal": "workspace:*",
     "@deepseek-ai/dsh-terminal-bash": "workspace:*",
     "@deepseek-ai/dsh-time-context": "workspace:*",
@@ -205,8 +208,8 @@
     "dsh-genui": "0.3.2",
     "dsh-knowledge-base": "0.1.5",
     "dsh-quick-screenshot": "https://codeload.github.com/JackEngineer/dsh-quick-screenshot/tar.gz/c8e7c11b7f16198b39f7300ce877206554a0694d",
-    "open": "^11.0.2",
-    "@deepseek-ai/dsh-system-prompt": "workspace:*"
+    "dsh-univer-office": "0.4.0",
+    "open": "^11.0.2"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "workspace:~",

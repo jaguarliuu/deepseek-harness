@@ -1,0 +1,24 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`creates and exports Office files with preserved built-in skills and no external resource requests 1`] = `
+{
+  "exports": [
+    "xlsx",
+    "docx",
+    "pptx",
+  ],
+  "externalRequests": 0,
+  "optInTransportBlocked": true,
+  "resourceDownloads": false,
+  "skills": [
+    "univer",
+    "univer-sheet",
+    "univer-doc",
+    "univer-slide",
+    "univer-base",
+    "univer-board",
+    "univer-embed",
+    "univer-cross-unit-formula",
+  ],
+}
+`;

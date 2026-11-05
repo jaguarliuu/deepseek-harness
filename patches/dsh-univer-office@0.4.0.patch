@@ -1,0 +1,116 @@
+diff --git a/artifacts/viewer/index.html b/artifacts/viewer/index.html
+index fc5efb5f577deaa73b6434d6223b3b679e394b14..086cb7fe61701b64b3f46d171ecc1a3574f723cf 100644
+--- a/artifacts/viewer/index.html
++++ b/artifacts/viewer/index.html
+@@ -17,6 +17,12 @@
+     <link rel="modulepreload" crossorigin href="/univer-viewer/assets/en-US-BsKMUVCd.js">
+     <link rel="modulepreload" crossorigin href="/univer-viewer/assets/es-CSV2z1os.js">
+     <link rel="stylesheet" crossorigin href="/univer-viewer/assets/index-B52X2Dow.css">
++    <style id="zhiwei-office-theme">
++      html:root { --color-primary:#007f76;--color-primary-hover:#00665f;--color-primary-active:#005c55;--color-ring:#579e91;
++      --univer-primary-50:#eff9f5;--univer-primary-100:#daf0e7;--univer-primary-200:#b7e1d2;--univer-primary-300:#88cdb8;
++      --univer-primary-400:#4daf98;--univer-primary-500:#007f76;--univer-primary-600:#00665f;--univer-primary-700:#005c55;
++      --univer-primary-800:#034e48;--univer-primary-900:#073e3a; }
++    </style>
+   </head>
+   <body>
+     <div id="app"></div>
+diff --git a/lib/client.js b/lib/client.js
+index ef65f88cc65c3f038206b5364771feb847a5b0cd..7963f588aec44420625e66d35e48cafea8559d1f 100644
+--- a/lib/client.js
++++ b/lib/client.js
+@@ -23269,14 +23269,14 @@ window.__ModuleLoader__.load({
+     // src/client/styles/worktree.ts
+     var worktreeStyles = `
+     .uvf_root{position:fixed;inset:0;z-index:1200;pointer-events:none}
+-    .uvf_win{--uvf-accent:#5b6cff;--uvf-positive:#20a66a;pointer-events:auto;position:fixed;isolation:isolate;display:flex;flex-direction:column;min-width:1px;min-height:1px;overflow:hidden;color:var(--dsw-alias-label-primary,#172033);background:var(--dsw-alias-bg-base,#fff);border:1px solid var(--dsw-alias-border-l2,#dfe3eb);border-radius:16px;box-shadow:0 1px 2px rgba(13,22,38,.08),0 18px 48px rgba(13,22,38,.2),0 0 0 1px rgba(255,255,255,.4) inset;transition:border-color .16s ease,box-shadow .16s ease}
++    .uvf_win{--uvf-accent:#007f76;--uvf-positive:#20a66a;pointer-events:auto;position:fixed;isolation:isolate;display:flex;flex-direction:column;min-width:1px;min-height:1px;overflow:hidden;color:var(--dsw-alias-label-primary,#172033);background:var(--dsw-alias-bg-base,#fff);border:1px solid var(--dsw-alias-border-l2,#dfe3eb);border-radius:16px;box-shadow:0 1px 2px rgba(13,22,38,.08),0 18px 48px rgba(13,22,38,.2),0 0 0 1px rgba(255,255,255,.4) inset;transition:border-color .16s ease,box-shadow .16s ease}
+     .uvf_win:hover{border-color:color-mix(in srgb,var(--uvf-accent) 28%,var(--dsw-alias-border-l2,#dfe3eb));box-shadow:0 2px 5px rgba(13,22,38,.1),0 22px 58px rgba(13,22,38,.24),0 0 0 1px rgba(255,255,255,.5) inset}
+     .uvf_win[data-interaction]{transition:none;user-select:none}
+     .uvf_win[data-interaction]::after{content:"";position:absolute;inset:0;z-index:18;background:transparent}
+     .uvf_win_max{inset:calc(12px + var(--dsh-frame-top-clearance,0px)) 12px 12px!important;width:auto!important;height:auto!important;border-radius:18px;z-index:1300}
+-    .uvf_windowHeader{position:relative;z-index:10;display:flex;align-items:center;gap:10px;height:48px;padding:0 8px 0 10px;flex:none;cursor:grab;touch-action:none;user-select:none;background:#f7f8fb;background:linear-gradient(180deg,color-mix(in srgb,var(--dsw-alias-bg-base,#fff) 96%,#7583ff),color-mix(in srgb,var(--dsw-alias-bg-base,#fff) 92%,#dfe3f5));border-bottom:1px solid color-mix(in srgb,var(--dsw-alias-border-l2,#dfe3eb) 78%,transparent)}
++    .uvf_windowHeader{position:relative;z-index:10;display:flex;align-items:center;gap:10px;height:48px;padding:0 8px 0 10px;flex:none;cursor:grab;touch-action:none;user-select:none;background:#f7f8fb;background:linear-gradient(180deg,color-mix(in srgb,var(--dsw-alias-bg-base,#fff) 96%,#57b8a9),color-mix(in srgb,var(--dsw-alias-bg-base,#fff) 92%,#dfe3f5));border-bottom:1px solid color-mix(in srgb,var(--dsw-alias-border-l2,#dfe3eb) 78%,transparent)}
+     .uvf_win[data-interaction=move] .uvf_windowHeader{cursor:grabbing}.uvf_win_max .uvf_windowHeader{cursor:default}.uvf_win_folded .uvf_windowHeader{border-bottom:0}
+-    .uvf_windowGlyph{display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:9px;color:#fff;background:linear-gradient(145deg,#7a87ff,#4f5fe7);box-shadow:0 5px 12px rgba(79,95,231,.25)}
++    .uvf_windowGlyph{display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:9px;color:#fff;background:linear-gradient(145deg,#57b8a9,#007f76);box-shadow:0 5px 12px rgba(79,95,231,.25)}
+     .uvf_windowGlyph svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+     .uvf_windowIdentity{display:flex;flex-direction:column;justify-content:center;min-width:0;flex:1;line-height:1.2}
+     .uvf_windowTitle,.uvf_windowFile{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.uvf_windowTitle{font-size:12.5px;font-weight:650;letter-spacing:.01em;color:var(--dsw-alias-label-primary,#172033)}.uvf_windowFile{margin-top:2px;font-size:10.5px;color:var(--dsw-alias-label-tertiary,#7d8798)}
+@@ -23287,16 +23287,16 @@ window.__ModuleLoader__.load({
+     .uvf_windowControls{display:flex;align-items:center;gap:3px;flex:none}.uvf_windowControl{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:8px;color:var(--dsw-alias-label-secondary,#566174);background:transparent;cursor:pointer;transition:color .12s ease,background .12s ease,transform .12s ease}.uvf_windowControl:hover{color:var(--dsw-alias-label-primary,#172033);background:color-mix(in srgb,var(--dsw-alias-label-primary,#172033) 8%,transparent)}.uvf_windowControl:active{transform:scale(.92)}.uvf_windowControl:focus-visible{outline:2px solid color-mix(in srgb,var(--uvf-accent) 65%,transparent);outline-offset:1px}.uvf_windowControl_danger:hover{color:#d94242;background:rgba(217,66,66,.1)}.uvf_windowControl svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+     .uvf_windowBody{display:flex;flex:1;min-width:0;min-height:0;flex-direction:column;background:var(--dsw-alias-bg-base,#fff)}.uvf_windowBody[hidden]{display:none}
+     .uvf_units{display:flex;align-items:center;gap:5px;min-height:36px;padding:5px 9px;border-bottom:1px solid var(--dsw-alias-border-l2,#dfe3eb);overflow-x:auto;scrollbar-width:thin;background:color-mix(in srgb,var(--dsw-alias-bg-base,#fff) 94%,#edf0f8)}
+-    .uvf_unit{display:inline-flex;align-items:center;gap:4px;flex:none;max-width:220px;border:1px solid var(--dsw-alias-border-l2,#dfe3eb);border-radius:8px;background:var(--dsw-alias-bg-base,#fff);color:var(--dsw-alias-label-secondary,#566174);font:11px/20px inherit;padding:0 9px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:border-color .12s ease,color .12s ease,background .12s ease}.uvf_unit:hover{border-color:color-mix(in srgb,var(--uvf-accent) 35%,var(--dsw-alias-border-l2,#dfe3eb));color:var(--dsw-alias-label-primary,#172033)}.uvf_unit_on{border-color:color-mix(in srgb,var(--uvf-accent) 55%,var(--dsw-alias-border-l2,#dfe3eb));color:#4554d6;background:color-mix(in srgb,var(--uvf-accent) 9%,var(--dsw-alias-bg-base,#fff));box-shadow:0 0 0 1px color-mix(in srgb,var(--uvf-accent) 10%,transparent) inset}.uvf_unit_icon{font-size:10px;opacity:.82}
++    .uvf_unit{display:inline-flex;align-items:center;gap:4px;flex:none;max-width:220px;border:1px solid var(--dsw-alias-border-l2,#dfe3eb);border-radius:8px;background:var(--dsw-alias-bg-base,#fff);color:var(--dsw-alias-label-secondary,#566174);font:11px/20px inherit;padding:0 9px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:border-color .12s ease,color .12s ease,background .12s ease}.uvf_unit:hover{border-color:color-mix(in srgb,var(--uvf-accent) 35%,var(--dsw-alias-border-l2,#dfe3eb));color:var(--dsw-alias-label-primary,#172033)}.uvf_unit_on{border-color:color-mix(in srgb,var(--uvf-accent) 55%,var(--dsw-alias-border-l2,#dfe3eb));color:#007f76;background:color-mix(in srgb,var(--uvf-accent) 9%,var(--dsw-alias-bg-base,#fff));box-shadow:0 0 0 1px color-mix(in srgb,var(--uvf-accent) 10%,transparent) inset}.uvf_unit_icon{font-size:10px;opacity:.82}
+     .uvf_viewerShell{position:relative;display:flex;flex:1;min-width:0;min-height:0;background:#f1f3f7}.uvf_frame{display:block;flex:1;min-width:0;min-height:0;width:100%;height:100%;border:0;background:var(--dsw-alias-bg-base,#fff)}
+     .uvf_note{display:flex;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:28px;text-align:center;font-size:12px;color:var(--dsw-alias-label-tertiary,#7d8798)}.uvf_note button{border:1px solid color-mix(in srgb,var(--uvf-accent) 40%,var(--dsw-alias-border-l2,#dfe3eb));border-radius:8px;padding:6px 13px;color:#fff;background:var(--uvf-accent);font:12px/18px inherit;cursor:pointer}
+     .uvf_resizeHandle{position:absolute;z-index:20;display:block;touch-action:none}.uvf_resize_n,.uvf_resize_s{left:16px;right:16px;height:10px;cursor:ns-resize}.uvf_resize_n{top:0}.uvf_resize_s{bottom:0}.uvf_resize_w,.uvf_resize_e{top:16px;bottom:16px;width:10px;cursor:ew-resize}.uvf_resize_w{left:0}.uvf_resize_e{right:0}.uvf_resize_nw,.uvf_resize_ne,.uvf_resize_sw,.uvf_resize_se{width:18px;height:18px}.uvf_resize_nw{left:0;top:0;cursor:nwse-resize}.uvf_resize_ne{right:0;top:0;cursor:nesw-resize}.uvf_resize_sw{left:0;bottom:0;cursor:nesw-resize}.uvf_resize_se{right:0;bottom:0;cursor:nwse-resize}.uvf_resize_se::after{content:"";position:absolute;right:4px;bottom:4px;width:7px;height:7px;border-right:1.5px solid color-mix(in srgb,var(--dsw-alias-label-tertiary,#7d8798) 58%,transparent);border-bottom:1.5px solid color-mix(in srgb,var(--dsw-alias-label-tertiary,#7d8798) 58%,transparent);border-radius:0 0 2px}
+-    .uvf_panel{position:static;padding:0;max-height:none;--uvf-review-accent:#5b63e8;display:flex;flex-direction:column;width:100%;max-width:1100px;margin:14px auto 6px;overflow:hidden;border:1px solid color-mix(in srgb,var(--uvf-review-accent) 18%,var(--dsw-alias-border-l2,#dfe3eb));border-radius:18px;color:var(--dsw-alias-label-primary,#172033);background:var(--dsw-alias-bg-base,#fff);box-shadow:0 1px 2px rgba(13,22,38,.05),0 14px 40px rgba(13,22,38,.1)}
++    .uvf_panel{position:static;padding:0;max-height:none;--uvf-review-accent:#007f76;display:flex;flex-direction:column;width:100%;max-width:1100px;margin:14px auto 6px;overflow:hidden;border:1px solid color-mix(in srgb,var(--uvf-review-accent) 18%,var(--dsw-alias-border-l2,#dfe3eb));border-radius:18px;color:var(--dsw-alias-label-primary,#172033);background:var(--dsw-alias-bg-base,#fff);box-shadow:0 1px 2px rgba(13,22,38,.05),0 14px 40px rgba(13,22,38,.1)}
+     .uvf_panel::backdrop{background:transparent}
+     .uvf_panelPlaceholder{width:100%;max-width:1100px;margin:14px auto 6px;visibility:hidden;flex-shrink:0}
+     .uvf_panel_fullscreen{position:fixed;inset:calc(10px + var(--dsh-frame-top-clearance,0px)) 10px 10px;z-index:1400;width:auto;height:auto;max-width:none;margin:0;border-radius:18px;box-shadow:0 28px 90px rgba(13,22,38,.36)}
+     .uvf_panelHead{display:flex;align-items:center;gap:9px;height:58px;min-height:58px;box-sizing:border-box;padding:7px 10px;flex:none;background:linear-gradient(125deg,color-mix(in srgb,var(--uvf-review-accent) 8%,var(--dsw-alias-bg-base,#fff)),var(--dsw-alias-bg-base,#fff) 48%);border-bottom:1px solid var(--dsw-alias-border-l2,#dfe3eb)}
+-    .uvf_panelGlyph{display:grid;place-items:center;width:32px;height:32px;flex:none;border-radius:9px;color:#fff;background:linear-gradient(145deg,#7279f4,#4d55d5);box-shadow:0 4px 10px rgba(77,85,213,.18)}.uvf_panelGlyph svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
++    .uvf_panelGlyph{display:grid;place-items:center;width:32px;height:32px;flex:none;border-radius:9px;color:#fff;background:linear-gradient(145deg,#57b8a9,#007f76);box-shadow:0 4px 10px rgba(77,85,213,.18)}.uvf_panelGlyph svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+     .uvf_panelIdentity{display:flex;flex:1;min-width:0;flex-direction:column;gap:2px}.uvf_panelTitleRow{display:flex;min-width:0;align-items:center;gap:8px}.uvf_panelTitle,.uvf_panelWorktree,.uvf_panelMeta{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.uvf_panelTitle{flex:none;font-size:13.5px;font-weight:700;line-height:18px}.uvf_panelWorktree{min-width:0;color:var(--uvf-review-accent);font-size:11px;font-weight:600;line-height:16px}.uvf_panelMeta{color:var(--dsw-alias-label-tertiary,#7d8798);font-size:10px;line-height:14px}
+     .uvf_panelChip{display:inline-flex;align-items:center;gap:6px;flex:none;padding:4px 10px;border:1px solid var(--dsw-alias-border-l2,#dfe3eb);border-radius:999px;font-size:11px;font-weight:650;line-height:16px}.uvf_panelStatusDot{width:7px;height:7px;flex:none;border-radius:50%;background:currentColor}.uvf_panelChip[data-status=ready],.uvf_panelChip[data-status=merged]{color:#16784d;border-color:color-mix(in srgb,#20a66a 32%,var(--dsw-alias-border-l2,#dfe3eb));background:color-mix(in srgb,#20a66a 9%,var(--dsw-alias-bg-base,#fff))}.uvf_panelChip[data-status=draft]{color:#9a6114;border-color:color-mix(in srgb,#d78b25 34%,var(--dsw-alias-border-l2,#dfe3eb));background:color-mix(in srgb,#d78b25 9%,var(--dsw-alias-bg-base,#fff))}.uvf_panelChip[data-status=discarded]{color:#697386;border-color:color-mix(in srgb,#7d8798 30%,var(--dsw-alias-border-l2,#dfe3eb));background:color-mix(in srgb,#7d8798 8%,var(--dsw-alias-bg-base,#fff))}
+     .uvf_panelChip[data-status=trunk],.uvf_panelChip[data-status=loading],.uvf_panelChip[data-status=unavailable]{color:#697386;border-color:color-mix(in srgb,#7d8798 30%,var(--dsw-alias-border-l2,#dfe3eb));background:color-mix(in srgb,#7d8798 8%,var(--dsw-alias-bg-base,#fff))}
+diff --git a/lib/index.js b/lib/index.js
+index dc6db3c76708147aa6b62babbd822c17d814b036..22e251d649a673c83ea04a6a5369cacd1bad31fc 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -3756,6 +3756,7 @@ var Config = z.object({
+   browserExecutablePath: z.string(),
+   resourceCacheRoot: z.string(),
+   resourceDownloadTimeoutMs: z.natural().default(15e3),
++  resourceDownloads: z.boolean().default(false),
+   resourceOperationTimeoutMs: z.natural().default(12e4),
+   unitContentCommitTimeoutMs: z.natural().default(5e3),
+   stateCacheTtlMs: z.natural().default(1e3),
+@@ -3782,6 +3783,7 @@ function resolveConfig(config = {}) {
+     ...browserExecutablePath === void 0 ? {} : { browserExecutablePath },
+     resourceCacheRoot: resolveResourceCacheRoot(config.resourceCacheRoot),
+     resourceDownloadTimeoutMs: config.resourceDownloadTimeoutMs ?? 15e3,
++    resourceDownloads: config.resourceDownloads ?? false,
+     resourceOperationTimeoutMs: config.resourceOperationTimeoutMs ?? 12e4,
+     unitContentCommitTimeoutMs: config.unitContentCommitTimeoutMs ?? 5e3,
+     stateCacheTtlMs: config.stateCacheTtlMs ?? 1e3,
+@@ -11580,7 +11582,8 @@ function $3(_0x22ccd9) {
+ // src/host/provider/resource-operations.ts
+ var require2 = createRequire(import.meta.url);
+ var ResourceOperations = class {
+-  constructor(cacheRoot, downloadTimeoutMs) {
++  constructor(cacheRoot, downloadTimeoutMs, allowDownloads) {
++    this.allowDownloads = allowDownloads;
+     this.downloadTimeoutMs = downloadTimeoutMs;
+     this.manifest = $3(
+       require2.resolve("@univerjs-pro/cli-assets/manifest.json")
+@@ -11638,6 +11641,7 @@ var ResourceOperations = class {
+   }
+   library(signal) {
+     const fetchImpl = async (input, init) => {
++      if (!this.allowDownloads) throw new UniverError("Online resource downloads are disabled. Use local images or enable resourceDownloads for an approved source.", "RESOURCE_DOWNLOAD_DISABLED");
+       const requestSignal = combinedSignal(signal, init?.signal);
+       return fetch(input, {
+         ...init,
+@@ -11690,7 +11694,8 @@ var GatewayUniverService = class extends UniverService {
+     );
+     this.resourceOperations = new ResourceOperations(
+       config.resourceCacheRoot,
+-      config.resourceDownloadTimeoutMs
++      config.resourceDownloadTimeoutMs,
++      config.resourceDownloads
+     );
+     this.stateCache = new StateCache(config.stateCacheTtlMs);
+     this.unitCache = new StateCache(config.unitCacheTtlMs);
+@@ -12263,7 +12268,7 @@ var OFFICE_ROUTES = /* @__PURE__ */ new Set([
+   "office-xlsx"
+ ]);
+ var OFFICE_ROUTE_RANK = BUNDLED_SKILL_RANK - 1;
+-var CANDIDATES = DEFINITIONS.map((definition) => {
++var CANDIDATES = DEFINITIONS.filter((definition) => !OFFICE_ROUTES.has(definition.name)).map((definition) => {
+   const url = new URL(`../skills/${definition.name}/SKILL.md`, import.meta.url);
+   return {
+     ...definition,

@@ -340,6 +340,12 @@
     - id: better-sidebar
       name: 'dsh-better-sidebar'
 
+    - id: univer
+      name: 'dsh-univer-office'
+      config:
+        telemetry: false
+        resourceDownloads: false
+
     - id: ui-settings
       name: '@deepseek-ai/dsh-client-ui-settings'
       config:

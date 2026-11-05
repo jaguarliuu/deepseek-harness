@@ -127,6 +127,7 @@ patchedDependencies:
   dsh-knowledge-base@0.1.5: patches/dsh-knowledge-base@0.1.5.patch
   dsh-plugin-everything@1.1.0: patches/dsh-plugin-everything@1.1.0.patch
   dsh-quick-screenshot@1.0.0: patches/dsh-quick-screenshot@1.0.0.patch
+  dsh-univer-office@0.4.0: patches/dsh-univer-office@0.4.0.patch
   exceljs@4.4.0: patches/exceljs@4.4.0.patch
   lexical@0.49.0: patches/lexical@0.49.0.patch
   node-pty@1.2.0-beta.15: patches/node-pty@1.2.0-beta.15.patch

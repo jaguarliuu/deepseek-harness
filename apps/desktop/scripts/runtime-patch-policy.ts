@@ -8,6 +8,7 @@ export type DesktopRuntimePatch =
 
 /** Every workspace patch requires an explicit Desktop decision; runtime-only entries may add or replace a patch. */
 export const DESKTOP_RUNTIME_PATCHES: Readonly<Record<string, DesktopRuntimePatch>> = {
+  'dsh-univer-office@0.4.0': { scope: 'shared', reason: 'Offline resources, existing Office skills and State Grid preview colors.' },
   'dsh-genui@0.3.2': { scope: 'shared', reason: 'Authenticated settings and runtime routes with State Grid card colors.' },
   'dsh-quick-screenshot@1.0.0': { scope: 'shared', reason: 'Capture the renamed Zhiwei Xiao C application window by default.' },
   '@orderg-x/dsh-pages@0.2.2': { scope: 'shared', reason: 'Local profile data, offline page resources, State Grid colors and disposable tools.' },

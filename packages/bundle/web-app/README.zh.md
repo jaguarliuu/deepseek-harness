@@ -25,6 +25,8 @@ kind: "package-bundle"
 
 内置 `dsh-genui@0.3.2`，在助手回复中渲染表单、图表、计算器等可交互界面卡片，用户操作可通过现有输入流程继续对话。Vue/OpenTiny 运行时随包本地提供，桌面打包会保留。共享补丁为运行时与提示词控制接口增加鉴权，将国网配色限定在卡片内，并补充离线界面生成指引。输入框的 GenUI 菜单可选择关闭、精简、标准或全量；Pages 仍用于带版本历史的整页报告。
 
+应用内置 `dsh-univer-office@0.4.0`，支持本地文档、表格、演示稿、Base 和 Board 编辑、草稿审阅及 Office 导出。Viewer、Gateway、工作进程和对应平台的导入导出、公式原生库均进入桌面安装包的依赖树。插件复用已配置的模型，默认关闭遥测与在线素材下载，八个 `univer` 技能与现有 Python Office 技能共存，预览控件沿用国网绿。截图、PDF 打印和幻灯片版式检查需要已安装的 Chrome/Chromium 或 Edge，可通过 `browserExecutablePath` 指定本地浏览器；安装包不会下载浏览器。只有明确需要在线素材库时才设置 `resourceDownloads: true`，本地图片始终可用。
+
 ## 概述
 
 运行 `dsh --profile web`，获得浏览器内的聊天、模型与设置管理以及会话历史，并与其他 dsh 表层共用同一套模型访问、工具与安全默认值。启动时会打印带 token 的 URL，通常还会在默认浏览器中打开；SSH 会话和 `--no-open` 需要手动打开。你可以更改端口、允许额外 authority、绑定一个具体的本机 IP，并用自己提供的证书直接提供 HTTPS；通配地址会被拒绝。跨机访问使用剥离前缀代理后公告的 HTTP(S) URL、监听器 TLS，或非 loopback 绑定上的明文 HTTP。一次性的命令行任务应使用 headless 配置。
