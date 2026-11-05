@@ -1,0 +1,18 @@
+{
+  "events": [
+    { "type": "turn/start", "data": { "turn": 1 } },
+    { "type": "tool/call", "data": { "name": "read_file", "arguments": "{}", "callId": "a" } },
+    { "type": "tool/result", "data": { "message": { "source": { "callId": "a" } } } },
+    { "type": "tool/call", "data": { "name": "ask_user_question", "arguments": "{}", "callId": "q" } },
+    { "type": "tool/result", "data": { "message": { "source": { "callId": "q" } } } },
+    { "type": "tool/call", "data": { "name": "read_file", "arguments": "{}", "callId": "b" } },
+    { "type": "approval/asked", "data": { "id": "approval-1" } },
+    { "type": "tool/result", "data": { "message": { "source": { "callId": "b" } } } },
+    { "type": "turn/end", "data": { "reason": { "kind": "completed" } } },
+    { "type": "turn/start", "data": { "turn": 2 } },
+    { "type": "turn/end", "data": { "reason": { "kind": "error" } } },
+    { "type": "turn/start", "data": { "turn": 3 } },
+    { "type": "turn/end", "data": { "reason": { "kind": "aborted" } } }
+  ],
+  "states": ["thinking", "working", "result", "waiting", "result", "working", "waiting", "result", "success", "thinking", "error", "thinking", null]
+}

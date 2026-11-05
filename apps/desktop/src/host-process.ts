@@ -181,7 +181,7 @@ export class DesktopHostProcess {
    * @param primaryRuntime - Optional bundled dependency payload; when supplied, missing sibling
    *   `office-skills` resources fail Host startup.
    * @param packageManager - Bundled pnpm entry and Node launcher directory, scoped to package operations.
-   * @param onTaskResult - Live top-level turn outcomes for the companion.
+   * @param onTaskResult - Live top-level turn outcomes for desktop notifications.
    * @param onPlatformSession - Private credential updates for embedded Platform views.
    */
   constructor(

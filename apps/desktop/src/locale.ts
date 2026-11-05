@@ -18,17 +18,7 @@ export const en = {
   quickTaskExpand: 'Expand',
   quickTaskHide: 'Hide',
 
-  companionGreet: 'Wave hello',
-  companionRoam: 'Walk around',
-  companionStay: 'Stay in place',
 
-  companionMenu: 'Desktop companion',
-  companionIdle: 'Ready when you are',
-  companionBusy: 'Task in progress',
-  companionUnknown: 'Status unavailable · Open workspace',
-  companionCollapse: 'Collapse',
-  companionExpand: 'Expand',
-  companionHide: 'Hide companion',
 
   cliCommandMenu: 'Manage dsh Command…',
   cliCommandTitle: 'Manage dsh Command',
@@ -221,17 +211,7 @@ export const zh = {
   quickTaskExpand: '展开',
   quickTaskHide: '收起',
 
-  companionGreet: '打个招呼',
-  companionRoam: '桌面走动',
-  companionStay: '原地活动',
 
-  companionMenu: '桌面小 C',
-  companionIdle: '随时待命',
-  companionBusy: '任务进行中',
-  companionUnknown: '状态暂不可用 · 打开工作区查看',
-  companionCollapse: '收起',
-  companionExpand: '展开',
-  companionHide: '隐藏小 C',
 
   cliCommandMenu: '管理 dsh 命令…',
   cliCommandTitle: '管理 dsh 命令',
@@ -422,17 +402,7 @@ export const ja = {
   quickTaskExpand: '展開',
   quickTaskHide: '隠す',
 
-  companionGreet: '挨拶する',
-  companionRoam: '歩き回る',
-  companionStay: 'その場に留まる',
 
-  companionMenu: 'デスクトップアシスタント',
-  companionIdle: '待機中',
-  companionBusy: 'タスク実行中',
-  companionUnknown: '状態不明 · ワークスペースを開く',
-  companionCollapse: '折りたたむ',
-  companionExpand: '展開',
-  companionHide: '非表示',
 
   cliCommandMenu: 'dsh コマンドを管理…',
   cliCommandTitle: 'dsh コマンドを管理',
@@ -623,17 +593,7 @@ export const es = {
   quickTaskExpand: 'Ampliar',
   quickTaskHide: 'Ocultar',
 
-  companionGreet: 'Saludar',
-  companionRoam: 'Pasear',
-  companionStay: 'Quedarse aquí',
 
-  companionMenu: 'Asistente de escritorio',
-  companionIdle: 'Disponible',
-  companionBusy: 'Tarea en curso',
-  companionUnknown: 'Estado no disponible · Abrir espacio',
-  companionCollapse: 'Contraer',
-  companionExpand: 'Expandir',
-  companionHide: 'Ocultar',
 
   cliCommandMenu: 'Administrar el comando dsh…',
   cliCommandTitle: 'Administrar el comando dsh',
@@ -824,17 +784,7 @@ export const fr = {
   quickTaskExpand: 'Agrandir',
   quickTaskHide: 'Masquer',
 
-  companionGreet: 'Saluer',
-  companionRoam: 'Se promener',
-  companionStay: 'Rester sur place',
 
-  companionMenu: 'Compagnon de bureau',
-  companionIdle: 'Disponible',
-  companionBusy: 'Tâche en cours',
-  companionUnknown: 'État indisponible · Ouvrir l’espace',
-  companionCollapse: 'Réduire',
-  companionExpand: 'Développer',
-  companionHide: 'Masquer',
 
   cliCommandMenu: 'Gérer la commande dsh…',
   cliCommandTitle: 'Gérer la commande dsh',
@@ -1025,17 +975,7 @@ export const de = {
   quickTaskExpand: 'Erweitern',
   quickTaskHide: 'Ausblenden',
 
-  companionGreet: 'Winken',
-  companionRoam: 'Herumlaufen',
-  companionStay: 'Hier bleiben',
 
-  companionMenu: 'Desktop-Begleiter',
-  companionIdle: 'Bereit',
-  companionBusy: 'Aufgabe läuft',
-  companionUnknown: 'Status unbekannt · Arbeitsbereich öffnen',
-  companionCollapse: 'Einklappen',
-  companionExpand: 'Ausklappen',
-  companionHide: 'Ausblenden',
 
   cliCommandMenu: 'dsh-Befehl verwalten…',
   cliCommandTitle: 'dsh-Befehl verwalten',
@@ -1226,17 +1166,7 @@ export const ru = {
   quickTaskExpand: 'Развернуть',
   quickTaskHide: 'Скрыть',
 
-  companionGreet: 'Помахать',
-  companionRoam: 'Прогулка',
-  companionStay: 'Остаться на месте',
 
-  companionMenu: 'Помощник на рабочем столе',
-  companionIdle: 'Готов к работе',
-  companionBusy: 'Задача выполняется',
-  companionUnknown: 'Статус недоступен · Открыть рабочую область',
-  companionCollapse: 'Свернуть',
-  companionExpand: 'Развернуть',
-  companionHide: 'Скрыть',
 
   cliCommandMenu: 'Управление командой dsh…',
   cliCommandTitle: 'Управление командой dsh',
@@ -1427,17 +1357,7 @@ export const pt = {
   quickTaskExpand: 'Expandir',
   quickTaskHide: 'Ocultar',
 
-  companionGreet: 'Acenar',
-  companionRoam: 'Passear',
-  companionStay: 'Ficar no lugar',
 
-  companionMenu: 'Assistente de desktop',
-  companionIdle: 'Disponível',
-  companionBusy: 'Tarefa em andamento',
-  companionUnknown: 'Estado indisponível · Abrir espaço',
-  companionCollapse: 'Recolher',
-  companionExpand: 'Expandir',
-  companionHide: 'Ocultar',
 
   cliCommandMenu: 'Gerenciar comando dsh…',
   cliCommandTitle: 'Gerenciar comando dsh',

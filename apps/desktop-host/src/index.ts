@@ -28,7 +28,7 @@ async function main(): Promise<void> {
     environment: loadLayeredEnv('dsh'),
     profile: 'desktop',
     resolvedProfile: { profile, installAnchor },
-    patchFiles: [],
+    patchFiles: process.env.DSH_DESKTOP_PET_ROOT === undefined ? [] : [join(process.env.DSH_DESKTOP_PET_ROOT, 'overlay.yml')],
     args: ['--no-open', '--host', '127.0.0.1', '--port', '0'],
     ...(process.argv[5] === undefined ? {} : {
       packageManager: {

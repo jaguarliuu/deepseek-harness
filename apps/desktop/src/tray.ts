@@ -12,8 +12,6 @@ export interface DesktopTrayOptions {
   readonly open: () => void
   /** Request quit through the same confirmation as every other quit entry. */
   readonly quit: () => void
-  /** Restore the desktop companion after it was hidden. */
-  readonly companion?: () => void
 }
 
 /** Tray icon present for the whole run, not only while the window is hidden. */
@@ -36,7 +34,6 @@ export class DesktopTray {
     tray.setToolTip(messages.aboutProduct)
     tray.setContextMenu(Menu.buildFromTemplate([
       { label: messages.openApplication, click: () => { this.options.open() } },
-      ...(this.options.companion === undefined ? [] : [{ label: messages.companionMenu, click: this.options.companion }]),
       { type: 'separator' },
       { label: messages.quitApplication, click: () => { this.options.quit() } },
     ]))

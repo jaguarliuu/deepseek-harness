@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 
-const { verifyDesktopRuntime } = vi.hoisted(() => ({
+const { verifyDesktopRuntime, verifyPetArtifact } = vi.hoisted(() => ({
+  verifyPetArtifact: vi.fn(async (_root: string) => undefined),
   verifyDesktopRuntime: vi.fn<(root: string, expected: string) => Promise<void>>(async () => undefined),
 }))
 // The hook imports the built tree, which a clean checkout has not produced; this is the path it resolves.
+vi.mock('../pet-packs/xiaoc-sprite/artifact.mjs', () => ({ verifyPetArtifact }))
 vi.mock('/apps/desktop/lib/types/runtime-tree.js', () => ({ verifyDesktopRuntime }))
 vi.mock('../scripts/windows-asar-unpack.mjs', async importOriginal => ({
   ...await importOriginal<typeof import('../scripts/windows-asar-unpack.mjs')>(),
@@ -32,6 +34,7 @@ async function requiredRuntimeVersion(preparedRuntime?: string, preparedRuntimeV
   const { createElectronBuilderConfig } = await import('../scripts/electron-builder-config.mjs')
   const config = createElectronBuilderConfig(ENVIRONMENT, 'win32', 'x64', preparedRuntime, preparedRuntimeVersion)
   await config.afterPack(CONTEXT as never)
+  expect(verifyPetArtifact).toHaveBeenCalledWith('out/resources/pet')
   return verifyDesktopRuntime.mock.calls[0]?.[1]
 }
 

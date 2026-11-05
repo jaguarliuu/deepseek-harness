@@ -1,0 +1,11 @@
+{
+  "repository": "https://github.com/PC2005-cloud/dsh-pet",
+  "revision": "0e6465f29bb89b386390ba0f14fb86fa1bc656d0",
+  "license": "MIT",
+  "scope": [
+    "src/host",
+    "src/shared",
+    "runtime/electron-helper",
+    "assets/config.jsonc"
+  ]
+}

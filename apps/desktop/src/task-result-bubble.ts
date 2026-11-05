@@ -1,4 +1,4 @@
-/** Non-focusing, bounded task-result bubbles beside the desktop companion. */
+/** Non-focusing, bounded task-result bubbles on the desktop. */
 import { join } from 'node:path'
 import { BrowserWindow, ipcMain, screen, type IpcMainInvokeEvent, type Rectangle } from 'electron'
 import type { DesktopLocale } from './locale.ts'
@@ -41,7 +41,7 @@ export class DesktopTaskResultBubble {
     })
   }
 
-  /** @returns Whether a result is being presented beside the companion. */
+  /** @returns Whether a result is being presented on the desktop. */
   isVisible(): boolean { return this.current !== undefined }
 
   /** @param result - One live Host result, deduplicated within this application run. */
@@ -56,7 +56,7 @@ export class DesktopTaskResultBubble {
     if (!this.current) this.advance()
   }
 
-  /** Dispose before the companion and application windows are destroyed. */
+  /** Dispose before application windows are destroyed. */
   dispose(): void {
     this.disposed = true
     clearTimeout(this.timer)

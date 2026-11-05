@@ -75,7 +75,7 @@ it('expires, distinguishes failure, and rejects stale clicks and other frames', 
   await vi.advanceTimersByTimeAsync(20000)
   expect(native.windows[0]!.visible).toBe(false)
 })
-it('suppresses notifications while the companion is hidden and closes when it is hidden later', async () => {
+it('suppresses notifications when disabled and closes when disabled later', async () => {
   const f = setup()
   f.enabled.mockReturnValue(false)
   bubble!.notify(f.result)

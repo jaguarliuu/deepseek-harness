@@ -1,0 +1,44 @@
+/** Checks the actual offline payload plus corrupted or incomplete inventories without starting a model. */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile, writeFile, mkdtemp, rm, cp } from 'node:fs/promises';
+import { pathToFileURL } from 'node:url';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { verifyPetArtifact } from './artifact.mjs';
+const root = new URL('../../.desktop-build/pet/', import.meta.url).pathname;
+test('prepared installer payload is self-contained and keeps local runtime and model defaults', async () => {
+  await verifyPetArtifact(root);
+  const config = JSON.parse(await readFile(join(root, 'assets/config.jsonc'), 'utf8'));
+  assert.equal(config.pets[0].id, 'xiaoc');
+  assert.equal(config.pets[0].display, 'desktop');
+  assert.equal(config.voiceEnabled, false);
+  assert.deepEqual(config.memes, {});
+  assert.equal(config.pets[0].whisperEnabled, false);
+  const overlay = await readFile(join(root, 'overlay.yml'), 'utf8');
+  assert.ok(overlay.includes('name: ./lib/index.js'));
+  const host = await readFile(join(root, 'lib/index.js'), 'utf8');
+  assert.ok(host.includes('请修复安装'));
+  assert.ok(!host.includes('import("@electron/get")'));
+  assert.ok(!/^import .*from ["']@/m.test(host));
+});
+test('installer check rejects missing atlases, modified scripts and unsafe inventory paths', async t => {
+  const temp = await mkdtemp(join(tmpdir(), 'xiaoc-pet-check-'));
+  t.after(() => rm(temp, { recursive: true, force: true }));
+  await cp(root, temp, { recursive: true });
+  const plugin = await import(pathToFileURL(join(temp, 'lib/index.js')).href);
+  assert.equal(typeof plugin.apply, 'function');
+  assert.ok(plugin.inject.includes('agentDefaultModel'));
+  assert.ok(plugin.inject.includes('llm'));
+  const atlas = join(temp, 'runtime/electron-helper/xiaoc/wave.png');
+  const bytes = await readFile(atlas);
+  await rm(atlas);
+  await assert.rejects(verifyPetArtifact(temp), { code: 'ENOENT' });
+  await writeFile(atlas, bytes);
+  await writeFile(join(temp, 'lib/index.js'), 'changed');
+  await assert.rejects(verifyPetArtifact(temp), /checksum mismatch/);
+  const inventory = JSON.parse(await readFile(join(temp, 'artifact.json'), 'utf8'));
+  inventory.files = { '../escape': '0'.repeat(64), ...inventory.files };
+  await writeFile(join(temp, 'artifact.json'), JSON.stringify(inventory));
+  await assert.rejects(verifyPetArtifact(temp), /Invalid pet inventory entry/);
+});

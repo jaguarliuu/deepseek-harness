@@ -21,7 +21,6 @@ vi.mock('../src/selection-task.ts', () => ({ DesktopSelectionTask: class { captu
 const fileDrag = vi.hoisted(() => ({ dispose: vi.fn<() => Promise<void>>(), install: vi.fn() }))
 vi.mock('../src/quick-task-window.ts', () => ({ DesktopQuickTask: class { show = vi.fn(); restore = vi.fn(); dispose = vi.fn() } }))
 vi.mock('../src/task-result-bubble.ts', () => ({ DesktopTaskResultBubble: class { notify = vi.fn(); dispose = vi.fn(); isVisible = () => false } }))
-vi.mock('../src/companion.ts', () => ({ DesktopCompanion: class { show = vi.fn(); dispose = vi.fn() } }))
 
 vi.mock('../src/file-drag.ts', () => ({ installDesktopFileDrag: () => { fileDrag.install(); return fileDrag.dispose } }))
 
@@ -1003,7 +1002,7 @@ describe('desktop main startup', () => {
     expect(() => handler(event, 'application', NaN, 34)).toThrow('invalid popup request')
     const application = handler(event, 'application', 48, 34)
     expect(harness.menu.buildFromTemplate.mock.lastCall![0].map(item => item.label ?? item.type)).toEqual([
-      '关于 智维小 C', 'separator', zh.selectionAsk, zh.selectionClipboard, '桌面小 C', '检查更新…', '管理 dsh 命令…', 'separator', '退出',
+      '关于 智维小 C', 'separator', zh.selectionAsk, zh.selectionClipboard, '检查更新…', '管理 dsh 命令…', 'separator', '退出',
     ])
     expect(harness.popup.mock.lastCall![0]).toMatchObject({ window, x: 48, y: 34 })
     expect(harness.popup.mock.lastCall![0].callback).toBeTypeOf('function')
@@ -1040,8 +1039,8 @@ describe('desktop main startup', () => {
       : ['Application', 'editMenu'])
     const application = template[0]!.submenu as MenuItemConstructorOptions[]
     expect(application.filter(item => item.visible !== false).map(describeItem)).toEqual(platform === 'darwin'
-      ? ['about', 'separator', en.selectionAsk, en.selectionClipboard, en.companionMenu, en.checkUpdatesMenu, en.cliCommandMenu, 'separator', 'hide', 'hideOthers', 'unhide', 'separator', 'quit']
-      : ['about', 'separator', en.selectionAsk, en.selectionClipboard, en.companionMenu, en.checkUpdatesMenu, 'separator', 'quit'])
+      ? ['about', 'separator', en.selectionAsk, en.selectionClipboard, en.checkUpdatesMenu, en.cliCommandMenu, 'separator', 'hide', 'hideOthers', 'unhide', 'separator', 'quit']
+      : ['about', 'separator', en.selectionAsk, en.selectionClipboard, en.checkUpdatesMenu, 'separator', 'quit'])
     expect(harness.menu.setApplicationMenu).toHaveBeenCalledOnce()
   })
 

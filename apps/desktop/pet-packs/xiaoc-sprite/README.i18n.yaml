@@ -1,0 +1,10 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write apps/desktop/pet-packs/xiaoc-sprite/README.md
+/:
+  en: a63fc7ec0b33dbe5
+  zh: a63fc7ec0b33dbe5
+/small-c-sprite-trial:
+  en: 4abe5d150ccfa2aa
+  zh: 3534b67e31d02e2e

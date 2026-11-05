@@ -64,7 +64,6 @@ import { installDesktopShortcuts } from './keyboard.ts'
 import { DesktopUpdateOverlays } from './update-overlay.ts'
 import { DesktopQuitConfirmation } from './quit-confirmation.ts'
 import { DesktopQuickTask } from './quick-task-window.ts'
-import { DesktopCompanion } from './companion.ts'
 import { DesktopTray } from './tray.ts'
 import { DesktopBackgroundNotice } from './background-notice.ts'
 
@@ -475,9 +474,11 @@ async function main(): Promise<void> {
   const backend = new DesktopBackendController((onFailure) => {
     const hostInspectPort = developmentHostInspectPort(development)
     const host = new DesktopHostProcess(resources.node, resources.dsh, activeProject,
-      hostInspectPort, { ...hostEnvironment, DSH_CLIENT_VERSION: desktopClientVersion() }, onFailure,
+      hostInspectPort, { ...hostEnvironment, DSH_CLIENT_VERSION: desktopClientVersion(),
+        DSH_DESKTOP_PET_ROOT: development ? join(app.getAppPath(), '.desktop-build', 'pet') : join(process.resourcesPath, 'pet'),
+        DSH_PET_ELECTRON_PATH: process.execPath }, onFailure,
       primaryRuntime,
-      resources, (next) => { platformView.setSession(next) }, (result) => { taskResultBubble.notify(result); if (result.outcome === 'completed') companion.completed() })
+      resources, (next) => { platformView.setSession(next) }, (result) => { taskResultBubble.notify(result) })
     return {
       start: async () => {
         const ready = await host.start()
@@ -989,17 +990,11 @@ async function main(): Promise<void> {
       { role: 'unhide', label: currentDesktopLocale().messages.showAllApplications }, { type: 'separator' }]
     : []
   const quickTask: DesktopQuickTask = new DesktopQuickTask({
-    window: () => mainWindow, anchor: () => companion.bounds(), locale: currentDesktopLocale, assertSender: assertProductSender,
-  })
-  const companion: DesktopCompanion = new DesktopCompanion({
-    appPath: app.getAppPath(), locale: currentDesktopLocale,
-    open: () => { if (isMandatory()) { mandatoryUI?.focus(); return }; quickTask.show() },
-    isInteracting: () => quickTask.isVisible() || taskResultBubble.isVisible(),
-    inspect: () => backendReady && !shuttingDown ? backend.host?.inspectQuit() : undefined,
+    window: () => mainWindow, anchor: () => undefined, locale: currentDesktopLocale, assertSender: assertProductSender,
   })
   const taskResultBubble: DesktopTaskResultBubble = new DesktopTaskResultBubble({
-    appPath: app.getAppPath(), locale: currentDesktopLocale, anchor: () => companion.bounds(),
-    enabled: () => companion.isShown() && !shuttingDown,
+    appPath: app.getAppPath(), locale: currentDesktopLocale, anchor: () => undefined,
+    enabled: () => !shuttingDown,
     open: (result) => { if (isMandatory()) { mandatoryUI?.focus(); return }; quickTask.openSession(result.sessionId) },
   })
   const selectionTask = new DesktopSelectionTask({
@@ -1017,7 +1012,6 @@ async function main(): Promise<void> {
     { type: 'separator' },
     { label: currentDesktopLocale().messages.selectionAsk, click: () => { void selectionTask.capture() } },
     { label: currentDesktopLocale().messages.selectionClipboard, click: () => { void selectionTask.fromClipboard() } },
-    { label: currentDesktopLocale().messages.companionMenu, click: () => { companion.show() } },
     { label: currentDesktopLocale().messages.checkUpdatesMenu, click: () => { void openUpdatePrompt(true) } },
     ...process.platform === 'darwin' || process.platform === 'win32'
       ? [{ label: currentDesktopLocale().messages.cliCommandMenu, click: () => { void commandManager.show() } }] : [],
@@ -1052,7 +1046,7 @@ async function main(): Promise<void> {
     // The tray is the way back to a hidden window; without it, relaunching the application still focuses it.
     try {
       tray = new DesktopTray({ iconPath: trayIconPath, locale: currentDesktopLocale,
-        open: () => { focusPrimaryWindow() }, companion: () => { companion.show() }, quit: () => { app.quit() } })
+        open: () => { focusPrimaryWindow() }, quit: () => { app.quit() } })
     } catch (error) { console.warn('desktop tray: unavailable', error) }
   }
   const backgroundNotice = process.platform === 'win32'
@@ -1184,7 +1178,6 @@ async function main(): Promise<void> {
     if (activate) window.show()
     else window.showInactive()
     enteredWorkspace = true
-    companion.show()
     if (welcomeWindow !== undefined) {
       welcomeWindow.close()
       window.webContents.send(DESKTOP_IPC.enterWorkspace)
@@ -1315,7 +1308,6 @@ async function main(): Promise<void> {
     taskResultBubble.dispose()
     selectionTask.dispose()
     quickTask.dispose()
-    companion.dispose()
     tray?.dispose()
     stopAccount?.()
     if (welcomeWindow !== undefined && !welcomeWindow.isDestroyed()) welcomeWindow.hide()
@@ -1338,7 +1330,6 @@ async function main(): Promise<void> {
       taskResultBubble.dispose()
       selectionTask.dispose()
       quickTask.dispose()
-      companion.dispose()
       tray?.dispose()
       updateDialog.dispose()
       mandatoryUI?.dispose()

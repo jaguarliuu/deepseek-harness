@@ -1,3 +1,4 @@
+import { prepareXiaocPet } from './pet-packs/xiaoc-sprite/build.mjs'
 import { defineConfig } from 'tsdown'
 import { build } from 'vite'
 import { fileURLToPath } from 'node:url'
@@ -47,10 +48,12 @@ export default defineConfig([
     deps: { alwaysBundle: ['@deepseek-ai/dsh-atomic-write'] },
   },
   {
-    entry: ['lib/types/main.js'],
+    entry: { main: 'lib/types/desktop-entry.js' },
+    outputOptions: { codeSplitting: false },
     plugins: [packagedImportsPlugin(mainProcessImports)],
     define: clientVersionDefine,
     onSuccess: async () => {
+      await prepareXiaocPet({ destination: fileURLToPath(new URL('./.desktop-build/pet/', import.meta.url)) })
       await build({
         configFile: false,
         plugins: [{
@@ -90,7 +93,7 @@ export default defineConfig([
     clean: false,
     deps: { neverBundle: ['electron'] },
   },
-  ...(['preload-task-result', 'preload-companion', 'preload-app', 'preload-welcome', 'preload-platform-account', 'preload-mandatory', 'preload-update-dialog'] as const).map(name => ({
+  ...(['preload-task-result', 'preload-app', 'preload-welcome', 'preload-platform-account', 'preload-mandatory', 'preload-update-dialog'] as const).map(name => ({
     // Sandboxed Electron preloads run as CommonJS even though the application package is ESM.
     entry: { [name]: `lib/types/${name}.js` },
     plugins: [packagedImportsPlugin(preloadImports)],

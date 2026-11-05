@@ -13,6 +13,7 @@ import {
   resolveMacOSSigningEnvironment,
 } from './desktop-release-environment.mjs'
 import { notarizeMacOSDiskImageArtifact } from './notarize-macos-disk-images.mjs'
+import { verifyPetArtifact } from '../pet-packs/xiaoc-sprite/artifact.mjs'
 import { verifyMacOSDiskImageSignature, verifyMacOSSignatureAfterSign } from './verify-macos-signature.mjs'
 import {
   createWindowsTokenSigner,
@@ -143,7 +144,6 @@ export function createElectronBuilderConfig(
       'lib/main.js',
       'lib/welcome/**/*',
       'lib/preload-app.cjs',
-      'lib/preload-companion.cjs',
       'lib/preload-task-result.cjs',
       'lib/preload-mandatory.cjs',
       'lib/preload-platform-account.cjs',
@@ -160,6 +160,7 @@ export function createElectronBuilderConfig(
     asarUnpack: unpack,
     extraResources: [
       { from: buildPaths.runtime, to: 'runtime' },
+      { from: fileURLToPath(new URL('../.desktop-build/pet/', import.meta.url)), to: 'pet' },
       { from: fileURLToPath(new URL('../resources/icon-windows.png', import.meta.url)), to: 'icon.png' },
       // Windows tray bitmaps; macOS keeps the Dock and ships no menu bar icon.
       ...(packagesWindows ? [{ from: fileURLToPath(new URL('../resources/tray-windows.ico', import.meta.url)), to: 'tray.ico' }] : []),
@@ -205,6 +206,7 @@ export function createElectronBuilderConfig(
     afterPack: async context => {
       const { verifyDesktopRuntime } = await import('../lib/types/runtime-tree.js')
       const resourcesDir = context.packager.getResourcesDir(context.appOutDir)
+      await verifyPetArtifact(join(resourcesDir, 'pet'))
       if (resolvedPlatform === 'darwin' && update !== undefined) {
         await writeMacOSAppUpdateConfig(resourcesDir, resolveMacOSAppUpdateFeed(context.packager.config.publish),
           context.packager.appInfo.updaterCacheDirName)

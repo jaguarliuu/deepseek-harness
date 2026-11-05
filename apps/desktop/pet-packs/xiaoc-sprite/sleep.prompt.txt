@@ -1,0 +1,1 @@
+Built-in imagegen; reference wave.png; transparent 4x4 atlas. Preserve white/teal Small C, hardhat State Grid globe and upright chest C. Fixed camera and floor baseline. Frames: standing, yawn, crouch, sit, nod asleep, gentle seated breathing, eyes open, seated stretch, rise, standing. No background, labels or props.
