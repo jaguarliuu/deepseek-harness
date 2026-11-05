@@ -1,4 +1,7 @@
-vi.mock('../src/web-document.ts', () => ({ authenticateWebHost: async () => 'test-cookie', serveWebDocument: vi.fn(), forwardWebRequest: vi.fn() }))
+vi.mock('../src/web-document.ts', () => ({
+  authenticateWebHost: async () => 'test-cookie', serveWebDocument: vi.fn(), forwardWebRequest: vi.fn(), removeLegacyHostCookies: async () => {},
+}))
+/** Welcome startup uses the Host before transitioning to the workspace. */
 // Keep coverage for the optional upstream welcome flow. The internal distribution disables it.
 vi.mock('../src/welcome-api.ts', async (importOriginal) => {
   const original = await importOriginal<typeof import('../src/welcome-api.ts')>()
@@ -70,6 +73,7 @@ vi.mock('electron', () => ({
     quit: state.quit,
     exit: vi.fn(),
   },
+  globalShortcut: { register: vi.fn(() => true), unregister: vi.fn() },
   powerMonitor: { on: vi.fn(), off: vi.fn() },
   BrowserWindow: class {
     constructor(options: BrowserWindowConstructorOptions) { state.windowOptions = options }
@@ -89,9 +93,9 @@ vi.mock('electron', () => ({
     showInactive = state.showInactiveWorkspace
     async loadURL(url: string) { state.contents = this.webContents; await state.loadWorkspace(url); this.ready?.() }
   },
-  net: { fetch: vi.fn() },
   nativeTheme: state.nativeTheme,
   session: { defaultSession: {
+    on: vi.fn(), cookies: {},
     setPermissionCheckHandler: vi.fn(), setPermissionRequestHandler: vi.fn(), webRequest: { onBeforeSendHeaders: vi.fn() },
   } },
   protocol: { registerSchemesAsPrivileged: vi.fn(), handle: vi.fn() },
@@ -117,6 +121,7 @@ vi.mock('../src/project-manager.ts', () => ({ DesktopProjectManager: class {
   canRecoverProfile = vi.fn(() => true)
 } }))
 vi.mock('../src/host-process.ts', () => ({
+  processMetricsError: () => new Error('metrics unavailable'),
   DesktopHostProcess: class {
     start = state.startHost
     stop = state.stopHost
@@ -128,7 +133,7 @@ vi.mock('../src/host-process.ts', () => ({
   },
 }))
 vi.mock('../src/welcome-backend.ts', () => ({
-  connectDesktopWelcome: async () => ({
+  connectDesktopWelcome: () => ({
     analyticsEnabled: async () => false,
     readLocalePreference: async () => state.preference,
     read: async () => {

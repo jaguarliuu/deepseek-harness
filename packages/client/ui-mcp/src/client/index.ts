@@ -23,7 +23,7 @@ export async function apply(ctx: Context): Promise<void> {
   const dispose = await ctx.remote.$mount(mcpRemote)
   ctx.effect(() => dispose)
   ctx.effect(() => ctx.locale.register('settings.mcp', { en, zh, ja: en, es: en, fr: en, de: en, ru: en, pt: en }))
-  ctx.inject(['remote.mcpManager'], (inner) => {
+  ctx.inject(['remote.xiaocMcpManager'], (inner) => {
     const scope = inner.configForms.get<McpSettings>('ui-mcp')
     const model = new McpSettingsModel(scope)
     inner.slots.inject('settings.section', () => inner.slots.register({
@@ -31,7 +31,7 @@ export async function apply(ctx: Context): Promise<void> {
       label: () => ctx.locale.bind('settings.mcp')('title'),
       inject: (): McpSettingsFace => ({ hooks: { configuration: scope, activity: model.activity },
         save: (servers, revision) => model.save(servers, revision), test: async (server) => {
-          const result = await inner.remote.mcpManager.test(server)
+          const result = await inner.remote.xiaocMcpManager.test(server)
           return result.ok ? result.value : { ok: false as const, code: 'connection' as const }
         } }),
     }, McpSettingsPage))

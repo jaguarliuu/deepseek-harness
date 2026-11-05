@@ -4,14 +4,17 @@ import type { Branded } from '@deepseek-ai/dsh-brand'
 /** Opaque local task identity, unrelated to platform integer ids. */
 export type AiTaskId = Branded<'IntranetAiTaskId'>
 
-/** Persisted non-secret connection settings. */
-export interface AiSettings {
-  /** Platform origin, without credentials or query parameters. */
-  baseUrl: string
+/** Employee-editable capability catalogs, independent of the deployment address. */
+export interface AiCatalogSettings {
   /** Administrator-configured image model ids. */
   imageModels: string[]
   /** Administrator-configured speech voice ids. */
   voices: string[]
+}
+/** Resolved Host settings including the deployment-owned endpoint. */
+export interface AiSettings extends AiCatalogSettings {
+  /** Platform origin, without credentials or query parameters. */
+  baseUrl: string
 }
 /** Public result contains only normalized, actionable failure categories. */
 export interface AiResult {

@@ -12,7 +12,7 @@ import { LocalCredentialProvider } from '@deepseek-ai/dsh-credentials-local'
 import LocalFs from '@deepseek-ai/dsh-fs-local'
 import { expect, it, onTestFinished } from 'vitest'
 import IntranetAi from '../src/index.ts'
-import { platformOrigin } from '../src/platform.ts'
+import { platformOrigin, platformTransportFailure } from '../src/platform.ts'
 import type { AiTask } from '../src/types.ts'
 
 async function fixture() {
@@ -21,6 +21,7 @@ async function fixture() {
     expire: false,
     refreshes: 0,
     submissions: 0,
+    requests: [] as string[],
     lastBody: '',
     asset: '/static/result.png',
     brokenAudio: false,
@@ -56,12 +57,9 @@ async function fixture() {
       }
       const body = Buffer.concat(chunks).toString()
       const path = req.url ?? ''
+      state.requests.push(path)
       const json = (value: object, status = 200) => {
         res.writeHead(status, { 'Content-Type': 'application/json' }).end(JSON.stringify(value))
-      }
-      if (path === '/healthz') {
-        json({ ok: true })
-        return
       }
       const tokens = () => ({
         success: true,
@@ -119,7 +117,10 @@ async function fixture() {
       }
       if (req.method === 'POST') {
         state.submissions++
-        if (state.rejectStatus) { json({ success: false, message: 'private input failure' }, state.rejectStatus); return }
+        if (state.rejectStatus) {
+          json({ success: false, message: 'private input failure' }, state.rejectStatus)
+          return
+        }
         state.lastBody = body
         if (state.rejectSubmit) {
           req.socket.destroy()
@@ -160,7 +161,8 @@ async function fixture() {
   await ctx.plugin(Loader).await()
   ctx.loader.builtins.intranet = IntranetAi
   const config = {
-    baseUrl: url,
+    platformOrigin: url,
+    baseUrl: 'https://obsolete-employee-address.invalid',
     imageModels: ['internal-image'],
     voices: ['vivian'],
     dataPath: join(dir, 'tasks'),
@@ -270,13 +272,38 @@ it('rejects credential-bearing, non-HTTP and non-root platform addresses', () =>
   expect(platformOrigin('https://internal.example/')).toBe('https://internal.example')
 })
 
-
 it('distinguishes definite rejection from uncertain transport outcomes', async () => {
   const { ctx, state } = await fixture()
   state.rejectStatus = 400
   await expect(ctx.intranetAi.tasks.submit({ capability: 'image', text: 'test' })).rejects.toThrow('invalidInput')
   expect((await ctx.intranetAi.list())[0]).toMatchObject({ status: 'failed', notice: 'invalidInput', remoteId: 0 })
   const submitted = state.submissions
-  await expect(ctx.intranetAi.tasks.submit({ capability: 'ocr', text: '', filename: 'file.pdf', fileBase64: 'invalid-base64' })).rejects.toThrow('invalidInput')
+  await expect(
+    ctx.intranetAi.tasks.submit({ capability: 'ocr', text: '', filename: 'file.pdf', fileBase64: 'invalid-base64' }),
+  ).rejects.toThrow('invalidInput')
   expect(state.submissions).toBe(submitted)
+})
+
+it('authorizes the configured platform directly without probing an undocumented health endpoint', async () => {
+  const { ctx, state } = await fixture()
+  expect(state.requests).toEqual(['/api/auth/login'])
+  expect(await ctx.intranetAi.account()).toEqual({ connected: true, account: 'employee' })
+})
+it.each([
+  ['DEPTH_ZERO_SELF_SIGNED_CERT', 'certificate'],
+  ['SELF_SIGNED_CERT_IN_CHAIN', 'certificate'],
+  ['ERR_TLS_CERT_ALTNAME_INVALID', 'certificate'],
+  ['CERT_HAS_EXPIRED', 'certificate'],
+  ['ECONNREFUSED', 'refused'],
+  ['ENOTFOUND', 'dns'],
+  ['ETIMEDOUT', 'timeout'],
+])('classifies transport %s as %s without exposing upstream diagnostics', (code, expected) => {
+  const cause = Object.assign(new Error('private diagnostic'), { code })
+  const failure = platformTransportFailure(new TypeError('fetch failed', { cause }))
+  expect(failure.code).toBe(expected)
+  expect(failure.message).not.toContain('private diagnostic')
+})
+it('distinguishes request deadlines and unknown transport failures', () => {
+  expect(platformTransportFailure(new DOMException('request deadline', 'TimeoutError')).code).toBe('timeout')
+  expect(platformTransportFailure(new Error('unclassified')).code).toBe('network')
 })

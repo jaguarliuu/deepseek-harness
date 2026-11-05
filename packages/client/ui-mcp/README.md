@@ -29,7 +29,7 @@ Credentials in request headers and environment variables are stored in the local
 
 ## Connection testing
 
-`mcpManager.test` validates the supplied unsaved definition, initializes a temporary MCP connection and lists tool names. It never invokes a tool or changes configuration. Stdio testing starts the configured executable; its dependencies must already be installed. Each test closes its client and transport, and plugin disposal cancels outstanding tests. Tests do not prove that every tool operation has authorization or that a configured service remains connected later.
+`xiaocMcpManager.test` validates the supplied unsaved definition, initializes a temporary MCP connection and lists tool names. It never invokes a tool or changes configuration. Stdio testing starts the configured executable; its dependencies must already be installed. Each test closes its client and transport, and plugin disposal cancels outstanding tests. Tests do not prove that every tool operation has authorization or that a configured service remains connected later.
 
 ## Dev Note
 

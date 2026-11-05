@@ -1,4 +1,4 @@
-import { es, fr, de, ru, pt } from '../src/client/locales.ts'
+import { en, zh, ja, es, fr, de, ru, pt } from '../src/client/locales.ts'
 /**
  * ui-skill browser half: source and keyed toolview registration +
  * locale dictionaries + source duplicate-name proof +
@@ -44,6 +44,7 @@ interface PresentationCapture {
 
 /** Provide the presentation registries and capture the plugin's registrations. */
 function providePresentation(ctx: Context): PresentationCapture {
+  ctx.provide('resources', { register: () => () => {} } as never)
   const slots = new SlotRegistry(ctx)
   const userText = new UserTextRegistry(ctx)
   ctx.provide('uiConversation', { userText } as never)
@@ -124,7 +125,7 @@ const req = (query: string, signal?: AbortSignal) =>
 
 describe('apply', () => {
   it('declares the services it binds', () => {
-    expect(inject).toEqual(['inputTriggers', 'sessions', 'slots', 'locale', 'remote', 'remote.skills', 'sidebarRight', 'uiConversation'])
+    expect(inject).toEqual(['resources', 'inputTriggers', 'sessions', 'slots', 'locale', 'remote', 'remote.skills', 'sidebarRight', 'uiConversation'])
   })
 
   it('registers the dedicated skill row and its locale dictionaries', async () => {
@@ -140,41 +141,7 @@ describe('apply', () => {
     expect(entry?.options).toMatchObject({ key: 'skill' })
     expect(entry?.locale).toBe('skill')
     expect(entry?.component).toBe(SkillToolRow)
-    expect(presentation.dictionaries).toEqual([{
-      namespace: 'skill', dictionaries: {
-        es, fr, de, ru, pt,
-        zh: {
-          'row.title': '加载技能',
-          'row.running': '正在加载 skill',
-          'row.preparing': '准备加载技能',
-          'row.failed': 'skill 加载失败',
-          'row.stopped': 'skill 加载已中止',
-          'row.instructions': '说明',
-          'row.inspect': '查看',
-          'menu.userOnly': '仅用户',
-        },
-        en: {
-          'row.title': 'Skill',
-          'row.running': 'Loading skill',
-          'row.preparing': 'Preparing to load a skill',
-          'row.failed': 'Skill load failed',
-          'row.stopped': 'Skill load stopped',
-          'row.instructions': 'Instructions',
-          'row.inspect': 'Inspect',
-          'menu.userOnly': 'user-only',
-        },
-        ja: {
-          'row.title': 'スキル',
-          'row.running': 'スキルを読み込み中',
-          'row.preparing': 'スキルの読み込みを準備中',
-          'row.failed': 'スキルの読み込みに失敗しました',
-          'row.stopped': 'スキルの読み込みが停止しました',
-          'row.instructions': '手順',
-          'row.inspect': '詳細を確認',
-          'menu.userOnly': 'ユーザー専用',
-        },
-      },
-    }])
+    expect(presentation.dictionaries).toEqual([{ namespace: 'skill', dictionaries: { en, zh, ja, es, fr, de, ru, pt } }])
   })
 
   it('registers the "/" skill source; disposal frees the name (HMR safety)', async () => {

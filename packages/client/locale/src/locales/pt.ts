@@ -33,6 +33,8 @@ export const pt = {
   'more': 'Mais',
   'collapse': 'Recolher',
   'expand': 'Expandir',
+  'subtitle.expand': 'Expandir descrição de {name}',
+  'subtitle.collapse': 'Recolher descrição de {name}',
   'back': 'Voltar',
   'brand.localBuild': '智维小 C',
   'workspace.defaultName': 'Espaço de trabalho padrão',

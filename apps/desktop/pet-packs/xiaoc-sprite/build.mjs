@@ -41,6 +41,8 @@ for (const file of ['sprite/playback.js', 'sprite/motion.js']) {
   let content = source('runtime/electron-helper/' + file)
     .replaceAll("this.facing === 'right' ? 'scaleX", "this.facing === 'right' && el.dataset.noMirror !== 'true' ? 'scaleX");
   if (file === 'sprite/playback.js') {
+    content = content.replace('animations.drag.includes(this.anim) || animations.clicks.includes(this.anim)',
+      "animations.drag.includes(this.anim) || animations.clicks.includes(this.anim) || (this.pet.id === 'xiaoc' && XiaocSpritePack.energy.includes(this.anim))");
     content = content.replace('const mp = Object.assign',
       "if (this.pet.id === 'xiaoc') { this.facing = XiaocSpritePack.moveDirections[chosen.name]; }\n    const mp = Object.assign");
     content = content.replace('const k = S.rollKind(roll, animationWeights, { fixed: this.pet.fixedEnabled });',
@@ -50,6 +52,13 @@ for (const file of ['sprite/playback.js', 'sprite/motion.js']) {
   }
   await writeFile(join(helper, file), content);
 }
+await writeFile(join(helper, 'sprite/input.js'), source('runtime/electron-helper/sprite/input.js')
+  .replaceAll('S.pick(this.animations.clicks)', "S.pick(this.animations.clicks, this.pet.id === 'xiaoc' ? this.anim : undefined)"));
+await writeFile(join(plugin, 'src/shared/menu/tree.ts'), source('src/shared/menu/tree.ts')
+  .replace("whisper: '碎碎念'", "whisper: '说话动作'")
+  .replace('children: c.actions.map(leaf)', "children: c.id === '补充能量' ? [{ label: '随机补能', anim: '随机补能' }, ...c.actions.map(leaf)] : c.actions.map(leaf)"));
+await writeFile(join(helper, 'sprite/menu.js'), source('runtime/electron-helper/sprite/menu.js')
+  .replace('this.closeMenu();\n    if (!leaf', "if (this.pet.id === 'xiaoc' && leaf?.anim === '随机补能') leaf = { ...leaf, anim: S.pick(XiaocSpritePack.energy, this.anim) };\n    this.closeMenu();\n    if (!leaf"));
 await writeFile(join(helper, 'events.js'), source('runtime/electron-helper/events.js')
   .replace("if (frontEl) {\n        frontEl.loop = false;\n        frontEl.onended = () => this.handleEnded();\n      }",
     "for (const media of (this.pet.id === 'xiaoc' ? [this.videoA, this.videoB] : [frontEl])) {\n        if (media) { media.loop = false; media.onended = () => this.handleEnded(); }\n      }")
@@ -74,7 +83,7 @@ config.whisperImageEnabled = false;
 config.trayEnabled = false;
 config.animations = { ...pack.animationPools,
   moves: pack.moves,
-  categories: [{ id: '互动', weight: 0, actions: pack.interactions }],
+  categories: [{ id: '互动', weight: 0, actions: pack.interactions }, { id: '补充能量', weight: 0, actions: pack.energy }],
   events: { workStatus: pack.workStatus.animations, whisper: pack.talk }, sleep: pack.sleep };
 config.sleepStartTexts = ['休息一下，点击我就能叫醒。'];
 config.sleepEndTexts = ['我醒啦，继续工作。'];
@@ -117,10 +126,10 @@ for (const group of await readdir(join(root, 'packages'), { withFileTypes: true 
 if (!existsSync(join(modules, 'zod'))) await symlink(join(root, 'node_modules/zod'), join(modules, 'zod'), process.platform === 'win32' ? 'junction' : 'dir');
 const require = createRequire(join(root, 'package.json'));
 const { build } = await import(pathToFileURL(require.resolve('tsdown')).href);
-await build({ config: false, entry: { index: join(plugin, 'src/host/index.ts') },
+await build({ config: false, tsconfig: false, inputOptions: { tsconfig: false }, entry: { index: join(plugin, 'src/host/index.ts') },
   outDir: join(plugin, 'lib'), platform: 'node', format: 'esm', target: 'es2022',
   external: [/^@electron\//, /^@electron-internal\//, /^@andresaya\//, /^node:/], deps: { alwaysBundle: [/^@deepseek-ai\//, 'zod'] }, dts: false });
-await build({ config: false, entry: { 'shared-core': join(plugin, 'src/shared/index.ts') },
+await build({ config: false, tsconfig: false, inputOptions: { tsconfig: false }, entry: { 'shared-core': join(plugin, 'src/shared/index.ts') },
   outDir: helper, platform: 'browser', format: 'iife', globalName: 'PetShared', target: 'es2022',
   clean: false, dts: false, noExternal: [/.*/] });
 await cp(join(plugin, 'lib/index.mjs'), join(plugin, 'lib/index.js'));
@@ -131,7 +140,7 @@ await writeFile(workTestEntry,
   'export { registerSessionWatch } from ' + JSON.stringify(join(plugin, 'src/host/plugin/session-watch.ts')) + ';\n' +
   'export { WorkStatusStore } from ' + JSON.stringify(join(plugin, 'src/host/work-status.ts')) + ';\n' +
   'export { createWorkStatusBridge } from ' + JSON.stringify(join(plugin, 'src/host/plugin/work-status-bridge.ts')) + ';\n');
-await build({ config: false, entry: { 'work-status-test': workTestEntry }, outDir: join(testOutput, 'tests'),
+await build({ config: false, tsconfig: false, inputOptions: { tsconfig: false }, entry: { 'work-status-test': workTestEntry }, outDir: join(testOutput, 'tests'),
   platform: 'node', format: 'esm', target: 'es2022', dts: false });
 }
 if (!testOutput) {

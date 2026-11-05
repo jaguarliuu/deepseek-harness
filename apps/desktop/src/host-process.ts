@@ -2,9 +2,11 @@
 
 import { spawn, type ChildProcess } from 'node:child_process'
 import { join } from 'node:path'
+import { z } from 'zod'
 import type { PlatformSession } from '@deepseek-ai/dsh-deepseek-account'
 import type { DesktopTaskResult } from './task-result-api.ts'
 import { desktopNodeEnvironment } from './node-environment.ts'
+import { parsePluginOperationRecord, type PluginOperationRecord, type PluginOperationRunId } from '@deepseek-ai/dsh-plugin-manager/diagnostic'
 
 interface ReadyEvent {
   readonly type: 'ready'
@@ -24,7 +26,10 @@ interface PlatformSessionEvent {
   readonly session: PlatformSession | null
 }
 
-type DesktopHostEvent = (DesktopTaskResult & { readonly type: 'task-result' }) | ReadyEvent | FatalEvent | PlatformSessionEvent | { readonly type: 'shutdown-complete' } | {
+type DesktopHostEvent = (DesktopTaskResult & { readonly type: 'task-result' }) | ReadyEvent | FatalEvent | PlatformSessionEvent | {
+  readonly type: 'starting'
+  readonly runId: PluginOperationRunId
+} | { readonly type: 'shutdown-complete' } | {
   readonly type: 'file-drag-resource'
   readonly requestId: number
   readonly resource: { readonly path: string; readonly sha256: string; readonly size: number } | null
@@ -55,6 +60,7 @@ export interface DesktopQuitInspection {
 export const QUIT_INSPECTION_DEADLINE_MS = 2_000
 
 const MAX_HOST_DIAGNOSTIC_CHARS = 64 * 1024
+const runIdSchema = z.uuid()
 
 function isDesktopHostEvent(message: unknown): message is DesktopHostEvent {
   if (typeof message !== 'object' || message === null || !('type' in message)) return false
@@ -64,6 +70,8 @@ function isDesktopHostEvent(message: unknown): message is DesktopHostEvent {
       return typeof candidate.sessionId === 'string' && candidate.sessionId.length > 0 && candidate.sessionId.length <= 512
         && typeof candidate.turn === 'number' && Number.isSafeInteger(candidate.turn) && candidate.turn >= 0
         && (candidate.outcome === 'completed' || candidate.outcome === 'error')
+    case 'starting':
+      return runIdSchema.safeParse(candidate.runId).success
     case 'shutdown-complete':
       return true
     case 'ready':
@@ -153,6 +161,7 @@ export class DesktopHostFatalError extends Error {
 
 /** One Web backend running under the Electron executable in Node mode. */
 export class DesktopHostProcess {
+  private runId: PluginOperationRunId | undefined
   private child: ChildProcess | undefined
   private readyResolve!: (ready: DesktopHostReady) => void
   private readyReject!: (error: Error) => void
@@ -183,6 +192,7 @@ export class DesktopHostProcess {
    * @param packageManager - Bundled pnpm entry and Node launcher directory, scoped to package operations.
    * @param onTaskResult - Live top-level turn outcomes for desktop notifications.
    * @param onPlatformSession - Private credential updates for embedded Platform views.
+   * @param onPluginOperation - Optional diagnostic sink; malformed records are ignored without failing the Host.
    */
   constructor(
     private readonly node: string,
@@ -195,6 +205,7 @@ export class DesktopHostProcess {
     private readonly packageManager?: { readonly pnpm: string; readonly nodeBin: string },
 
     private readonly onPlatformSession?: (session: PlatformSession | null) => void,
+    private readonly onPluginOperation?: (record: PluginOperationRecord) => void,
     private readonly onTaskResult?: (result: DesktopTaskResult) => void,
   ) {}
 
@@ -223,13 +234,25 @@ export class DesktopHostProcess {
     child.stderr?.on('data', (chunk: string) => { this.stderr = (this.stderr + chunk).slice(-MAX_HOST_DIAGNOSTIC_CHARS) })
     child.stdout?.pipe(process.stdout)
     child.on('message', (message: unknown) => {
+      if (typeof message === 'object' && message !== null && 'type' in message && message.type === 'plugin-operation') {
+        const record = 'record' in message ? parsePluginOperationRecord(message.record) : undefined
+        if (record !== undefined && record.runId === this.runId) {
+          try { this.onPluginOperation?.(record) }
+          catch (_error) {
+            // Diagnostic persistence cannot invalidate the Host's business IPC channel.
+            console.error('desktop plugin operation diagnostic sink failed')
+          }
+        }
+        return
+      }
       if (!isDesktopHostEvent(message)) {
         this.fail(new Error('dsh desktop host sent an invalid IPC event'))
         child.kill('SIGTERM')
         return
       }
-      if (message.type === 'ready') this.readyResolve({ url: message.url, injections: message.injections })
+      if (message.type === 'starting') this.runId = message.runId
       else if (message.type === 'task-result') { if (!this.stopping) this.onTaskResult?.(message) }
+      else if (message.type === 'ready') this.readyResolve({ url: message.url, injections: message.injections })
       else if (message.type === 'platform-session') this.onPlatformSession?.(message.session)
       else if (message.type === 'shutdown-complete') {
         if (this.stopping) this.shutdownCompleted = true
@@ -352,6 +375,7 @@ export class DesktopHostProcess {
   }
 
   private fail(error: Error): void {
+    if (this.runId !== undefined) Object.assign(error, { hostRunId: this.runId })
     this.onPlatformSession?.(null)
     this.readyReject(error)
     for (const request of this.controlRequests.values()) request.reject(error)

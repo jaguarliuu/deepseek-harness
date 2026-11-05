@@ -1,9 +1,32 @@
 [
   {
+    "label": "关于 智维小 C",
+    "role": "about"
+  },
+  {
+    "type": "separator"
+  },
+  {
+    "label": "交给小 C"
+  },
+  {
+    "label": "将已复制文字交给小 C"
+  },
+  {
     "label": "检查更新…"
   },
   {
     "label": "管理 dsh 命令…"
+  },
+  {
+    "type": "separator"
+  },
+  {
+    "role": "toggleDevTools",
+    "label": "开发者工具"
+  },
+  {
+    "type": "separator"
   },
   {
     "role": "hide",
@@ -16,6 +39,9 @@
   {
     "role": "unhide",
     "label": "显示全部"
+  },
+  {
+    "type": "separator"
   },
   {
     "role": "quit",

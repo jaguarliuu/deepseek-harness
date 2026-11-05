@@ -3,7 +3,7 @@ import type { Context } from '@deepseek-ai/cordis'
 import type { Volatile } from '@deepseek-ai/cosmokit'
 import z from '@deepseek-ai/schemastery'
 import { Remote, TypertRemoteService } from '@deepseek-ai/dsh-typert-protocol'
-import { PlatformClient } from './platform.ts'
+import { PlatformClient, platformOrigin } from './platform.ts'
 import { TaskStore, failureCode } from './tasks.ts'
 import { registerTools } from './tools.ts'
 import type { AiArtifact, AiInput, AiResult, AiSettings, AiTask, AccountStatus } from './types.ts'
@@ -15,8 +15,10 @@ declare module '@deepseek-ai/cordis' {
 }
 /** Deployment configuration; only non-secret settings are editable by the user. */
 export interface Config {
-  /** Platform origin. */
-  baseUrl: Volatile<string>
+  /** Deployment-owned platform origin; employees do not edit it in settings. */
+  platformOrigin: string
+  /** Legacy employee address retained for profile loading; ignored when choosing the platform. */
+  baseUrl?: string
   /** Allowed image model ids. */
   imageModels: Volatile<string[]>
   /** Allowed voice ids. */
@@ -48,7 +50,8 @@ export interface Config {
 export default class IntranetAi extends TypertRemoteService {
   static inject = ['credentials', 'tools', 'jobs', 'fs']
   static Config = z.object({
-    baseUrl: z.string().default('').volatile(),
+    platformOrigin: z.string().required(),
+    baseUrl: z.string(),
     imageModels: z.array(z.string()).default(['Qwen-Image-2.1-Turbo', 'Qwen-Image-2.1']).volatile(),
     voices: z.array(z.string()).default(['vivian']).volatile(),
     dataPath: z.string().required(),
@@ -70,8 +73,9 @@ export default class IntranetAi extends TypertRemoteService {
   constructor(ctx: Context, config: Config) {
     super(ctx, 'intranetAi')
     const lifetime = new AbortController()
+    const baseUrl = platformOrigin(config.platformOrigin)
     const settings = (): AiSettings => ({
-      baseUrl: config.baseUrl.get(),
+      baseUrl,
       imageModels: [...config.imageModels.get()],
       voices: [...config.voices.get()],
     })
@@ -85,20 +89,6 @@ export default class IntranetAi extends TypertRemoteService {
         await this.tasks.close()
       }
     })
-  }
-  /**
-   * Check an unsaved platform origin without sending credentials.
-   * @param baseUrl - platform origin.
-   * @returns network-only result.
-   */
-  @Remote
-  async check(baseUrl: string): Promise<AiResult> {
-    try {
-      await this.platform.health(baseUrl)
-      return { ok: true, code: 'healthy' }
-    } catch (error) {
-      return { ok: false, code: failureCode(error) }
-    }
   }
   /**
    * Return the currently authorized account without exposing tokens.

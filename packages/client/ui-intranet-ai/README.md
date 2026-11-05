@@ -22,7 +22,7 @@ Connect an internal information-operations AI platform from Settings. Authorize 
 <a id="use-this-package"></a>
 ## Use this package
 
-The Web application bundle mounts this plugin, including the Desktop profile. Open Settings → Internal AI capabilities. Save the platform HTTP(S) origin and administrator-provided image model and voice ids. Test network reachability, then authorize the platform account. The password is not saved. The network check uses `/healthz`; it does not verify account access or IP admission. The platform administrator must allow the employee device’s exit IP/network.
+The Web application bundle mounts this plugin, including the Desktop profile, with the internal platform fixed at `https://25.75.3.1`. Open Settings → Internal AI capabilities and authorize your platform account directly. No address entry or network-test step is required. The password is not saved. Optional capability settings edit image model and voice ids without changing the platform address. The administrator must allow the employee device’s exit IP/network and configure a trusted HTTPS certificate; certificate failures, timeouts and refused connections have separate notices. TLS verification remains enabled.
 
 Create a task from the capability page or ask Little C in a conversation. Images and speech are generated remotely; OCR accepts PNG/JPEG/WebP/BMP/TIFF/PDF files up to 20 MiB by default. Speech uses WAV at 24 kHz. Text/prompt input is limited to 2,000 characters. The platform owns supported image dimensions, model ids and voice ids; configure them to match the installation.
 
@@ -36,7 +36,7 @@ Authorization uses rotating platform grants in the existing credential store, se
 
 The user owns real-platform verification; the local fixture cannot establish production compatibility. Validate the following on an internal Windows installation:
 
-1. Save the real platform origin, model ids and voice ids; verify that changing settings survives restart.
+1. Confirm the platform address is built in and authorize directly. If needed, edit model and voice ids and verify they survive restart.
 2. Authorize an allowed account; verify rejected credentials and an IP not on the whitelist produce actionable messages.
 3. Generate one image and then three images; preview/save the results and verify partial failures remain visible.
 4. Synthesize Chinese speech; play and save the WAV, and verify the configured voice and speed.

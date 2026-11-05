@@ -185,3 +185,45 @@ test('work clips select their own atlas rows instead of cropping them as a four-
   assert.equal(draws.at(-1)[2], 1254 / 2);
   el.dispose();
 });
+
+test('all five click responses play their own atlas row once and settle before idle', async () => {
+  const { el, load, advance, draws, callbacks } = setup();
+  assert.equal(pack.animationPools.clicks.length, 5);
+  let ended = 0;
+  el.onended = () => ended++;
+  for (const [row, name] of pack.animationPools.clicks.entries()) {
+    await load(name);
+    assert.equal(draws.at(-1)[0].src, 'file:///pet/click.png');
+    assert.equal(el.dataset.frame, String(row * 4));
+    assert.ok(Math.abs(draws.at(-1)[2] - row * 1254 / 5) < 0.001);
+    await el.play();
+    advance(320);
+    assert.equal(el.dataset.frame, String(row * 4 + 2));
+    advance(2000);
+    assert.equal(el.dataset.frame, String(row * 4));
+    assert.equal(ended, row + 1);
+    assert.equal(callbacks.size, 0);
+    await load('待机');
+    assert.equal(draws.at(-1)[0].src, 'file:///pet/idle.png');
+  }
+  el.dispose();
+});
+
+test('energy clips show the correct props row and finish standing without leaving frame callbacks', async () => {
+  const { el, load, advance, draws, callbacks } = setup();
+  assert.equal(pack.energy.length, 4);
+  for (const [row, name] of pack.energy.entries()) {
+    await load(name);
+    assert.equal(draws.at(-1)[0].src, 'file:///pet/energy.png');
+    assert.equal(el.dataset.frame, String(row * 4));
+    await el.play();
+    advance(500);
+    assert.equal(el.dataset.frame, String(row * 4 + 2));
+    advance(3000);
+    assert.equal(el.dataset.frame, String(row * 4));
+    assert.equal(callbacks.size, 0);
+    await load('待机');
+    assert.equal(draws.at(-1)[0].src, 'file:///pet/idle.png');
+  }
+  el.dispose();
+});

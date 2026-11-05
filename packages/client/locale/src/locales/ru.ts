@@ -33,6 +33,8 @@ export const ru = {
   'more': 'Ещё',
   'collapse': 'Свернуть',
   'expand': 'Развернуть',
+  'subtitle.expand': 'Развернуть описание {name}',
+  'subtitle.collapse': 'Свернуть описание {name}',
   'back': 'Назад',
   'brand.localBuild': '智维小 C',
   'workspace.defaultName': 'Рабочая область по умолчанию',

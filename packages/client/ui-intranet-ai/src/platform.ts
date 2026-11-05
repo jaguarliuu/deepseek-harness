@@ -27,13 +27,50 @@ export class AiFailure extends Error {
   }
 }
 /**
+ * Classify transport errors without exposing server messages, credentials or response bodies.
+ * @param error - fetch failure and its native transport cause.
+ * @returns actionable platform error category.
+ */
+export function platformTransportFailure(error: unknown): AiFailure {
+  let current = error
+  for (let depth = 0; depth < 5; depth++) {
+    if (typeof current !== 'object' || current === null) break
+    if (current instanceof Error && current.name === 'TimeoutError') return new AiFailure('timeout')
+    const code = 'code' in current ? current.code : undefined
+    if (typeof code === 'string') {
+      if (
+        [
+          'DEPTH_ZERO_SELF_SIGNED_CERT',
+          'SELF_SIGNED_CERT_IN_CHAIN',
+          'UNABLE_TO_VERIFY_LEAF_SIGNATURE',
+          'UNABLE_TO_GET_ISSUER_CERT_LOCALLY',
+          'CERT_HAS_EXPIRED',
+          'CERT_NOT_YET_VALID',
+          'ERR_TLS_CERT_ALTNAME_INVALID',
+        ].includes(code)
+      )
+        return new AiFailure('certificate')
+      if (['ETIMEDOUT', 'UND_ERR_CONNECT_TIMEOUT', 'UND_ERR_HEADERS_TIMEOUT'].includes(code))
+        return new AiFailure('timeout')
+      if (['ENOTFOUND', 'EAI_AGAIN'].includes(code)) return new AiFailure('dns')
+      if (code === 'ECONNREFUSED') return new AiFailure('refused')
+    }
+    current = 'cause' in current ? current.cause : undefined
+  }
+  return new AiFailure('network')
+}
+/**
  * Validate the configured platform origin before any credential is sent.
  * @param raw - configured origin.
  * @returns normalized origin.
  */
 export function platformOrigin(raw: string): string {
   let url: URL
-  try { url = new URL(raw) } catch (_invalidUrl) { throw new AiFailure('invalidUrl') }
+  try {
+    url = new URL(raw)
+  } catch (_invalidUrl) {
+    throw new AiFailure('invalidUrl')
+  }
   if (
     !['http:', 'https:'].includes(url.protocol) ||
     url.username ||
@@ -140,18 +177,9 @@ export class PlatformClient {
         redirect: 'error',
         signal: AbortSignal.any([this.rootSignal, AbortSignal.timeout(this.timeoutMs), ...(signal ? [signal] : [])]),
       })
-    } catch (_networkFailure) {
-      throw new AiFailure(signal?.aborted || this.rootSignal.aborted ? 'interrupted' : 'network')
+    } catch (error) {
+      throw signal?.aborted || this.rootSignal.aborted ? new AiFailure('interrupted') : platformTransportFailure(error)
     }
-  }
-  /**
-   * Check network health only; it does not prove account or whitelist access.
-   * @param baseUrl - unsaved origin.
-   */
-  async health(baseUrl: string): Promise<void> {
-    const response = await this.raw(platformOrigin(baseUrl), '/healthz', {})
-    await response.body?.cancel()
-    if (!response.ok) throw httpFailure(response.status)
   }
   /**
    * Return account presence without exposing credentials.

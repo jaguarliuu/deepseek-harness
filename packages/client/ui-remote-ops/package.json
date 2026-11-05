@@ -1,7 +1,7 @@
 {
   "name": "@deepseek-ai/dsh-client-ui-remote-ops",
   "description": "Local SSH console and approved remote commands for Zhiwei Xiao C",
-  "version": "0.2.1-rc.3",
+  "version": "0.2.2-rc.1",
   "publishConfig": {
     "access": "public"
   },

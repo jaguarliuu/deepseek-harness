@@ -24,13 +24,6 @@ Own the authenticated internal-AI platform connection and model tools.
 
 ```ts cordis-catalog
 /**
- * Check an unsaved platform origin without sending credentials.
- * @param baseUrl - platform origin.
- * @returns network-only result.
- */
-@Remote async check(baseUrl: string): Promise<AiResult>
-
-/**
  * Return the currently authorized account without exposing tokens.
  * @returns account state.
  */

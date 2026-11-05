@@ -2,17 +2,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button, Input, type SettingsFormScopeSnapshot } from '@deepseek-ai/dsh-client-ui-primitives'
 import type { HostObservable, InjectFace, PropsLocale, PropsRuntime } from '@deepseek-ai/dsh-client-ui-slots'
-import type { AccountStatus, AiArtifact, AiInput, AiResult, AiSettings, AiTask, Capability } from '../types.ts'
+import type { AccountStatus, AiArtifact, AiInput, AiResult, AiCatalogSettings, AiTask, Capability } from '../types.ts'
 import { messageKey } from './locales.ts'
 import css from './page.module.css'
 
 /** UI operations injected by the Host-bound client plugin. */
 export interface AiFace {
-  hooks: { configuration: HostObservable<SettingsFormScopeSnapshot<AiSettings>> }
-  save(value: AiSettings, revision: number | undefined): Promise<boolean>
+  hooks: { configuration: HostObservable<SettingsFormScopeSnapshot<AiCatalogSettings>> }
+  save(value: AiCatalogSettings, revision: number | undefined): Promise<boolean>
   account(): Promise<AccountStatus>
   list(): Promise<AiTask[]>
-  run(method: 'check' | 'login' | 'logout' | 'resume' | 'cancel', first?: string, second?: string): Promise<AiResult>
+  run(method: 'login' | 'logout' | 'resume' | 'cancel', first?: string, second?: string): Promise<AiResult>
   submit(input: AiInput): Promise<AiResult>
   artifact(id: string, name: string): Promise<AiArtifact>
 }
@@ -25,7 +25,6 @@ type Props = PropsRuntime<'settings.section'> & PropsLocale<'settings.intranetAi
 export function AiPage(props: Props) {
   const { t } = props
   const config = props.useConfiguration(value => value)
-  const [baseUrl, setBaseUrl] = useState('')
   const [models, setModels] = useState('')
   const [voices, setVoices] = useState('')
   const [account, setAccount] = useState('')
@@ -47,7 +46,6 @@ export function AiPage(props: Props) {
   const [media, setMedia] = useState<Record<string, AiArtifact>>({})
   useEffect(() => {
     if (config.value) {
-      setBaseUrl(config.value.baseUrl)
       setModels(config.value.imageModels.join('\n'))
       setVoices(config.value.voices.join('\n'))
     }
@@ -60,7 +58,7 @@ export function AiPage(props: Props) {
         const a = await props.account()
         const items = await props.list()
         if (live) {
-          const key = `${config.value?.baseUrl ?? ''}/${a.account}`
+          const key = a.account
           if (accountKey.current !== key) {
             accountKey.current = key
             setMedia({})
@@ -86,7 +84,7 @@ export function AiPage(props: Props) {
       live = false
       if (timer) clearTimeout(timer)
     }
-  }, [props.account, props.list, config.value?.baseUrl])
+  }, [props.account, props.list])
   const perform = async (action: () => Promise<AiResult>): Promise<void> => {
     setBusy(true)
     setNotice('')
@@ -99,18 +97,8 @@ export function AiPage(props: Props) {
       setBusy(false)
     }
   }
-  const saveConnection = async (): Promise<AiResult> => {
+  const saveCapabilitySettings = async (): Promise<AiResult> => {
     try {
-      const url = new URL(baseUrl.trim())
-      if (
-        !['http:', 'https:'].includes(url.protocol) ||
-        url.pathname !== '/' ||
-        url.username ||
-        url.password ||
-        url.search ||
-        url.hash
-      )
-        return { ok: false, code: 'invalidUrl' }
       const imageModels = models
         .split('\n')
         .map(x => x.trim())
@@ -120,11 +108,11 @@ export function AiPage(props: Props) {
         .map(x => x.trim())
         .filter(Boolean)
       if (!imageModels.length || !voiceIds.length) return { ok: false, code: 'invalidInput' }
-      const ok = await props.save({ baseUrl: url.origin, imageModels, voices: voiceIds }, config.revision)
+      const ok = await props.save({ imageModels, voices: voiceIds }, config.revision)
       setMedia({})
       return { ok, code: ok ? 'saved' : 'localFailure' }
-    } catch (_invalidUrl) {
-      return { ok: false, code: 'invalidUrl' }
+    } catch (_saveFailure) {
+      return { ok: false, code: 'localFailure' }
     }
   }
   const submit = async (): Promise<AiResult> => {
@@ -164,19 +152,9 @@ export function AiPage(props: Props) {
         <p>{t('intro')}</p>
       </header>
       <div className={css.connections}>
-        <details className={css.card} open={!auth.connected}>
+        <details className={css.card}>
           <summary>{t('connection')}</summary>
           <div className={css.form}>
-            <label>
-              {t('baseUrl')}
-              <Input
-                value={baseUrl}
-                disabled={busy}
-                onChange={(e) => {
-                  setBaseUrl(e.target.value)
-                }}
-              />
-            </label>
             <div className={css.columns}>
               <label>
                 {t('models')}
@@ -204,21 +182,12 @@ export function AiPage(props: Props) {
                 disabled={busy || !config.writable}
                 variant="primary"
                 onClick={() => {
-                  void perform(saveConnection)
+                  void perform(saveCapabilitySettings)
                 }}
               >
                 {t('save')}
               </Button>
-              <Button
-                disabled={busy}
-                onClick={() => {
-                  void perform(() => props.run('check', baseUrl))
-                }}
-              >
-                {t('check')}
-              </Button>
             </div>
-            <p className={css.hint}>{t('healthHint')}</p>
           </div>
         </details>
         <div className={css.card}>
@@ -272,7 +241,7 @@ export function AiPage(props: Props) {
               </label>
               <Button
                 variant="primary"
-                disabled={busy || !config.value?.baseUrl}
+                disabled={busy || !account.trim() || !password}
                 onClick={() => {
                   void perform(async () => {
                     try {

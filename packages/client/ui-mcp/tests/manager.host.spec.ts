@@ -22,7 +22,7 @@ async function fixture() {
 it('probes tools without invoking or registering them and forwards authentication', async () => {
   const { http, ctx, server } = await fixture()
   await ctx.plugin(McpManager, { servers: [] })
-  expect(await ctx.mcpManager.test(server)).toEqual({ ok: true, tools: ['ping'] })
+  expect(await ctx.xiaocMcpManager.test(server)).toEqual({ ok: true, tools: ['ping'] })
   expect(http.calls).toEqual([])
   expect(http.authorization).toContain('Bearer local-test')
   expect(ctx.tools.definitions().some(tool => tool.name.startsWith('mcp__internal__'))).toBe(false)
@@ -40,8 +40,8 @@ it('registers enabled service tools and removes them on unload', async () => {
 it('contains unreachable endpoints and rejects malformed configuration', async () => {
   const { ctx, server } = await fixture()
   await ctx.plugin(McpManager, { servers: [] })
-  expect(await ctx.mcpManager.test({ ...server, url: 'http://127.0.0.1:1/mcp' })).toEqual({ ok: false, code: 'connection' })
-  expect(await ctx.mcpManager.test({ ...server, url: 'file:///tmp/mcp' })).toEqual({ ok: false, code: 'invalid' })
+  expect(await ctx.xiaocMcpManager.test({ ...server, url: 'http://127.0.0.1:1/mcp' })).toEqual({ ok: false, code: 'connection' })
+  expect(await ctx.xiaocMcpManager.test({ ...server, url: 'file:///tmp/mcp' })).toEqual({ ok: false, code: 'invalid' })
 })
 
 it('loads an empty configuration without blocking application startup', () => {
@@ -51,7 +51,7 @@ it('loads an empty configuration without blocking application startup', () => {
 it('discovers a local stdio program and closes it after testing', async () => {
   const { ctx, server } = await fixture()
   await ctx.plugin(McpManager, { servers: [] })
-  const result = await ctx.mcpManager.test({ ...server, transport: 'stdio', command: process.execPath,
+  const result = await ctx.xiaocMcpManager.test({ ...server, transport: 'stdio', command: process.execPath,
     args: [fileURLToPath(new URL('./fixtures/server.mjs', import.meta.url))] })
   expect(result).toEqual({ ok: true, tools: ['local_ping'] })
 })
@@ -63,6 +63,6 @@ it('bounds a handshake that never responds', async () => {
   const address = http.address()
   if (address === null || typeof address === 'string') throw new Error('Missing listener')
   await ctx.plugin(McpManager, { servers: [] })
-  expect(await ctx.mcpManager.test({ ...server, url: `http://127.0.0.1:${address.port}/mcp` }))
+  expect(await ctx.xiaocMcpManager.test({ ...server, url: `http://127.0.0.1:${address.port}/mcp` }))
     .toEqual({ ok: false, code: 'timeout' })
 }, 5000)

@@ -7,13 +7,8 @@ import type {} from '@deepseek-ai/dsh-client-ui-renderer/client'
 import remote from '@deepseek-ai/dsh-client-ui-intranet-ai/remote'
 import { AiPage, type AiFace } from './page.tsx'
 import { en, zh } from './locales.ts'
-import type { AiSettings } from '../types.ts'
+import type { AiCatalogSettings } from '../types.ts'
 
-declare module '@deepseek-ai/dsh-client-ui-slots' {
-  interface LocaleNamespaceMap {
-    'settings.intranetAi': keyof typeof en
-  }
-}
 /** Browser services used by the capability page. */
 export const inject = ['slots', 'locale', 'remote', 'configForms']
 /**
@@ -27,7 +22,7 @@ export async function apply(ctx: Context): Promise<void> {
     ctx.locale.register('settings.intranetAi', { en, zh, ja: en, es: en, fr: en, de: en, ru: en, pt: en }),
   )
   ctx.inject(['remote.intranetAi'], (inner) => {
-    const form = inner.configForms.get<AiSettings>('ui-intranet-ai')
+    const form = inner.configForms.get<AiCatalogSettings>('ui-intranet-ai')
     inner.slots.inject('settings.section', () =>
       inner.slots.register(
         {
@@ -41,7 +36,6 @@ export async function apply(ctx: Context): Promise<void> {
             save: (value, revision) =>
               form.mutate(
                 [
-                  { op: 'set', path: ['baseUrl'], value: value.baseUrl },
                   { op: 'set', path: ['imageModels'], value: value.imageModels },
                   { op: 'set', path: ['voices'], value: value.voices },
                 ],
@@ -63,11 +57,9 @@ export async function apply(ctx: Context): Promise<void> {
                   ? await inner.remote.intranetAi.login(first ?? '', second ?? '')
                   : method === 'logout'
                     ? await inner.remote.intranetAi.logout()
-                    : method === 'check'
-                      ? await inner.remote.intranetAi.check(first ?? '')
-                      : method === 'resume'
-                        ? await inner.remote.intranetAi.resume(first ?? '')
-                        : await inner.remote.intranetAi.cancel(first ?? '')
+                    : method === 'resume'
+                      ? await inner.remote.intranetAi.resume(first ?? '')
+                      : await inner.remote.intranetAi.cancel(first ?? '')
               return result.ok ? result.value : { ok: false, code: 'localFailure' }
             },
             submit: async (input) => {

@@ -12,7 +12,7 @@ import { scrubbedParentEnv } from '@deepseek-ai/dsh-subprocess'
 import { serverSchema, serversSchema } from './config.ts'
 
 declare module '@deepseek-ai/cordis' {
-  interface Context { mcpManager: McpManager }
+  interface Context { xiaocMcpManager: XiaocMcpManager }
 }
 
 import type { ProbeResult, McpServer, McpSettings } from './types.ts'
@@ -24,7 +24,7 @@ export interface Config {
 }
 
 /** Own configured MCP children; each uses the standard reconnect and tool registration lifecycle. */
-export default class McpManager extends TypertRemoteService {
+export default class XiaocMcpManager extends TypertRemoteService {
   static inject = ['tools']
   static Config = z.object({
     servers: z.array(z.object({
@@ -40,7 +40,7 @@ export default class McpManager extends TypertRemoteService {
   private readonly probes = new Set<Promise<ProbeResult>>()
 
   constructor(ctx: Context, config: Config) {
-    super(ctx, 'mcpManager')
+    super(ctx, 'xiaocMcpManager')
     serversSchema.parse(config.servers.get())
     const children = new Map<string, { definition: string; fiber: Fiber }>()
     const shuttingDown = (): boolean => this.lifetime.signal.aborted

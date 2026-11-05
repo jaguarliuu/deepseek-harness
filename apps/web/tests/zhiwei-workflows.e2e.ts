@@ -29,9 +29,8 @@ it('creates a task, imports a skill and restores a recycled Session over the rea
     await dialog.getByRole('button', { name: 'Create task', exact: true }).click()
     await dialog.waitFor({ state: 'hidden' })
     await page.getByText('Inspect database', { exact: true }).first().waitFor()
-    const tasks = await scaffold.ctx.schedule.list({ sessionId: id })
-    expect(tasks).toHaveLength(1)
-    await scaffold.ctx.schedule.delete({ sessionId: id, id: tasks[0]!.id })
+    const tasks = await scaffold.ctx.schedule.list()
+    expect(tasks.items).toHaveLength(1)
 
     await page.getByRole('button', { name: /Capabilities|Plugins|Capability center/u }).first().click()
     await page.getByRole('tab', { name: 'Browse', exact: true }).click()

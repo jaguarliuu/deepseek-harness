@@ -2,14 +2,12 @@
 export const en = {
   title: 'Internal AI capabilities',
   brand: 'State Grid · Zhiwei Little C',
-  intro: 'Create images, synthesize speech and recognize documents with your internal platform.',
-  connection: 'Platform connection',
-  baseUrl: 'Platform address',
+  intro:
+    'The internal platform is built in. Authorize your account to generate images, synthesize speech and recognize documents.',
+  connection: 'Capability settings',
   models: 'Image model ids (one per line)',
   voices: 'Voice ids (one per line)',
-  save: 'Save connection',
-  check: 'Test network',
-  healthHint: 'A health check verifies reachability only. Sign in to verify account access and IP admission.',
+  save: 'Save capability settings',
   account: 'Platform account',
   password: 'Password',
   login: 'Authorize account',
@@ -39,8 +37,7 @@ export const en = {
   cancel: 'Cancel task',
   resume: 'Resume query / download',
   busy: 'Processing…',
-  saved: 'Connection saved',
-  healthy: 'Network reachable; account not checked',
+  saved: 'Capability settings saved',
   submitted: 'Task submitted',
   resumed: 'Query resumed',
   cancelRequested: 'Cancellation sent; showing platform status',
@@ -59,7 +56,12 @@ export const en = {
   invalidUrl: 'Enter an HTTP(S) origin without a path, query or credentials.',
   invalidInput: 'Check the input, model/voice ids and file limits.',
   rateLimited: 'Platform rate limit reached. Wait before submitting again.',
-  network: 'Connection timed out or failed. Check your network and trusted platform certificate.',
+  network: 'Cannot reach the internal platform. Check your intranet connection or contact the administrator.',
+  certificate:
+    'Platform HTTPS certificate verification failed. Ask the administrator to configure a trusted certificate.',
+  timeout: 'The platform request timed out. Check your intranet connection and retry later.',
+  dns: 'Cannot resolve the platform host. Ask the administrator to check internal DNS.',
+  refused: 'The platform refused the connection. Ask the administrator to check the service and port.',
   unavailable: 'Platform temporarily unavailable.',
   upstream: 'Platform returned an error. Inspect platform history.',
   invalidResponse: 'Unexpected platform response. Check API compatibility.',
@@ -73,21 +75,18 @@ export const en = {
   downloadFailed: 'The platform finished but local download failed. Resume to retry downloading.',
   emptyResult: 'The platform completed without a usable result.',
   taskLimit: 'Local task retention limit reached. Contact your administrator.',
-  localFailure: 'The local operation failed. Check storage and connection settings.',
+  localFailure: 'The local operation failed. Check storage or contact the administrator.',
   connectionFailed: 'Unable to read local platform state.',
 } as const
 /** Simplified Chinese capability settings copy. */
 export const zh: Record<keyof typeof en, string> = {
   title: '内网 AI 能力',
   brand: '国家电网 · 智维小 C',
-  intro: '连接信息运维智能工坊，让生图、语音合成和文档识别融入日常工作。',
-  connection: '平台连接',
-  baseUrl: '平台地址',
+  intro: '已内置信息运维智能工坊，授权账号即可使用生图、语音合成与文档识别。',
+  connection: '能力参数',
   models: '图片模型 ID（每行一个）',
   voices: '音色 ID（每行一个）',
-  save: '保存连接',
-  check: '测试网络',
-  healthHint: '网络检查仅验证平台可达性；账号授权成功后，才能确认账号和 IP 白名单准入。',
+  save: '保存能力参数',
   account: '平台账号',
   password: '密码',
   login: '授权账号',
@@ -116,8 +115,7 @@ export const zh: Record<keyof typeof en, string> = {
   cancel: '取消任务',
   resume: '继续查询 / 下载',
   busy: '处理中…',
-  saved: '连接已保存',
-  healthy: '平台网络可达，尚未验证账号',
+  saved: '能力参数已保存',
   submitted: '任务已提交',
   resumed: '已继续查询',
   cancelRequested: '已发送取消请求，以平台状态为准',
@@ -136,7 +134,11 @@ export const zh: Record<keyof typeof en, string> = {
   invalidUrl: '请输入 HTTP(S) 平台根地址，不包含路径、查询参数或账号密码。',
   invalidInput: '请检查输入内容、模型和音色 ID，以及文件大小与格式。',
   rateLimited: '平台提交次数已达上限，请稍后再试。',
-  network: '网络连接失败或超时，请检查内网连接及平台证书信任。',
+  network: '无法连接内网平台，请检查公司内网连接或联系管理员',
+  certificate: '平台 HTTPS 证书校验失败，请联系管理员配置可信证书',
+  timeout: '访问平台超时，请检查内网连接或稍后重试',
+  dns: '平台域名解析失败，请联系管理员检查内网 DNS',
+  refused: '平台拒绝连接，请联系管理员确认服务和端口',
   unavailable: '平台服务暂不可用，请稍后重试。',
   upstream: '平台返回错误，请核对工坊历史记录。',
   invalidResponse: '平台响应格式与接口约定不符，请核对版本。',
@@ -150,7 +152,7 @@ export const zh: Record<keyof typeof en, string> = {
   downloadFailed: '平台已完成，但结果下载失败，可继续查询并重试下载。',
   emptyResult: '平台任务已结束，但未返回可用结果。',
   taskLimit: '本地任务记录已达保留上限，请联系管理员。',
-  localFailure: '本地操作失败，请检查存储空间和连接设置。',
+  localFailure: '本地操作失败，请检查存储空间或联系管理员',
   connectionFailed: '无法读取本地平台状态。',
 }
 /**
@@ -160,4 +162,10 @@ export const zh: Record<keyof typeof en, string> = {
  */
 export function messageKey(code: string): keyof typeof en {
   return Object.hasOwn(en, code) ? (code as keyof typeof en) : 'localFailure'
+}
+
+declare module '@deepseek-ai/dsh-client-ui-slots' {
+  interface LocaleNamespaceMap {
+    'settings.intranetAi': keyof typeof en
+  }
 }
