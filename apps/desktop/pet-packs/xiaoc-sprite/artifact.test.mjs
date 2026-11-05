@@ -2,11 +2,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, writeFile, mkdtemp, rm, cp } from 'node:fs/promises';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { verifyPetArtifact } from './artifact.mjs';
-const root = new URL('../../.desktop-build/pet/', import.meta.url).pathname;
+const root = fileURLToPath(new URL('../../.desktop-build/pet/', import.meta.url));
 test('prepared installer payload is self-contained and keeps local runtime and model defaults', async () => {
   await verifyPetArtifact(root);
   const config = JSON.parse(await readFile(join(root, 'assets/config.jsonc'), 'utf8'));
