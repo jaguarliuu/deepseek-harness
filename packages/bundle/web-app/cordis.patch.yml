@@ -356,7 +356,6 @@
         autoStart: true
     - id: better-sidebar
       name: 'dsh-better-sidebar'
-      disabled: !!js "ctx.get('profileContext')?.name === 'desktop'"
 
     - id: univer
       name: 'dsh-univer-office'

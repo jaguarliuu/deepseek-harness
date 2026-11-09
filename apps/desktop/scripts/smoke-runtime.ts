@@ -111,6 +111,11 @@ export function apply(ctx) {
           if (await ctx.skills.get(name) !== undefined) throw new Error('Unexpected bundled workplace skill: ' + name)
         }
         if (await ctx.skills.get('ops-workshop-publish') === undefined) throw new Error('Missing bundled Workshop skill')
+        const active = new Set([...ctx.loader.entries()].filter(entry => entry.fiber !== undefined).map(entry => entry.options.name))
+        for (const name of ['dsh-asset-hub', 'dsh-better-sidebar', 'dsh-context']) {
+          if (!active.has(name)) throw new Error('Missing bundled capability: ' + name)
+        }
+        if (active.has('dshmarket')) throw new Error('Unexpected bundled DSH Market')
         const skill = await ctx.skills.get('office-export-pdf')
         const json = skill?.content.match(/\\n(\\{\\n[\\s\\S]+)$/u)?.[1]
         if (json === undefined) throw new Error('Office skill did not supply CLI paths')
@@ -142,7 +147,7 @@ export function apply(ctx) {
   }
 }
 `)
-    writeFileSync(join(plugin, 'bundle.yml'), '- insert:\n    - id: desktop-runtime-smoke-plugin\n      name: desktop-runtime-smoke-plugin\n      inject: [webServer, officeToPdf, skills, pluginManager]\n')
+    writeFileSync(join(plugin, 'bundle.yml'), '- insert:\n    - id: desktop-runtime-smoke-plugin\n      name: desktop-runtime-smoke-plugin\n      inject: [webServer, officeToPdf, skills, pluginManager, loader]\n')
     cpSync(plugin, join(profile, 'node_modules', pluginName), { recursive: true })
     const manifest = JSON.parse(readFileSync(join(profile, 'package.json'), 'utf8')) as {
       dependencies?: Record<string, string>
@@ -161,11 +166,6 @@ export function apply(ctx) {
     const response = await fetch(new URL('/', ready.url), { headers: { cookie } })
     if (response.status !== 200 || !(await response.text()).includes('<html')) {
       throw new Error('desktop runtime: packaged frontend smoke failed')
-    }
-    const market = await fetch(new URL('/dsh-market/api/v1/capabilities', ready.url), { headers: { cookie } })
-    const marketInfo = market.ok ? await market.json() as { profile?: string; runtime?: string } : undefined
-    if (marketInfo?.profile !== 'desktop' || marketInfo.runtime !== 'desktop') {
-      throw new Error(`desktop runtime: DSH Market Desktop route failed (HTTP ${String(market.status)})`)
     }
     const workshop = await fetch(new URL('/assets-hub/rpc', ready.url), {
       method: 'POST', headers: { cookie, 'content-type': 'application/json' }, body: '{}',

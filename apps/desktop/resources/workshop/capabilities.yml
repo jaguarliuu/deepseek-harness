@@ -4,6 +4,6 @@
       disabled: !!js "ctx.get('profileContext')?.startedBundles.includes('dsh-asset-hub')"
       config:
         baseUrl: https://25.75.3.1
-    - id: desktop-dsh-market
-      name: dshmarket
-      disabled: !!js "ctx.get('profileContext')?.startedBundles.includes('dshmarket')"
+    - id: desktop-dsh-context
+      name: dsh-context
+      disabled: !!js "ctx.get('profileContext')?.startedBundles.includes('dsh-context')"

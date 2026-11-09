@@ -15,9 +15,9 @@ The internal `desktop` profile disables the account UI plugin and defaults codin
 
 The `desktop` profile introduces the assistant as 智维小 C for State Grid employees. It omits the fixed Harness identity and harness-development context; tools and safety guidance remain enabled. Explicit persona overrides still take precedence.
 
-The optional extensions below load with the Web profile. The Desktop profile has its own preinstalled extensions.
+The optional extensions below load with the Web profile. Desktop also ships Better Sidebar and defines its other preinstalled extensions separately.
 
-Better Sidebar (`dsh-better-sidebar@0.28.2`) is a pinned production dependency mounted by this bundle. Web includes its file/editor, Git, task, side-chat and bottom-terminal pages without an employee installation step. Its Harness peers resolve to the bundled workspace packages; editor and preview chunks are shipped locally.
+Better Sidebar (`dsh-better-sidebar@0.28.2`) is a pinned production dependency mounted by this bundle. Web and Desktop include its file/editor, Git, task, side-chat and bottom-terminal pages without an employee installation step. Its Harness peers resolve to the bundled workspace packages; editor and preview chunks are shipped locally.
 
 Built-in knowledge and file search use pinned `dsh-knowledge-base@0.1.5` and Windows-x64-only `dsh-plugin-everything@1.1.0`. The knowledge panel imports DOCX, text PDFs and text files locally (32 MiB per file), organizes categories and searches SQLite FTS5; scans require OCR first. Agents receive read-only `kb_query` and `kb_list`; authenticated panel actions own imports and edits. Shared patches remove the separate classification model call, use offline Mammoth/PDF.js parsing and apply State Grid theme tokens. Knowledge data stays under `$DSH_HOME/knowledge-base`.
 

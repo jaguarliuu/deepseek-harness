@@ -15,9 +15,9 @@ kind: "package-bundle"
 
 `desktop` 配置将助手身份设为面向国家电网员工的「智维小 C」，省略固定的 Harness 身份和框架开发上下文，保留工具与安全指引。显式配置的人设覆盖仍然优先。
 
-以下可选扩展随 Web 配置加载。桌面配置使用自己的预装扩展清单。
+以下可选扩展随 Web 配置加载。桌面端也预装 Better Sidebar，并单独定义其余预装扩展。
 
-本 bundle 将 Better Sidebar（`dsh-better-sidebar@0.28.2`）作为固定版本的生产依赖挂载。Web 内置文件与编辑器、Git、任务、侧边对话和底部终端页面，无需员工另行安装。其 Harness peer 依赖复用随应用交付的工作区包，编辑器与预览懒加载文件在本地交付。
+本 bundle 将 Better Sidebar（`dsh-better-sidebar@0.28.2`）作为固定版本的生产依赖挂载。Web 与 Desktop 内置文件与编辑器、Git、任务、侧边对话和底部终端页面，无需员工另行安装。其 Harness peer 依赖复用随应用交付的工作区包，编辑器与预览懒加载文件在本地交付。
 
 内置知识库与文件检索固定使用 `dsh-knowledge-base@0.1.5` 和仅 Windows x64 启用的 `dsh-plugin-everything@1.1.0`。知识库面板支持本地导入 DOCX、文字型 PDF 和文本文件（单文件 32 MiB），按目录管理并通过 SQLite FTS5 检索；扫描件需先 OCR。Agent 仅获得只读的 `kb_query` 与 `kb_list`，导入和编辑由经过鉴权的面板操作完成。共享补丁移除了独立分类模型调用，采用离线 Mammoth/PDF.js 解析，并沿用国网主题变量。知识库数据保存在 `$DSH_HOME/knowledge-base`。
 

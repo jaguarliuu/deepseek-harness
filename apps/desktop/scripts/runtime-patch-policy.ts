@@ -43,7 +43,6 @@ export const DESKTOP_RUNTIME_DEPENDENCY_OVERRIDES: Readonly<Record<string, strin
   '@orderg-x/dsh-pages': '-',
   'dsh-knowledge-base': '-',
   'dsh-plugin-everything': '-',
-  'dsh-better-sidebar': '-',
   // The provider declares ^1.3.0; its patch is qualified against 1.3.0.
   '@earendil-works/pi-ai@^1.3.0': '1.3.0',
 }
