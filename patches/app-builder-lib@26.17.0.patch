@@ -25,3 +25,31 @@ index a637bab2668ef88e7382dd4aa5db62b74fdde898..ebcafac58971bdd7c69b78ceddcd401a
            ],
            "type": "string"
          },
+diff --git a/out/util/electronGet.js b/out/util/electronGet.js
+--- a/out/util/electronGet.js
++++ b/out/util/electronGet.js
+@@ -497,7 +497,23 @@
+         }
+         if (!downloadedFile) {
+             builder_util_1.log.debug({ file: label }, "downloading");
+-            downloadedFile = await downloadArtifactToFile(config, label);
++            try {
++                downloadedFile = await downloadArtifactToFile(config, label);
++            }
++            catch (error) {
++                const status = error?.response?.statusCode ?? error?.response?.status;
++                const source = expectedChecksum && process.platform === "win32" && [502, 503, 504].includes(status)
++                    ? await config.mirrorOptions?.resolveAssetURL?.(config)
++                    : undefined;
++                const upstream = "https://github.com/electron-userland/electron-builder-binaries/releases/download/";
++                if (typeof source !== "string" || !source.startsWith(upstream)) throw error;
++                const mirror = "https://cdn.npmmirror.com/binaries/electron-builder-binaries/" + source.slice(upstream.length);
++                builder_util_1.log.warn({ label, status, mirror }, "retrying Windows installer tool download from mirror");
++                downloadedFile = await downloadArtifactToFile({
++                    ...config,
++                    mirrorOptions: { resolveAssetURL: async () => mirror },
++                }, label);
++            }
+             if (!downloadedFile) {
+                 throw new Error(`Failed to download artifact: ${label}`);
+             }

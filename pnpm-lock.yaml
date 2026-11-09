@@ -20,7 +20,7 @@ patchedDependencies:
   '@fortune-sheet/react@1.0.4': 2932e52e79afcd4ced08cfa123b5eded786c85043da32f622f3e80af6fc96c37
   '@orderg-x/dsh-pages@0.2.2': de52662100751a2623f795c514b2e1e73deb21d1f7631e38108f0af90b0788d3
   '@yao-pkg/pkg@6.21.0': 6004ea831bf18a0272276f3308456b7799d5ac32a5e69c138008b6329c1bfb9f
-  app-builder-lib@26.17.0: b70dc2a2a78ffabb80a4f14fafc7c103237f2b0a207e1f296fa1c1387ea29348
+  app-builder-lib@26.17.0: 31a1e202867ccd7110f15a85a8b275a05ac8076af908f844ff9f4b817c2022f8
   dsh-genui@0.3.2: a4c7dfc436f8341e0a863480d61db4cda7b766c3f2d1fab9884b779db6e9b108
   dsh-knowledge-base@0.1.5: dfca845f7510cb9096ca10001a40df3b162252576329193fa3b3ef648f8b8296
   dsh-plugin-everything@1.1.0: 588891e7f257442606ee635b55ea1f8b8192bf8e8689f27e0cbc3d7a0d92ccd3
@@ -811,7 +811,7 @@ importers:
         version: 8.18.1
       app-builder-lib:
         specifier: 26.17.0
-        version: 26.17.0(patch_hash=b70dc2a2a78ffabb80a4f14fafc7c103237f2b0a207e1f296fa1c1387ea29348)(dmg-builder@26.17.0)(electron-builder-squirrel-windows@26.17.0)(supports-color@9.4.0)
+        version: 26.17.0(patch_hash=31a1e202867ccd7110f15a85a8b275a05ac8076af908f844ff9f4b817c2022f8)(dmg-builder@26.17.0)(electron-builder-squirrel-windows@26.17.0)(supports-color@9.4.0)
       cos-nodejs-sdk-v5:
         specifier: 3.0.0
         version: 3.0.0
@@ -30837,7 +30837,7 @@ snapshots:
 
   anynum@1.0.1: {}
 
-  app-builder-lib@26.17.0(patch_hash=b70dc2a2a78ffabb80a4f14fafc7c103237f2b0a207e1f296fa1c1387ea29348)(dmg-builder@26.17.0)(electron-builder-squirrel-windows@26.17.0)(supports-color@9.4.0):
+  app-builder-lib@26.17.0(patch_hash=31a1e202867ccd7110f15a85a8b275a05ac8076af908f844ff9f4b817c2022f8)(dmg-builder@26.17.0)(electron-builder-squirrel-windows@26.17.0)(supports-color@9.4.0):
     dependencies:
       '@electron/asar': 3.4.1
       '@electron/fuses': 1.8.0
@@ -31729,7 +31729,7 @@ snapshots:
 
   dmg-builder@26.17.0(electron-builder-squirrel-windows@26.17.0)(supports-color@9.4.0):
     dependencies:
-      app-builder-lib: 26.17.0(patch_hash=b70dc2a2a78ffabb80a4f14fafc7c103237f2b0a207e1f296fa1c1387ea29348)(dmg-builder@26.17.0)(electron-builder-squirrel-windows@26.17.0)(supports-color@9.4.0)
+      app-builder-lib: 26.17.0(patch_hash=31a1e202867ccd7110f15a85a8b275a05ac8076af908f844ff9f4b817c2022f8)(dmg-builder@26.17.0)(electron-builder-squirrel-windows@26.17.0)(supports-color@9.4.0)
       builder-util: 26.16.0(supports-color@9.4.0)
       fs-extra: 10.1.0
       js-yaml: 4.3.2
@@ -31902,7 +31902,7 @@ snapshots:
 
   electron-builder-squirrel-windows@26.17.0(dmg-builder@26.17.0)(supports-color@9.4.0):
     dependencies:
-      app-builder-lib: 26.17.0(patch_hash=b70dc2a2a78ffabb80a4f14fafc7c103237f2b0a207e1f296fa1c1387ea29348)(dmg-builder@26.17.0)(electron-builder-squirrel-windows@26.17.0)(supports-color@9.4.0)
+      app-builder-lib: 26.17.0(patch_hash=31a1e202867ccd7110f15a85a8b275a05ac8076af908f844ff9f4b817c2022f8)(dmg-builder@26.17.0)(electron-builder-squirrel-windows@26.17.0)(supports-color@9.4.0)
       builder-util: 26.16.0(supports-color@9.4.0)
       electron-winstaller: 5.4.0(supports-color@9.4.0)
     transitivePeerDependencies:
@@ -31911,7 +31911,7 @@ snapshots:
 
   electron-builder@26.17.0(electron-builder-squirrel-windows@26.17.0)(supports-color@9.4.0):
     dependencies:
-      app-builder-lib: 26.17.0(patch_hash=b70dc2a2a78ffabb80a4f14fafc7c103237f2b0a207e1f296fa1c1387ea29348)(dmg-builder@26.17.0)(electron-builder-squirrel-windows@26.17.0)(supports-color@9.4.0)
+      app-builder-lib: 26.17.0(patch_hash=31a1e202867ccd7110f15a85a8b275a05ac8076af908f844ff9f4b817c2022f8)(dmg-builder@26.17.0)(electron-builder-squirrel-windows@26.17.0)(supports-color@9.4.0)
       builder-util: 26.16.0(supports-color@9.4.0)
       builder-util-runtime: 9.7.0(supports-color@9.4.0)
       chalk: 4.1.2
