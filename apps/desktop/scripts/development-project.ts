@@ -1,6 +1,7 @@
 /** Prepare the disposable npm-project view used by an unpackaged Electron shell. */
 
 import {
+  copyFileSync,
   existsSync,
   lstatSync,
   mkdirSync,
@@ -18,6 +19,7 @@ import type { DesktopRelease } from '../src/release.ts'
 import { DESKTOP_RUNTIME_FILE, type DesktopRuntimeDescriptor } from '../src/runtime-tree.ts'
 import type { DesktopAutoUpdateTarget } from './desktop-auto-update-environment.mjs'
 import { desktopTargetPlatform } from './desktop-build-paths.mjs'
+import { desktopCapabilityVersions } from './prepare-runtime-capabilities.ts'
 
 interface PackageManifest {
   readonly name?: string
@@ -35,6 +37,8 @@ export interface DevelopmentProjectOptions {
   readonly hostDir: string
   /** pnpm's workspace-wide virtual-hoist directory. */
   readonly dependencyDir: string
+  /** Desktop package directory supplying the optional capability overlay and development dependencies. */
+  readonly desktopDir?: string
   /** Release identity written into the disposable project metadata. */
   readonly release: DesktopRelease
   /** Build target whose prepared payload the disposable project runs against. */
@@ -158,6 +162,18 @@ export function prepareDevelopmentProject(options: DevelopmentProjectOptions): s
   const hostLink = join(destinationModules, '@deepseek-ai', 'dsh-desktop-host')
   removeOwnedPath(hostLink)
   linkDirectory(options.hostDir, hostLink)
+  if (options.desktopDir !== undefined) {
+    const manifestPath = join(options.projectDir, 'package.json')
+    const manifest = readManifest(manifestPath)
+    for (const name of Object.keys(desktopCapabilityVersions)) {
+      const destination = join(destinationModules, name)
+      removeOwnedPath(destination)
+      linkDirectory(join(options.desktopDir, 'node_modules', name), destination)
+      names.push(name)
+    }
+    writeFileSync(manifestPath, JSON.stringify({ ...manifest, dependencies: { ...manifest.dependencies, ...desktopCapabilityVersions } }, undefined, 2) + '\n')
+    copyFileSync(join(options.desktopDir, 'resources/workshop/capabilities.yml'), join(options.projectDir, 'capabilities.yml'))
+  }
   const sharedPackages = [...new Set([...names, '@deepseek-ai/dsh', '@deepseek-ai/dsh-desktop-host'])].flatMap((name) => {
     const manifest = readManifest(join(destinationModules, name, 'package.json'))
     return typeof manifest.version === 'string' ? [{ name, version: manifest.version, path: `node_modules/${name}` }] : []

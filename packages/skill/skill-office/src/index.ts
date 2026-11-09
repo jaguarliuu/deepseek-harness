@@ -10,12 +10,15 @@ import z from '@deepseek-ai/schemastery'
 import { BUNDLED_SKILL_RANK, type SkillCandidate, type SkillProvider } from '@deepseek-ai/dsh-skill'
 import { parse as parseYaml } from 'yaml'
 
-const SKILL_NAMES = ['office', 'office-docx', 'office-pptx', 'office-xlsx', 'office-pdf', 'office-render', 'office-recalculate', 'office-export-pdf', 'gov-doc-writing', 'meeting-recap', 'work-report-writer', 'dataset-health-audit', 'data-viz-gen'] as const
+const SKILL_NAMES = ['office', 'office-docx', 'office-pptx', 'office-xlsx', 'office-pdf', 'office-render', 'office-recalculate', 'office-export-pdf'] as const
+const WORKPLACE_SKILL_NAMES = ['gov-doc-writing', 'meeting-recap', 'work-report-writer', 'dataset-health-audit', 'data-viz-gen'] as const
 
 /** Office skill resource location. */
 export interface Config {
   /** Absolute assets directory containing skill folders; defaults to packaged assets. */
   assetRoot?: string
+  /** Register the workplace writing and analysis workflows alongside the Office formats. Defaults to true. */
+  includeWorkplaceSkills?: boolean
   /** Standalone Node executable; defaults to the current executable outside Electron and SEA. */
   node?: string
   /** Absolute LibreOffice Kit CLI entry; false explicitly disables CLI access. */
@@ -25,6 +28,7 @@ export interface Config {
 /** Validated resource configuration. */
 export const Config: z<Config> = z.object({
   assetRoot: z.string().min(1),
+  includeWorkplaceSkills: z.boolean(),
   node: z.string().min(1),
   cli: z.union([z.string().min(1), z.const(false)]),
 })
@@ -69,7 +73,8 @@ function officeRuntime(config: Config): string {
 export function apply(ctx: Context, config: Config = {}): void {
   const assetRoot = config.assetRoot ?? fileURLToPath(new URL('../assets/', import.meta.url))
   if (!isAbsolute(assetRoot)) throw new Error('skill-office: assetRoot must be an absolute directory')
-  const candidates: SkillCandidate[] = SKILL_NAMES.map((skillName) => {
+  const names = config.includeWorkplaceSkills === false ? SKILL_NAMES : [...SKILL_NAMES, ...WORKPLACE_SKILL_NAMES]
+  const candidates: SkillCandidate[] = names.map((skillName) => {
     const directory = join(assetRoot, skillName)
     const path = join(directory, 'SKILL.md')
     const { description } = parseSkill(readFileSync(path, 'utf8'), path)

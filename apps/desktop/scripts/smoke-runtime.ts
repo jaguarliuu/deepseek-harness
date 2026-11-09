@@ -104,9 +104,13 @@ export function apply(ctx) {
   ctx.effect(() => ctx.webServer.register({ kind: 'exact', path: '/desktop-smoke-office-cli',
     async handler(_request, response) {
       try {
-        for (const name of ['office-docx', 'office-xlsx', 'office-pptx', 'office-pdf', 'gov-doc-writing', 'meeting-recap', 'work-report-writer', 'dataset-health-audit', 'data-viz-gen']) {
+        for (const name of ['office-docx', 'office-xlsx', 'office-pptx', 'office-pdf']) {
           if (await ctx.skills.get(name) === undefined) throw new Error('Missing bundled Office skill: ' + name)
         }
+        for (const name of ['gov-doc-writing', 'meeting-recap', 'work-report-writer', 'dataset-health-audit', 'data-viz-gen']) {
+          if (await ctx.skills.get(name) !== undefined) throw new Error('Unexpected bundled workplace skill: ' + name)
+        }
+        if (await ctx.skills.get('ops-workshop-publish') === undefined) throw new Error('Missing bundled Workshop skill')
         const skill = await ctx.skills.get('office-export-pdf')
         const json = skill?.content.match(/\\n(\\{\\n[\\s\\S]+)$/u)?.[1]
         if (json === undefined) throw new Error('Office skill did not supply CLI paths')
@@ -157,6 +161,17 @@ export function apply(ctx) {
     const response = await fetch(new URL('/', ready.url), { headers: { cookie } })
     if (response.status !== 200 || !(await response.text()).includes('<html')) {
       throw new Error('desktop runtime: packaged frontend smoke failed')
+    }
+    const market = await fetch(new URL('/dsh-market/api/v1/capabilities', ready.url), { headers: { cookie } })
+    const marketInfo = market.ok ? await market.json() as { profile?: string; runtime?: string } : undefined
+    if (marketInfo?.profile !== 'desktop' || marketInfo.runtime !== 'desktop') {
+      throw new Error(`desktop runtime: DSH Market Desktop route failed (HTTP ${String(market.status)})`)
+    }
+    const workshop = await fetch(new URL('/assets-hub/rpc', ready.url), {
+      method: 'POST', headers: { cookie, 'content-type': 'application/json' }, body: '{}',
+    })
+    if (workshop.status !== 404 || !(await workshop.text()).includes('UNKNOWN_METHOD')) {
+      throw new Error(`desktop runtime: Workshop route failed (HTTP ${String(workshop.status)})`)
     }
     const pluginResponse = await fetch(new URL('/desktop-smoke', ready.url), { headers: { cookie } })
     if (await pluginResponse.text() !== 'plugin route ready') throw new Error('desktop runtime: plugin HTTP route failed')

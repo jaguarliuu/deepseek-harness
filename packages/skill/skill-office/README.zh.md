@@ -36,6 +36,7 @@ kind: "package-reference"
 | 字段 | 默认值 | 含义 |
 |---|---|---|
 | `assetRoot` | 载体资源或包内 `assets/` | 包含随包技能目录的绝对路径。 |
+| `includeWorkplaceSkills` | `true` | 同时注册五项业务写作与分析技能。 |
 | `node` | 宿主 Node.js | 操作技能使用的独立 Node 可执行程序；打包载体显式提供。 |
 | `cli` | 已安装 Kit CLI | CLI 入口的绝对路径；`false` 禁用操作执行。 |
 

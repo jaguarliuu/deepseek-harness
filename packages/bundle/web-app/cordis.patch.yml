@@ -326,34 +326,41 @@
 
     - id: genui
       name: 'dsh-genui'
+      disabled: !!js "ctx.get('profileContext')?.name === 'desktop'"
       config:
         sectionOrder: 80
         sectionName: 'genui:cards'
 
     - id: screenshot
       name: 'dsh-quick-screenshot'
+      disabled: !!js "ctx.get('profileContext')?.name === 'desktop'"
 
     - id: orderg-x-pages
       name: '@orderg-x/dsh-pages'
+      disabled: !!js "ctx.get('profileContext')?.name === 'desktop'"
 
     - id: knowledge-base
       name: 'dsh-knowledge-base'
+      disabled: !!js "ctx.get('profileContext')?.name === 'desktop'"
       config:
         categories: []
     - id: knowledge-base-web
       name: 'dsh-knowledge-base/web'
+      disabled: !!js "ctx.get('profileContext')?.name === 'desktop'"
       config:
         categories: []
     - id: everything
       name: 'dsh-plugin-everything'
-      disabled: !!js process.platform !== 'win32' || process.arch !== 'x64'
+      disabled: !!js "ctx.get('profileContext')?.name === 'desktop' || process.platform !== 'win32' || process.arch !== 'x64'"
       config:
         autoStart: true
     - id: better-sidebar
       name: 'dsh-better-sidebar'
+      disabled: !!js "ctx.get('profileContext')?.name === 'desktop'"
 
     - id: univer
       name: 'dsh-univer-office'
+      disabled: !!js "ctx.get('profileContext')?.name === 'desktop'"
       config:
         telemetry: false
         resourceDownloads: false
@@ -376,9 +383,11 @@
     # Without a profile-backed Host it reports itself unavailable.
     - id: ui-remote-ops
       name: '@deepseek-ai/dsh-client-ui-remote-ops'
+      disabled: !!js "ctx.get('profileContext')?.name === 'desktop'"
 
     - id: ui-intranet-ai
       name: '@deepseek-ai/dsh-client-ui-intranet-ai'
+      disabled: !!js "ctx.get('profileContext')?.name === 'desktop'"
       config:
         platformOrigin: 'https://25.75.3.1'
         dataPath: !!js "ctx.profileContext.dir + '/intranet-ai'"

@@ -1,5 +1,6 @@
 /** Launch the Desktop profile through the Web application and report its URL to Electron. */
 
+import { existsSync } from 'node:fs'
 import { delimiter, join } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import type { PluginOperationRunId } from '@deepseek-ai/dsh-plugin-manager/diagnostic'
@@ -26,14 +27,21 @@ async function main(): Promise<void> {
   const runtimeDir = process.argv[2] as string
   const projectDir = process.argv[3] as string
   installOfficeEngineResolution(runtimeDir)
-  const installAnchor = join(runtimeDir, 'node_modules', '@deepseek-ai', 'dsh', 'package.json')
+  const capabilities = join(runtimeDir, 'capabilities.yml')
+  const hasCapabilities = existsSync(capabilities)
+  const installAnchor = hasCapabilities
+    ? join(runtimeDir, 'package.json')
+    : join(runtimeDir, 'node_modules', '@deepseek-ai', 'dsh', 'package.json')
   const profile = loadProfileDirectory('dsh', projectDir, installAnchor)
   reportSkippedBundles('dsh', profile)
   const application = runProfile({
     environment: loadLayeredEnv('dsh'),
     profile: 'desktop',
     resolvedProfile: { profile, installAnchor },
-    patchFiles: process.env.DSH_DESKTOP_PET_ROOT === undefined ? [] : [join(process.env.DSH_DESKTOP_PET_ROOT, 'overlay.yml')],
+    patchFiles: [
+      ...hasCapabilities ? [capabilities] : [],
+      ...process.env.DSH_DESKTOP_PET_ROOT === undefined ? [] : [join(process.env.DSH_DESKTOP_PET_ROOT, 'overlay.yml')],
+    ],
     args: ['--no-open', '--host', '127.0.0.1', '--port', '0'],
     ...(process.argv[5] === undefined ? {} : {
       packageManager: {

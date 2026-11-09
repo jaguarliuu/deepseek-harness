@@ -815,6 +815,12 @@ importers:
       cos-nodejs-sdk-v5:
         specifier: 3.0.0
         version: 3.0.0
+      dsh-asset-hub:
+        specifier: file:resources/workshop/dsh-asset-hub-0.3.3.tgz
+        version: file:apps/desktop/resources/workshop/dsh-asset-hub-0.3.3.tgz
+      dshmarket:
+        specifier: 1.73.16
+        version: 1.73.16(@deepseek-ai/cordis@vendor+cordis)
       electron:
         specifier: ^44.7.0
         version: 44.7.0(supports-color@9.4.0)
@@ -23581,6 +23587,11 @@ packages:
     resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
 
+  dsh-asset-hub@file:apps/desktop/resources/workshop/dsh-asset-hub-0.3.3.tgz:
+    resolution: {integrity: sha512-W+igBlfUABpAK+p1Ap0j3z7GXD1ls+ZfGc6PFbl8Xn/GwcHSJUFnuiW5qjxeNqk6weIYWcCfKt3rfY7Ct3BaAw==, tarball: file:apps/desktop/resources/workshop/dsh-asset-hub-0.3.3.tgz}
+    version: 0.3.3
+    engines: {dsh: '>=0.2.0 <0.3.0'}
+
   dsh-better-sidebar@0.28.2:
     resolution: {integrity: sha512-JxtRoCoNA/02VexkInZ1K4+c/1Tvk+DVS01dRfjbGKxWfXGZ6NEyemsdERGOhQ3DsLxOWc4Mj0ol+5s+6V0Egg==}
     engines: {node: '>=20'}
@@ -23655,6 +23666,15 @@ packages:
       '@deepseek-ai/dsh-skill': ^0.1.5-rc.3 || ^0.1.7-rc.1 || ^0.2.0-rc.1 || ^0.2.1-rc.3
       '@deepseek-ai/dsh-tools': ^0.1.5-rc.3 || ^0.1.7-rc.1 || ^0.2.0-rc.1 || ^0.2.1-rc.3
       '@deepseek-ai/schemastery': ^3.18.1
+
+  dshmarket@1.73.16:
+    resolution: {integrity: sha512-pfQuF7p4JWXPDEZ0mqByc7xrv7371N222J/NomsJT958wBSfdaMQR/EZT2JBvMOXbJ91fVUbCoKxMd6yuH+K2g==}
+    peerDependencies:
+      '@deepseek-ai/cordis': ^4.0.1
+      '@deepseek-ai/dsh-settings': ^0.1.0-rc.7 || ^0.1.1-rc.2 || ^0.1.2-alpha.2 || ^0.2.0-rc.1 || ^0.2.1-alpha.3 || ^0.2.1-rc.1
+    peerDependenciesMeta:
+      '@deepseek-ai/dsh-settings':
+        optional: true
 
   dts-resolver@3.0.0:
     resolution: {integrity: sha512-1T1f+z+4tl9XD+m+0HBgWoL/nm0bOIffyWaUuUSBlFg/86IWvfx+wjNaO/ybU0AJzG9/Mi5hBUgGV6zCmWEN7Q==}
@@ -31720,6 +31740,8 @@ snapshots:
 
   dotenv@16.6.1: {}
 
+  dsh-asset-hub@file:apps/desktop/resources/workshop/dsh-asset-hub-0.3.3.tgz: {}
+
   dsh-better-sidebar@0.28.2(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-agent@packages+core+agent)(@deepseek-ai/dsh-client-locale@packages+client+locale)(@deepseek-ai/dsh-client-ui-conversation@packages+client+ui-conversation)(@deepseek-ai/dsh-client-ui-primitives@packages+client+ui-primitives)(@deepseek-ai/dsh-client-ui-settings@packages+client+ui-settings)(@deepseek-ai/dsh-client-ui-sidebar-right@packages+client+ui-sidebar-right)(@deepseek-ai/dsh-client-ui-slots@packages+client+ui-slots)(@deepseek-ai/dsh-host-webserver@packages+host+webserver)(@deepseek-ai/dsh-llm@packages+llm+llm)(@deepseek-ai/dsh-session@packages+core+session)(@deepseek-ai/dsh-settings@packages+settings+settings)(@deepseek-ai/dsh-subagent@packages+subagent+subagent)(@deepseek-ai/dsh-tools@packages+core+tools)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@codemirror/commands': 6.11.1
@@ -31824,6 +31846,13 @@ snapshots:
       - proxy-agent
       - utf-8-validate
       - yauzl
+
+  dshmarket@1.73.16(@deepseek-ai/cordis@vendor+cordis):
+    dependencies:
+      '@deepseek-ai/cordis': link:vendor/cordis
+      '@deepseek-ai/schemastery': link:vendor/schemastery
+      js-yaml: 4.3.2
+      undici: 7.29.1
 
   dts-resolver@3.0.0(oxc-resolver@11.20.0):
     optionalDependencies:

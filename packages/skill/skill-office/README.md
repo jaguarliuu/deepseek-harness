@@ -36,6 +36,7 @@ Mount the skill provider beside the skill registry and `dsh-tool-skill`. The pro
 | Field | Default | Meaning |
 |---|---|---|
 | `assetRoot` | Carrier resources or packaged `assets/` | Absolute directory containing the bundled skill folders. |
+| `includeWorkplaceSkills` | `true` | Also register the five workplace writing and analysis skills. |
 | `node` | Host Node.js | Standalone Node executable for operation skills; packaged carriers supply it explicitly. |
 | `cli` | Installed Kit CLI | Absolute CLI entry; `false` disables operation execution. |
 

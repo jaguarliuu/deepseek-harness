@@ -25,6 +25,7 @@ import {
 } from '../src/core-package-set.ts'
 import { packedManifest, tarballFiles } from '../../../scripts/release/tarball.ts'
 import { desktopTargetPlatform, resolveDesktopBuildTarget, resolveDesktopTargetBuildPaths } from './desktop-build-paths.mjs'
+import { desktopExcludedWorkspacePackages } from './runtime-patch-policy.ts'
 
 const DSH_PACKAGE = '@deepseek-ai/dsh'
 const ROOT_PACKAGES = [DSH_PACKAGE, DESKTOP_HOST_PACKAGE] as const
@@ -75,6 +76,7 @@ export function selectDesktopPackageClosure(
   const workspaceNames = new Set(globSync(workspace.packages.map(pattern => `${pattern}/package.json`), { cwd: REPOSITORY_ROOT })
     .map(path => (JSON.parse(readFileSync(join(REPOSITORY_ROOT, path), 'utf8')) as { name: string }).name))
   const selected = new Map<string, PackedDesktopPackage>()
+  const excluded = new Set<string>(desktopExcludedWorkspacePackages)
   const visit = (name: string): void => {
     if (selected.has(name)) return
     const packed = available.get(name)
@@ -82,6 +84,7 @@ export function selectDesktopPackageClosure(
     selected.set(name, packed)
     for (const section of REQUIRED_DEPENDENCY_SECTIONS) {
       for (const dependency of dependencyNames(packed.manifest, section)) {
+        if (excluded.has(dependency)) continue
         if (available.has(dependency)) visit(dependency)
         else if (workspaceNames.has(dependency)) {
           throw new Error(`desktop package set: ${name} requires unpacked package ${dependency}`)

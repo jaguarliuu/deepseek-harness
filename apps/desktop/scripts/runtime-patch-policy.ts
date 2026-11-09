@@ -6,14 +6,20 @@ export type DesktopRuntimePatch =
   | { scope: 'workspace-only'; reason: string }
   | { scope: 'runtime-only'; path: string; reason: string }
 
+/** Web-only custom capability packages excluded from the Desktop package closure. */
+export const desktopExcludedWorkspacePackages = [
+  '@deepseek-ai/dsh-client-ui-remote-ops',
+  '@deepseek-ai/dsh-client-ui-intranet-ai',
+] as const
+
 /** Every workspace patch requires an explicit Desktop decision; runtime-only entries may add or replace a patch. */
 export const DESKTOP_RUNTIME_PATCHES: Readonly<Record<string, DesktopRuntimePatch>> = {
-  'dsh-univer-office@0.4.0': { scope: 'shared', reason: 'Offline resources, existing Office skills and State Grid preview colors.' },
-  'dsh-genui@0.3.2': { scope: 'shared', reason: 'Authenticated settings and runtime routes with State Grid card colors.' },
-  'dsh-quick-screenshot@1.0.0': { scope: 'shared', reason: 'Capture the renamed Zhiwei Xiao C application window by default.' },
-  '@orderg-x/dsh-pages@0.2.2': { scope: 'shared', reason: 'Local profile data, offline page resources, State Grid colors and disposable tools.' },
-  'dsh-knowledge-base@0.1.5': { scope: 'shared', reason: 'Authenticated local knowledge routes, offline Word parsing and State Grid appearance.' },
-  'dsh-plugin-everything@1.1.0': { scope: 'shared', reason: 'Launch the bundled portable indexer with writable per-user data.' },
+  'dsh-univer-office@0.4.0': { scope: 'workspace-only', reason: 'The Web profile retains this optional plugin.' },
+  'dsh-genui@0.3.2': { scope: 'workspace-only', reason: 'The Web profile retains this optional plugin.' },
+  'dsh-quick-screenshot@1.0.0': { scope: 'workspace-only', reason: 'The Web profile retains this optional plugin.' },
+  '@orderg-x/dsh-pages@0.2.2': { scope: 'workspace-only', reason: 'The Web profile retains this optional plugin.' },
+  'dsh-knowledge-base@0.1.5': { scope: 'workspace-only', reason: 'The Web profile retains this optional plugin.' },
+  'dsh-plugin-everything@1.1.0': { scope: 'workspace-only', reason: 'The Web profile retains this optional plugin.' },
   '@botiverse/oar@0.67.0': { scope: 'workspace-only', reason: 'Patched OAR adapters are embedded in the provider bundle.' },
   '@earendil-works/pi-ai@1.3.0': { scope: 'shared', reason: 'Runtime providers need the streamed argument parsing fix.' },
   '@electron/osx-sign@1.3.3': { scope: 'workspace-only', reason: 'Signing executes on the build host.' },
@@ -30,12 +36,14 @@ export const DESKTOP_RUNTIME_PATCHES: Readonly<Record<string, DesktopRuntimePatc
 
 /** Reviewed Desktop dependency constraints, independent of patch selection. */
 export const DESKTOP_RUNTIME_DEPENDENCY_OVERRIDES: Readonly<Record<string, string>> = {
-  'dsh-knowledge-base>@deepseek-ai/dsh-client-runtime': '-',
+  ...Object.fromEntries(desktopExcludedWorkspacePackages.map(name => [name, '-'])),
+  'dsh-univer-office': '-',
+  'dsh-genui': '-',
+  'dsh-quick-screenshot': '-',
+  '@orderg-x/dsh-pages': '-',
+  'dsh-knowledge-base': '-',
+  'dsh-plugin-everything': '-',
+  'dsh-better-sidebar': '-',
   // The provider declares ^1.3.0; its patch is qualified against 1.3.0.
   '@earendil-works/pi-ai@^1.3.0': '1.3.0',
-}
-
-/** Parser dependencies added by the reviewed knowledge-plugin patch. */
-export const DESKTOP_RUNTIME_PACKAGE_EXTENSIONS = {
-  'dsh-knowledge-base@0.1.5': { dependencies: { mammoth: '1.13.0' } },
 }

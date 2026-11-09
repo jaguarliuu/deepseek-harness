@@ -12,7 +12,7 @@ description: "Desktop 在原生应用中运行 Harness 工作区。本参考文�
 
 桌面端离线内置小 C 的 dsh-pet 插件和透明精灵图。[pet-plugin](pet-plugin/README.zh.md) 记录源码、固定版本和本地适配。桌面构建生成 `./.desktop-build/pet`，electron-builder 将其放到 ASAR 外的 `resources/pet`，并校验复制后的文件清单。Desktop Host 在桌面 profile 中加载相对路径 overlay，辅助进程复用已安装的应用可执行文件，启动不需要访问 GitHub、npm、Python 源或下载 Electron。pet 配置和聊天记录保存在 `$DSH_HOME/zhiwei-xiaoc-pet`，与上游 dsh-pet 配置隔离。默认关闭语音、自动碎碎念、余额查询和生成配图；主动对话使用宿主模型。辅助进程随 Host 退出，卸载会等待其结束。快捷任务、划词交办和任务结果通知保留为独立功能。
 
-Windows x64 打包包含经过审查的 Everything 1.4.1.1032 便携版 ZIP、SDK DLL、随包 Koffi 二进制与许可证。`prepareEverything` 在运行时清单生成前校验官方压缩包的 SHA256；缺失二进制或压缩包字节变化会使打包失败。员工电脑无需下载或本地编译。程序按需启动，设置和索引写入 `$DSH_HOME/everything`，关闭更新检查与网络服务，默认无需提权索引用户目录。已经运行的 Everything 保留其现有索引；全盘 NTFS 索引需要配置相应服务或管理员权限。其他平台禁用此插件。
+桌面端预装工坊（`dsh-asset-hub@0.3.3`）和 DSH Market（`dshmarket@1.73.16`）。两者都随应用交付。工坊目录通过内网平台获取，DSH Market 的社区目录和社区插件依赖所配置网络的访问能力。
 
 ## 概述
 
@@ -111,11 +111,11 @@ electron-builder 只把清单中的 `dependencies` 复制进 `app.asar/node_modu
 
 Windows 签名打包按 PE 文件内容扫描第一方运行时和应用生产依赖，包括没有常规扩展名的文件。最终扫描覆盖整个解包应用。目录链接、格式错误的 `MZ` 文件以及非 PE 的 `.exe`、`.dll` 或 `.pyd` 文件会使打包停止；以 `MZ` 开头的数据文件也会被拒绝，除非包含有效 PE 头。它保留有效的上游签名，并在记录运行时哈希或执行冒烟检查前为未签名代码补签。公钥验签每个进程处理最多 32 个文件，同时最多运行四个进程；硬件令牌签名仍串行执行，每个新签名必须匹配配置的证书且带时间戳。硬件签名或验签失败会停止本轮执行；独立的时间戳请求遵循[有界重试规则](windows-signing/README.zh.md#windows-ev-signing)。electron-builder 只有在验签和逐字节比对通过后，才保留复制后运行时可执行文件的签名。写入发布完成记录前，必须通过最终 PE 签名检查，以及使用全新缓存的 ASAR 载荷和 Host 冒烟检查。开发、仅准备和未签名构建不使用硬件令牌，可能被 Windows 代码完整性策略阻止；任何构建模式都不会关闭该策略。冒烟检查通过不代表兼容所有企业策略。
 
-生产运行时使用 Better Sidebar 的预构建资源，独立安装配置明确禁用其准备脚本，以及 `ssh2` 和 `cpu-features` 的可选构建脚本。SSH 使用 JavaScript 实现，依赖脚本的严格审批检查保持启用。 截图插件归档固定到 Git 提交，暂存为本地运行时依赖前须通过工作区锁文件的 SHA-512 完整性校验；pnpm 仍禁止间接依赖使用外部 URL。
+打包阶段校验工坊压缩包的 SHA-512 后交给 pnpm。桌面运行时仍要求审批依赖构建脚本。
 
 Desktop 携带独立的 Python、Node.js 和 pnpm 分发包。Python 包含 numpy、pandas、python-docx、python-pptx、openpyxl、Pillow、lxml、XlsxWriter 及其完整依赖。`load_workspace_dependencies` 工具首次使用时，将该产物离线安装到 `$DSH_HOME/dsh-runtimes/dsh-primary-runtime`（通常为 `~/.dsh/dsh-runtimes/dsh-primary-runtime`），并返回解释器、pnpm 脚本和库目录的绝对路径，以及记录内置分发包名称与版本的 `pythonDistributions`。版本报告不包含用户自行安装的包。Office 任务默认使用这些库，用户或工作区指令指定其他环境时遵循其要求。pnpm 脚本通过返回的 Node 可执行文件运行。返回的 Node 库目录为随包交付的库预留，不是 pnpm 的全局安装目录。
 
-Desktop 展示精简的 `office` 路由及可具名调用的创作／操作子技能。创作使用内置 Python 库；操作技能调用配置的 Node 和 CLI 路径。技能位于 ASAR 外的 `runtime/office-skills`。渐进加载与限制见 [Office 技能包](../../packages/skill/skill-office/README.zh.md)。
+Desktop 展示精简的 `office` 路由及可具名调用的创作／操作子技能。创作使用内置 Python 库；操作技能调用配置的 Node 和 CLI 路径。技能位于 ASAR 外的 `runtime/office-skills`。渐进加载与限制见 [Office 技能包](../../packages/skill/skill-office/README.zh.md)。 默认目录只注册 Word、Excel、PPT 和 PDF 的工作流程及渲染、重算与导出辅助技能。
 
 该产物随 Desktop 版本发布。`runtime.json` 记录 Desktop 版本、目标平台、顶层解释器和包管理器版本及 Python 分发包版本表，以及所选目标的锁定产物输入与组装格式的摘要。分发包名称按 PEP 503 归一化；名称归一化后重复时，清单会被拒绝。旧 `components` 清单通过归一化继续可读，并保留其原有库版本一致性校验。匹配的安装会被复用；依赖或压缩包变化后，即使 Desktop 版本不变，也会在完整暂存副本完成后替换目录。不含摘要的旧清单会在下次安装时被替换。用户自行添加的 Python 包仅在产物身份一致时保留。目录替换失败时保留之前的安装；解释器仍在运行时，Windows 可能拒绝替换。
 

@@ -3554,13 +3554,15 @@ export interface Config {
 ## `@deepseek-ai/dsh-skill-office`
 
 - `inject`: `skills`
-- `source`: [`packages/skill/skill-office/src/index.ts:16`](../packages/skill/skill-office/src/index.ts)
+- `source`: [`packages/skill/skill-office/src/index.ts:17`](../packages/skill/skill-office/src/index.ts)
 
 ```ts config-catalog
 /** Office skill resource location. */
 export interface Config {
   /** Absolute assets directory containing skill folders; defaults to packaged assets. */
   assetRoot?: string
+  /** Register the workplace writing and analysis workflows alongside the Office formats. Defaults to true. */
+  includeWorkplaceSkills?: boolean
   /** Standalone Node executable; defaults to the current executable outside Electron and SEA. */
   node?: string
   /** Absolute LibreOffice Kit CLI entry; false explicitly disables CLI access. */

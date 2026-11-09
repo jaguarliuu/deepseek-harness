@@ -4,7 +4,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { isAbsolute, join, relative, resolve } from 'node:path'
 import yaml from 'js-yaml'
 import { valid } from 'semver'
-import { DESKTOP_RUNTIME_DEPENDENCY_OVERRIDES, DESKTOP_RUNTIME_PACKAGE_EXTENSIONS, DESKTOP_RUNTIME_PATCHES, type DesktopRuntimePatch } from './runtime-patch-policy.ts'
+import { DESKTOP_RUNTIME_DEPENDENCY_OVERRIDES, DESKTOP_RUNTIME_PATCHES, type DesktopRuntimePatch } from './runtime-patch-policy.ts'
 
 /** Expected patch bytes and package version for one independent installation. */
 export interface PreparedRuntimePatch {
@@ -86,7 +86,6 @@ export function prepareRuntimePatches(
   mkdirSync(join(projectRoot, 'patches'), { recursive: true })
   for (const entry of selected) writeFileSync(join(projectRoot, entry.path), entry.bytes)
   writeFileSync(targetPath, yaml.dump({ ...target, overrides: { ...target.overrides, ...overrides },
-    packageExtensions: DESKTOP_RUNTIME_PACKAGE_EXTENSIONS,
     patchedDependencies: Object.fromEntries(selected.map(entry => [entry.spec, entry.path])), allowUnusedPatches: false }))
   return { patches: selected.map(({ bytes: _bytes, ...entry }) => entry),
     workspaceOnly: Object.entries(policy).filter(([, rule]) => rule.scope === 'workspace-only').map(([spec]) => patchIdentity(spec).name) }
