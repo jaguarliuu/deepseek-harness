@@ -1,7 +1,7 @@
 /** Exercise the packaged pnpm registry client against a private self-signed HTTPS fixture. */
 import { execFile } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { cp, mkdir, mkdtemp, readFile, realpath, rm, writeFile } from 'node:fs/promises'
 import { createServer } from 'node:https'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
@@ -11,7 +11,7 @@ import { c as packTar } from 'tar'
 import { expect, it } from 'vitest'
 import { patchPnpmIntranetTls } from './pnpm-intranet-tls.ts'
 
-it('installs from the internal path and rechecks TLS after redirects and for other paths', async (t) => {
+it('installs a local plugin with an internal proxy tarball and verifies TLS on other routes', async (t) => {
   const root = await mkdtemp(join(tmpdir(), 'xiaoc-pnpm-tls-'))
   t.onTestFinished(() => rm(root, { recursive: true, force: true }))
   const pnpm = join(root, 'pnpm')
@@ -25,11 +25,17 @@ it('installs from the internal path and rechecks TLS after redirects and for oth
     ): { private: string; cert: string }
   }
   const pem = selfsigned.generate([{ name: 'commonName', value: '127.0.0.1' }], { keySize: 2048, algorithm: 'sha256' })
-  const pkg = { name: 'xiaoc-tls-fixture', version: '1.0.0' }
+  const pkg = { name: '@xiaoc/tls-fixture', version: '1.0.0' }
+  const packagePath = '/repository/npm/@xiaoc%2Ftls-fixture'
+  const tarballPath = '/repository/npm-proxy/@xiaoc/tls-fixture/-/tls-fixture-1.0.0.tgz'
   await mkdir(join(root, 'package'))
   await writeFile(join(root, 'package/package.json'), JSON.stringify(pkg))
   await packTar({ cwd: root, file: join(root, 'fixture.tgz'), gzip: true }, ['package'])
   const tarball = await readFile(join(root, 'fixture.tgz'))
+  const plugin = { name: 'xiaoc-local-plugin', version: '1.0.0', dependencies: { [pkg.name]: pkg.version } }
+  const pluginArchive = join(root, 'plugin.tgz')
+  await writeFile(join(root, 'package/package.json'), JSON.stringify(plugin))
+  await packTar({ cwd: root, file: pluginArchive, gzip: true }, ['package'])
   const requests: string[] = []
   let origin = ''
   let redirected = false
@@ -49,10 +55,11 @@ it('installs from the internal path and rechecks TLS after redirects and for oth
       response.writeHead(302, { location: '/other/redirect-target' }).end()
     } else if (path.endsWith('/cross-origin-fixture')) {
       response.writeHead(302, { location: otherOrigin + '/repository/npm/redirect-target' }).end()
-    } else if (path.endsWith('.tgz')) {
+    } else if (path === tarballPath) {
       response.end(tarball)
     } else {
-      const manifest = { ...pkg, dist: { tarball: origin + '/repository/npm/fixture.tgz', integrity: 'sha512-' + createHash('sha512').update(tarball).digest('base64') } }
+      const integrity = 'sha512-' + createHash('sha512').update(tarball).digest('base64')
+      const manifest = { ...pkg, dist: { tarball: origin + tarballPath, integrity } }
       response.writeHead(200, { 'content-type': 'application/json' }).end(JSON.stringify({
         name: pkg.name, 'dist-tags': { latest: pkg.version }, versions: { [pkg.version]: manifest },
         time: { [pkg.version]: '2020-01-01T00:00:00.000Z' },
@@ -81,16 +88,21 @@ it('installs from the internal path and rechecks TLS after redirects and for oth
     CI: 'true', DSH_ZHIWEI_PLUGIN_PNPM: enabled ? '1' : '0',
   } })
 
-  await expect(run('/repository/npm/', ['view', pkg.name, 'version'], false)).rejects.toMatchObject({ stdout: expect.stringMatching(/self.signed certificate/i) })
-  await run('/repository/npm/', ['add', pkg.name, '--ignore-scripts'])
-  expect(requests).toContain('/repository/npm/' + pkg.name)
-  expect(requests).toContain('/repository/npm/fixture.tgz')
-  expect(JSON.parse(await readFile(join(project, 'node_modules', pkg.name, 'package.json'), 'utf8'))).toEqual(pkg)
-  await expect(run('/repository/npm-other/', ['view', pkg.name, 'version'])).rejects.toMatchObject({ stdout: expect.stringMatching(/self.signed certificate/i) })
-  await expect(run('/repository/npm/', ['view', 'redirect-fixture', 'version'])).rejects.toMatchObject({ stdout: expect.stringMatching(/self.signed certificate/i) })
+  const tlsError = { stdout: expect.stringMatching(/self.signed certificate/i) }
+  await expect(run('/repository/npm/', ['view', pkg.name, 'version'], false)).rejects.toMatchObject(tlsError)
+  await run('/repository/npm/', ['add', pluginArchive, '--ignore-scripts'])
+  expect(requests).toContain(packagePath)
+  expect(requests).toContain(tarballPath)
+  const installedPlugin = join(project, 'node_modules', plugin.name, 'package.json')
+  expect(JSON.parse(await readFile(installedPlugin, 'utf8'))).toEqual(plugin)
+  const installedDependency = createRequire(await realpath(installedPlugin)).resolve(pkg.name + '/package.json')
+  expect(JSON.parse(await readFile(installedDependency, 'utf8'))).toEqual(pkg)
+  await expect(run('/repository/npm-other/', ['view', pkg.name, 'version'])).rejects.toMatchObject(tlsError)
+  await expect(run('/repository/npm-proxy/', ['view', pkg.name, 'version'])).rejects.toMatchObject(tlsError)
+  await expect(run('/repository/npm/', ['view', 'redirect-fixture', 'version'])).rejects.toMatchObject(tlsError)
   expect(requests).toContain('/repository/npm/redirect-fixture')
   expect(requests).not.toContain('/other/redirect-target')
-  await expect(run('/repository/npm/', ['view', 'cross-origin-fixture', 'version'])).rejects.toMatchObject({ stdout: expect.stringMatching(/self.signed certificate/i) })
+  await expect(run('/repository/npm/', ['view', 'cross-origin-fixture', 'version'])).rejects.toMatchObject(tlsError)
   expect(requests).toContain('/repository/npm/cross-origin-fixture')
   expect(redirected).toBe(false)
 }, 40000)

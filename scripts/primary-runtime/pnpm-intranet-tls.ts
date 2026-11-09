@@ -27,10 +27,13 @@ export function patchPnpmIntranetTls(directory: string): void {
     [
       'function removeCredentialHeaders(headers) {',
       `function isZhiweiNpmRequest(url) {
-  if (url.origin !== "https://25.75.3.1" || !url.pathname.startsWith("/repository/npm/") || url.username || url.password)
+  if (url.origin !== "https://25.75.3.1" || url.username || url.password)
     return false;
   try {
     const path = decodeURIComponent(url.pathname);
+    const registry = url.pathname.startsWith("/repository/npm/");
+    const proxyTarball = url.pathname.startsWith("/repository/npm-proxy/") && path.endsWith(".tgz");
+    if (!registry && !proxyTarball) return false;
     return !path.includes("%") && !path.includes("\\\\") && !path.split("/").some(segment => segment === "." || segment === "..");
   } catch (error) {
     if (error instanceof URIError) return false;
