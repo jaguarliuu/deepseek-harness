@@ -9,6 +9,13 @@ import type { DesktopHostProcess } from '../src/host-process.ts'
 import type { DesktopWorkshop, WorkshopUpdateRequest } from '../src/workshop.ts'
 import { workshopSeed } from '../src/workshop-seed.ts'
 
+function packageOutput(error: unknown): string {
+  if (error instanceof AggregateError) return error.errors.map(packageOutput).filter(Boolean).join('\n')
+  if (!(error instanceof Error)) return ''
+  if ('stdout' in error && typeof error.stdout === 'string') return error.stdout.trim()
+  return packageOutput(error.cause)
+}
+
 /** Verify offline bootstrap, a stopped-Host upgrade, rollback, and retention of an existing profile.
  * @param home - Isolated Harness home.
  * @param profile - Isolated Desktop profile.
@@ -111,7 +118,8 @@ export async function smokeWorkshop(
     const previousLock = await readFile(lockfile, 'utf8')
     await assert.rejects(workshop.update(await requestUpdate(broken), lifecycle), (error: unknown) => {
       if (error instanceof Error && /previous version was restored/u.test(error.message)) return true
-      throw error
+      const output = packageOutput(error)
+      throw output ? new Error('Workshop rollback package output:\n' + output, { cause: error }) : error
     })
     assert.equal(version, upgraded)
     assert.equal(await readFile(installedManifest, 'utf8'), previous)
