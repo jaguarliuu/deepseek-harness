@@ -28,6 +28,8 @@ import {
   type MenuItemConstructorOptions,
 } from 'electron'
 import { resolveDesktopPaths } from './paths.ts'
+import { DesktopWorkshop, type WorkshopUpdateRequest } from './workshop.ts'
+import { workshopSeed } from './workshop-seed.ts'
 import { DesktopProjectManager } from './project-manager.ts'
 import { DesktopTaskResultBubble } from './task-result-bubble.ts'
 import { DesktopHostFatalError, DesktopHostProcess, DesktopHostUncleanExitError } from './host-process.ts'
@@ -388,6 +390,11 @@ async function main(): Promise<void> {
     : join(process.resourcesPath, 'runtime', 'primary-runtime')
   const activeProject = paths.profile
   const manager = new DesktopProjectManager(paths, resources)
+  const workshop = new DesktopWorkshop(activeProject, resources,
+    development ? join(app.getAppPath(), 'resources', 'workshop', workshopSeed.filename)
+      : join(process.resourcesPath, 'workshop', workshopSeed.filename))
+  let workshopOperation: Promise<void> | undefined
+  let runningWorkshopVersion: string | undefined
   // Dock and Finder launches inherit only launchd's environment; every Host shares one login-shell read.
   const loginShellRead = new AbortController()
   // The probe runs in its own process group, which outlives Desktop unless the read is aborted.
@@ -540,10 +547,11 @@ async function main(): Promise<void> {
           segmentBytes: 256 * 1024, recordBytes: 4096, queuedBytes: 64 * 1024,
         })
         operationJournal.enqueue(JSON.stringify(record))
-      }, (result) => { taskResultBubble.notify(result) })
+      }, (result) => { taskResultBubble.notify(result) }, (request) => { startWorkshopUpdate(request) })
     return {
       start: async () => {
         const ready = await host.start()
+        runningWorkshopVersion = ready.workshopVersion
         const cookie = await authenticateWebHost(ready.url)
         hostCookie = cookie
         hostUrl = ready.url
@@ -608,9 +616,43 @@ async function main(): Promise<void> {
       resolveDragResource: (address: string, signal?: AbortSignal) => host.resolveDragResource(address, signal),
     }
   }, (state) => {
-    if (state.phase === 'error') reportFatal(state.failure, 'host')
+    if (state.phase === 'error' && workshopOperation === undefined) reportFatal(state.failure, 'host')
     else if (!shuttingDown) backendReady = state.phase === 'ready'
   })
+
+  function startWorkshopUpdate(request: WorkshopUpdateRequest): void {
+    if (workshopOperation !== undefined || quitting || shuttingDown || requireCleanStop) return
+    const original = backend.host
+    if (original === undefined) return
+    const operation = Promise.resolve().then(async () => {
+      try {
+        if (await original.updateTasks('lock')) throw new Error('Workshop update requires the current tasks to finish')
+        await workshop.update(request, {
+          stop: () => backend.stop(),
+          start: async () => {
+            runningWorkshopVersion = undefined
+            await backend.start(async () => {})
+            return runningWorkshopVersion
+          },
+          resume: async () => {
+            navigation = undefined
+            await navigateMain(applicationUrl)
+          },
+        })
+      } catch (error) {
+        if (backend.host === original) await original.updateTasks('unlock').catch((cause: unknown) => { console.error(cause) })
+        if (backend.host === undefined) {
+          reportFatal(error, 'main')
+          return
+        }
+        await ordinaryMessageBox({ type: 'error', title: locale.messages.updateFailedTitle,
+          message: error instanceof Error ? error.message : String(error) })
+      }
+    }).catch((error: unknown) => { reportFatal(error, 'main') }).finally(() => {
+      if (workshopOperation === operation) workshopOperation = undefined
+    })
+    workshopOperation = operation
+  }
 
   const updateErrors = new WeakMap<DesktopUpdateState, Promise<void>>()
   const showUpdateFailure = (state: DesktopUpdateState): Promise<void> => {
@@ -681,6 +723,7 @@ async function main(): Promise<void> {
       await navigateMain(applicationUrl)
       await backend.start(async () => {
         await Promise.all([manager.applyRelease(), prepareHostEnvironment()])
+        await workshop.prepare()
       })
       if (backend.host !== undefined) await openInitialWindow()
       if (backend.host !== undefined) updateJournal?.action('workspace-ready')
@@ -705,6 +748,7 @@ async function main(): Promise<void> {
     publishUpdate,
     async () => {
       await commandManager.idle()
+      await workshopOperation
       await workspaceRecovery
       await startup?.catch(() => undefined)
       const host = backend.host
@@ -1537,6 +1581,7 @@ async function main(): Promise<void> {
     }
     if (quitting) return
     event.preventDefault()
+    if (workshopOperation !== undefined) { void workshopOperation.then(() => { app.quit() }); return }
     if (skipQuitConfirmation || sessionEnding) { finishQuit(); return }
     void quitConfirmation.confirm().then((approved) => {
       if (quitting || shellInstallerOwnsQuit) return

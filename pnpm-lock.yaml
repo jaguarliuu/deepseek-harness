@@ -815,9 +815,6 @@ importers:
       cos-nodejs-sdk-v5:
         specifier: 3.0.0
         version: 3.0.0
-      dsh-asset-hub:
-        specifier: file:resources/workshop/dsh-asset-hub-0.3.3.tgz
-        version: file:apps/desktop/resources/workshop/dsh-asset-hub-0.3.3.tgz
       dsh-context:
         specifier: 0.83.0
         version: 0.83.0(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-client-ui-primitives@packages+client+ui-primitives)(@deepseek-ai/dsh-session@packages+core+session)(@deepseek-ai/schemastery@vendor+schemastery)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -851,6 +848,9 @@ importers:
       sharp:
         specifier: 0.35.5
         version: 0.35.5(@types/node@22.20.1)
+      tar:
+        specifier: ^7.5.22
+        version: 7.5.22
       tencentcloud-sdk-nodejs-teo:
         specifier: 4.1.330
         version: 4.1.330(supports-color@9.4.0)
@@ -23587,11 +23587,6 @@ packages:
     resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
 
-  dsh-asset-hub@file:apps/desktop/resources/workshop/dsh-asset-hub-0.3.3.tgz:
-    resolution: {integrity: sha512-W+igBlfUABpAK+p1Ap0j3z7GXD1ls+ZfGc6PFbl8Xn/GwcHSJUFnuiW5qjxeNqk6weIYWcCfKt3rfY7Ct3BaAw==, tarball: file:apps/desktop/resources/workshop/dsh-asset-hub-0.3.3.tgz}
-    version: 0.3.3
-    engines: {dsh: '>=0.2.0 <0.3.0'}
-
   dsh-better-sidebar@0.28.2:
     resolution: {integrity: sha512-JxtRoCoNA/02VexkInZ1K4+c/1Tvk+DVS01dRfjbGKxWfXGZ6NEyemsdERGOhQ3DsLxOWc4Mj0ol+5s+6V0Egg==}
     engines: {node: '>=20'}
@@ -31748,8 +31743,6 @@ snapshots:
       dotenv: 16.6.1
 
   dotenv@16.6.1: {}
-
-  dsh-asset-hub@file:apps/desktop/resources/workshop/dsh-asset-hub-0.3.3.tgz: {}
 
   dsh-better-sidebar@0.28.2(@deepseek-ai/cordis@vendor+cordis)(@deepseek-ai/dsh-agent@packages+core+agent)(@deepseek-ai/dsh-client-locale@packages+client+locale)(@deepseek-ai/dsh-client-ui-conversation@packages+client+ui-conversation)(@deepseek-ai/dsh-client-ui-primitives@packages+client+ui-primitives)(@deepseek-ai/dsh-client-ui-settings@packages+client+ui-settings)(@deepseek-ai/dsh-client-ui-sidebar-right@packages+client+ui-sidebar-right)(@deepseek-ai/dsh-client-ui-slots@packages+client+ui-slots)(@deepseek-ai/dsh-host-webserver@packages+host+webserver)(@deepseek-ai/dsh-llm@packages+llm+llm)(@deepseek-ai/dsh-session@packages+core+session)(@deepseek-ai/dsh-settings@packages+settings+settings)(@deepseek-ai/dsh-subagent@packages+subagent+subagent)(@deepseek-ai/dsh-tools@packages+core+tools)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:

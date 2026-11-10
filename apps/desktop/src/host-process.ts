@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { z } from 'zod'
 import type { PlatformSession } from '@deepseek-ai/dsh-deepseek-account'
 import type { DesktopTaskResult } from './task-result-api.ts'
+import type { WorkshopUpdateRequest } from './workshop.ts'
 import { desktopNodeEnvironment } from './node-environment.ts'
 import { parsePluginOperationRecord, type PluginOperationRecord, type PluginOperationRunId } from '@deepseek-ai/dsh-plugin-manager/diagnostic'
 
@@ -12,6 +13,7 @@ interface ReadyEvent {
   readonly type: 'ready'
   readonly url: string
   readonly injections?: readonly unknown[] | undefined
+  readonly workshopVersion?: string | undefined
 }
 
 interface FatalEvent {
@@ -26,26 +28,27 @@ interface PlatformSessionEvent {
   readonly session: PlatformSession | null
 }
 
-type DesktopHostEvent = (DesktopTaskResult & { readonly type: 'task-result' }) | ReadyEvent | FatalEvent | PlatformSessionEvent | {
-  readonly type: 'starting'
-  readonly runId: PluginOperationRunId
-} | { readonly type: 'shutdown-complete' } | {
-  readonly type: 'file-drag-resource'
-  readonly requestId: number
-  readonly resource: { readonly path: string; readonly sha256: string; readonly size: number } | null
-  readonly error?: string
-} | {
-  readonly type: 'update-tasks'
-  readonly requestId: number
-  readonly active: boolean
-  readonly error?: string
-} | {
-  readonly type: 'quit-inspection'
-  readonly requestId: number
-  readonly activeTasks: boolean
-  readonly scheduledTasks: boolean
-  readonly error?: string
-}
+type DesktopHostEvent = (DesktopTaskResult & { readonly type: 'task-result' }) | ReadyEvent | FatalEvent | PlatformSessionEvent
+  | (WorkshopUpdateRequest & { readonly type: 'workshop-update' }) | {
+    readonly type: 'starting'
+    readonly runId: PluginOperationRunId
+  } | { readonly type: 'shutdown-complete' } | {
+    readonly type: 'file-drag-resource'
+    readonly requestId: number
+    readonly resource: { readonly path: string; readonly sha256: string; readonly size: number } | null
+    readonly error?: string
+  } | {
+    readonly type: 'update-tasks'
+    readonly requestId: number
+    readonly active: boolean
+    readonly error?: string
+  } | {
+    readonly type: 'quit-inspection'
+    readonly requestId: number
+    readonly activeTasks: boolean
+    readonly scheduledTasks: boolean
+    readonly error?: string
+  }
 
 /** Correlated answer to one shell control request. */
 type DesktopHostControlResponse = Extract<DesktopHostEvent, { readonly requestId: number }>
@@ -75,7 +78,9 @@ function isDesktopHostEvent(message: unknown): message is DesktopHostEvent {
     case 'shutdown-complete':
       return true
     case 'ready':
-      return typeof candidate.url === 'string'
+      return typeof candidate.url === 'string' && (candidate.workshopVersion === undefined || typeof candidate.workshopVersion === 'string')
+    case 'workshop-update':
+      return ['archive', 'version', 'assetId'].every(key => typeof candidate[key] === 'string' && candidate[key].length <= 4096)
     case 'platform-session': {
       const session = candidate.session
       if (session === null) return true
@@ -132,6 +137,7 @@ async function exitsWithin(exit: Promise<void>, milliseconds: number): Promise<b
 export interface DesktopHostReady {
   readonly url: string
   readonly injections?: readonly unknown[] | undefined
+  readonly workshopVersion?: string | undefined
 }
 
 /** The child has exited, but task teardown did not finish successfully. */
@@ -190,9 +196,10 @@ export class DesktopHostProcess {
    * @param primaryRuntime - Optional bundled dependency payload; when supplied, missing sibling
    *   `office-skills` resources fail Host startup.
    * @param packageManager - Bundled pnpm entry and Node launcher directory, scoped to package operations.
-   * @param onTaskResult - Live top-level turn outcomes for desktop notifications.
    * @param onPlatformSession - Private credential updates for embedded Platform views.
    * @param onPluginOperation - Optional diagnostic sink; malformed records are ignored without failing the Host.
+   * @param onTaskResult - Live top-level turn outcomes for desktop notifications.
+   * @param onWorkshopUpdate - Private handoff for the stopped-Host Workshop replacement.
    */
   constructor(
     private readonly node: string,
@@ -207,6 +214,7 @@ export class DesktopHostProcess {
     private readonly onPlatformSession?: (session: PlatformSession | null) => void,
     private readonly onPluginOperation?: (record: PluginOperationRecord) => void,
     private readonly onTaskResult?: (result: DesktopTaskResult) => void,
+    private readonly onWorkshopUpdate?: (request: WorkshopUpdateRequest) => void,
   ) {}
 
   /**
@@ -252,7 +260,8 @@ export class DesktopHostProcess {
       }
       if (message.type === 'starting') this.runId = message.runId
       else if (message.type === 'task-result') { if (!this.stopping) this.onTaskResult?.(message) }
-      else if (message.type === 'ready') this.readyResolve({ url: message.url, injections: message.injections })
+      else if (message.type === 'workshop-update') { if (!this.stopping) this.onWorkshopUpdate?.(message) }
+      else if (message.type === 'ready') this.readyResolve({ url: message.url, injections: message.injections, workshopVersion: message.workshopVersion })
       else if (message.type === 'platform-session') this.onPlatformSession?.(message.session)
       else if (message.type === 'shutdown-complete') {
         if (this.stopping) this.shutdownCompleted = true

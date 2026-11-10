@@ -3,12 +3,15 @@
 import { appendFileSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 import { execFile } from 'node:child_process'
 import { promisify } from 'node:util'
 import { fileURLToPath } from 'node:url'
 import { readPrimaryRuntime, workspaceDependencyPaths } from '../../../packages/skill/tool-workspace-dependencies/src/index.ts'
 import { DesktopHostProcess } from '../src/host-process.ts'
+import { DesktopWorkshop, type WorkshopUpdateRequest } from '../src/workshop.ts'
+import { workshopSeed } from '../src/workshop-seed.ts'
+import { smokeWorkshop } from './smoke-workshop.ts'
 import { createPluginProfile } from '../src/project-manager.ts'
 import type { DesktopRuntimeDescriptor } from '../src/runtime-tree.ts'
 
@@ -34,13 +37,23 @@ export async function smokeDesktopRuntime(
     npm_config_userconfig: join(home, 'npmrc'), npm_config_globalconfig: join(home, 'npmrc'),
     npm_config_store_dir: join(home, 'store'), npm_config_enable_global_virtual_store: 'false',
   }
-  const host = new DesktopHostProcess(node, root, profile, undefined, hostEnvironment,
-    undefined, join(resourcesRuntime, 'primary-runtime'),
-    { pnpm: join(resourcesRuntime, 'primary-runtime', 'dependencies', 'pnpm', 'bin', 'pnpm.mjs'), nodeBin: join(resourcesRuntime, 'bin') })
+  const createHost = (onUpdate?: (request: WorkshopUpdateRequest) => void) => new DesktopHostProcess(
+    node, root, profile, undefined, hostEnvironment, undefined, join(resourcesRuntime, 'primary-runtime'),
+    { pnpm: join(resourcesRuntime, 'primary-runtime', 'dependencies', 'pnpm', 'bin', 'pnpm.mjs'), nodeBin: join(resourcesRuntime, 'bin') },
+    undefined, undefined, undefined, onUpdate)
+  const host = createHost()
   let timer: ReturnType<typeof setTimeout> | undefined
   try {
     writeFileSync(join(home, 'npmrc'), '')
     createPluginProfile(profile)
+    const seed = basename(dirname(root)) === 'app.asar'
+      ? join(dirname(resourcesRuntime), 'workshop', workshopSeed.filename)
+      : fileURLToPath(new URL('../resources/workshop/' + workshopSeed.filename, import.meta.url))
+    const workshop = new DesktopWorkshop(profile, { node, dsh: root,
+      pnpm: join(resourcesRuntime, 'primary-runtime', 'dependencies', 'pnpm', 'bin', 'pnpm.mjs'), nodeBin: join(resourcesRuntime, 'bin') },
+    seed, hostEnvironment)
+    await workshop.prepare()
+    await smokeWorkshop(home, profile, seed, workshop, createHost)
     const pluginName = 'desktop-runtime-smoke-plugin'
     const plugin = join(home, pluginName)
     mkdirSync(plugin, { recursive: true })
@@ -161,17 +174,18 @@ export function apply(ctx) {
       timer = setTimeout(() => { reject(new Error('desktop runtime: Host readiness exceeded 120 seconds')) }, 120_000)
     })])
     clearTimeout(timer)
+    if (ready.workshopVersion === undefined) throw new Error('desktop runtime: Workshop seed did not activate')
     const login = await fetch(ready.url, { redirect: 'manual' })
     const cookie = login.headers.getSetCookie().map(value => value.split(';')[0]).join('; ')
     const response = await fetch(new URL('/', ready.url), { headers: { cookie } })
     if (response.status !== 200 || !(await response.text()).includes('<html')) {
       throw new Error('desktop runtime: packaged frontend smoke failed')
     }
-    const workshop = await fetch(new URL('/assets-hub/rpc', ready.url), {
+    const workshopRoute = await fetch(new URL('/assets-hub/rpc', ready.url), {
       method: 'POST', headers: { cookie, 'content-type': 'application/json' }, body: '{}',
     })
-    if (workshop.status !== 404 || !(await workshop.text()).includes('UNKNOWN_METHOD')) {
-      throw new Error(`desktop runtime: Workshop route failed (HTTP ${String(workshop.status)})`)
+    if (workshopRoute.status !== 404 || !(await workshopRoute.text()).includes('UNKNOWN_METHOD')) {
+      throw new Error(`desktop runtime: Workshop route failed (HTTP ${String(workshopRoute.status)})`)
     }
     const pluginResponse = await fetch(new URL('/desktop-smoke', ready.url), { headers: { cookie } })
     if (await pluginResponse.text() !== 'plugin route ready') throw new Error('desktop runtime: plugin HTTP route failed')

@@ -12,7 +12,7 @@ description: "Desktop 在原生应用中运行 Harness 工作区。本参考文�
 
 桌面端离线内置小 C 的 dsh-pet 插件和透明精灵图。[pet-plugin](pet-plugin/README.zh.md) 记录源码、固定版本和本地适配。桌面构建生成 `./.desktop-build/pet`，electron-builder 将其放到 ASAR 外的 `resources/pet`，并校验复制后的文件清单。Desktop Host 在桌面 profile 中加载相对路径 overlay，辅助进程复用已安装的应用可执行文件，启动不需要访问 GitHub、npm、Python 源或下载 Electron。pet 配置和聊天记录保存在 `$DSH_HOME/zhiwei-xiaoc-pet`，与上游 dsh-pet 配置隔离。默认关闭语音、自动碎碎念、余额查询和生成配图；主动对话使用宿主模型。辅助进程随 Host 退出，卸载会等待其结束。快捷任务、划词交办和任务结果通知保留为独立功能。
 
-桌面端预装工坊（`dsh-asset-hub@0.3.3`）、Better Sidebar（`dsh-better-sidebar@0.28.2`）、上下文洞察（`dsh-context@0.83.0`）及桌宠。工坊目录来自内网平台。
+桌面端预装工坊（`dsh-asset-hub@0.3.3`）、Better Sidebar（`dsh-better-sidebar@0.28.2`）、上下文洞察（`dsh-context@0.83.0`）及桌宠。首次启动时，桌面端将工坊离线安装到用户配置中。已有工坊的版本、启用状态和设置保留。工坊目录来自内网平台。
 
 ## 概述
 
@@ -111,7 +111,7 @@ electron-builder 只把清单中的 `dependencies` 复制进 `app.asar/node_modu
 
 Windows 签名打包按 PE 文件内容扫描第一方运行时和应用生产依赖，包括没有常规扩展名的文件。最终扫描覆盖整个解包应用。目录链接、格式错误的 `MZ` 文件以及非 PE 的 `.exe`、`.dll` 或 `.pyd` 文件会使打包停止；以 `MZ` 开头的数据文件也会被拒绝，除非包含有效 PE 头。它保留有效的上游签名，并在记录运行时哈希或执行冒烟检查前为未签名代码补签。公钥验签每个进程处理最多 32 个文件，同时最多运行四个进程；硬件令牌签名仍串行执行，每个新签名必须匹配配置的证书且带时间戳。硬件签名或验签失败会停止本轮执行；独立的时间戳请求遵循[有界重试规则](windows-signing/README.zh.md#windows-ev-signing)。electron-builder 只有在验签和逐字节比对通过后，才保留复制后运行时可执行文件的签名。写入发布完成记录前，必须通过最终 PE 签名检查，以及使用全新缓存的 ASAR 载荷和 Host 冒烟检查。开发、仅准备和未签名构建不使用硬件令牌，可能被 Windows 代码完整性策略阻止；任何构建模式都不会关闭该策略。冒烟检查通过不代表兼容所有企业策略。
 
-打包阶段校验工坊压缩包的 SHA-512 后交给 pnpm。桌面运行时仍要求审批依赖构建脚本。Electron 归档和缓存使用固定版本的 npm 包自带 SHA-256 校验。遇到 HTTP 502、503 或 504 时先重试源站一次，再尝试 npm 镜像，两处使用同一份校验值。Windows 安装器工具从官方 electron-builder-binaries 仓库下载失败时，也会在网关错误重试耗尽后尝试 npm 镜像，两处都必须通过工具校验。
+打包和首次启动时都校验工坊种子包的 SHA-512。桌面端将种子包复制到用户配置目录，再使用内置 pnpm 离线安装。从内网目录升级工坊时，桌面端先停止 Host，再替换插件。新版工坊激活失败时，桌面端恢复旧配置并重启 Host。桌面运行时仍要求审批依赖构建脚本。Electron 归档和缓存使用固定版本的 npm 包自带 SHA-256 校验。遇到 HTTP 502、503 或 504 时先重试源站一次，再尝试 npm 镜像，两处使用同一份校验值。Windows 安装器工具从官方 electron-builder-binaries 仓库下载失败时，也会在网关错误重试耗尽后尝试 npm 镜像，两处都必须通过工具校验。
 
 Desktop 携带独立的 Python、Node.js 和 pnpm 分发包。Python 包含 numpy、pandas、python-docx、python-pptx、openpyxl、Pillow、lxml、XlsxWriter 及其完整依赖。`load_workspace_dependencies` 工具首次使用时，将该产物离线安装到 `$DSH_HOME/dsh-runtimes/dsh-primary-runtime`（通常为 `~/.dsh/dsh-runtimes/dsh-primary-runtime`），并返回解释器、pnpm 脚本和库目录的绝对路径，以及记录内置分发包名称与版本的 `pythonDistributions`。版本报告不包含用户自行安装的包。Office 任务默认使用这些库，用户或工作区指令指定其他环境时遵循其要求。pnpm 脚本通过返回的 Node 可执行文件运行。返回的 Node 库目录为随包交付的库预留，不是 pnpm 的全局安装目录。
 

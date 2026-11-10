@@ -9,7 +9,7 @@ English | [中文](guide.zh.md)
 
 ## Change
 
-Desktop preinstalls Workshop, Better Sidebar and Context alongside the desktop pet and the Word, Excel, PowerPoint and PDF workflows. The former optional plugins and workplace writing and analysis skills are no longer part of the default Desktop catalog.
+Desktop preinstalls Workshop, Better Sidebar and Context alongside the desktop pet and the Word, Excel, PowerPoint and PDF workflows. The former optional plugins and workplace writing and analysis skills are no longer part of the default Desktop catalog. Desktop installs the bundled Workshop archive offline on first launch and preserves existing Workshop versions and settings. Workshop can update independently through its internal catalog. Desktop restores the previous version if activation fails.
 
 ## Migration
 

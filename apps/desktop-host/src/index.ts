@@ -1,6 +1,6 @@
 /** Launch the Desktop profile through the Web application and report its URL to Electron. */
 
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { delimiter, join } from 'node:path'
 import { randomUUID } from 'node:crypto'
 import type { PluginOperationRunId } from '@deepseek-ai/dsh-plugin-manager/diagnostic'
@@ -19,6 +19,7 @@ import { installDesktopQuitInspection } from './quit-inspection.ts'
 import { installDesktopTaskResults } from './task-results.ts'
 import { installPlatformSessionPublisher } from './platform-session.ts'
 import { installOfficeEngineResolution } from './office-engine.ts'
+import { installWorkshopUpdateHandoff } from './workshop-update.ts'
 import { installOperationDiagnostics } from './operation-diagnostics.ts'
 
 async function main(): Promise<void> {
@@ -32,6 +33,7 @@ async function main(): Promise<void> {
   const installAnchor = hasCapabilities
     ? join(runtimeDir, 'package.json')
     : join(runtimeDir, 'node_modules', '@deepseek-ai', 'dsh', 'package.json')
+  const workshopHandoff = installWorkshopUpdateHandoff(projectDir)
   const profile = loadProfileDirectory('dsh', projectDir, installAnchor)
   reportSkippedBundles('dsh', profile)
   const application = runProfile({
@@ -138,6 +140,10 @@ async function main(): Promise<void> {
   })
   process.once('disconnect', () => { void stop() })
   const { ctx } = await application
+  ctx.provide('desktopWorkshopUpdate', async (request) => {
+    if (stopping !== undefined || !process.connected) throw new Error('Desktop Workshop update is unavailable')
+    await send({ type: 'workshop-update', ...request })
+  })
   installOperationDiagnostics(ctx, record => send({ type: 'plugin-operation', record }), 32, runId)
   control.updateTasks = installDesktopUpdateTaskControl(ctx)
   control.quitInspection = installDesktopQuitInspection(ctx)
@@ -155,7 +161,12 @@ async function main(): Promise<void> {
     if (process.connected) process.send?.({ type: 'platform-session', session })
   })
   const url = ctx.connection.authenticatedUrl(`${ctx.webServer.protocol}//127.0.0.1:${String(ctx.webServer.port)}`)
-  if (process.connected) process.send?.({ type: 'ready', url, injections: ctx.webServer.collectIndexInjections(ctx.connection.browserPeer) }, (error) => { if (error !== null) console.error(error) })
+  const workshopVersion = workshopHandoff() && [...ctx.loader.entries()].some(entry =>
+    entry.options.name === 'dsh-asset-hub' && entry.fiber !== undefined)
+    ? (JSON.parse(readFileSync(join(projectDir, 'node_modules', 'dsh-asset-hub', 'package.json'), 'utf8')) as { version: string }).version
+    : undefined
+  if (process.connected) process.send?.({ type: 'ready', url, workshopVersion,
+    injections: ctx.webServer.collectIndexInjections(ctx.connection.browserPeer) }, (error) => { if (error !== null) console.error(error) })
 }
 
 if (import.meta.main) {
