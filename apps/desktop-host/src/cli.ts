@@ -1,6 +1,8 @@
 /** Public dsh commands using the immutable runtime carried by the Desktop installation. */
 
+import { realpath } from 'node:fs/promises'
 import { delimiter, dirname, join, resolve } from 'node:path'
+import { resolveDshHome } from '@deepseek-ai/dsh-home-paths'
 import { runCli } from '@deepseek-ai/dsh/lib/bin.js'
 import { installOfficeEngineResolution, runtimeArchivePath } from './office-engine.ts'
 
@@ -11,6 +13,13 @@ import { installOfficeEngineResolution, runtimeArchivePath } from './office-engi
  * @returns Completion of the selected CLI command; profile plugins own their process lifetime.
  */
 export async function runDesktopCli(runtimeDir: string, supportDir: string): Promise<void> {
+  if (process.platform === 'win32') {
+    try { process.env.DSH_HOME = await realpath(resolveDshHome()) }
+    catch (error) {
+      // A CLI invocation can precede first launch. The profile command owns initialization.
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+    }
+  }
   installOfficeEngineResolution(runtimeDir)
   await runCli({
     manageDesktopProfile: true,

@@ -8,7 +8,7 @@ import { configurationFailure, channelSaveFailure, configurationMessage } from '
 import type { DesktopChannelState, DesktopChannelChangeResult } from '@deepseek-ai/dsh-client-ui-settings-general/types'
 import { DesktopUpdateSettings } from './update-settings.ts'
 import { isDesktopUpdateChannel } from './settings-file.ts'
-import { access, readFile, writeFile } from 'node:fs/promises'
+import { access, mkdir, readFile, realpath, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
@@ -27,6 +27,7 @@ import {
   type IpcMainInvokeEvent,
   type MenuItemConstructorOptions,
 } from 'electron'
+import { resolveDshHome } from '@deepseek-ai/dsh-home-paths'
 import { resolveDesktopPaths } from './paths.ts'
 import { DesktopWorkshop, type WorkshopUpdateRequest } from './workshop.ts'
 import { workshopSeed } from './workshop-seed.ts'
@@ -383,7 +384,10 @@ async function main(): Promise<void> {
   const journalDirectory = process.env.DSH_DESKTOP_UPDATE_JOURNAL_DIR
   const updateJournal = journalDirectory === undefined ? undefined : new DesktopUpdateJournal(journalDirectory, app.getVersion())
   const resources = runtimeResources()
-  const paths = resolveDesktopPaths()
+  const configuredHome = resolveDshHome()
+  await mkdir(configuredHome, { recursive: true, mode: 0o700 })
+  const home = await realpath(configuredHome)
+  const paths = resolveDesktopPaths(home)
   const development = !app.isPackaged
   const primaryRuntime = development
     ? developmentPrimaryRuntime()
@@ -538,7 +542,7 @@ async function main(): Promise<void> {
   const backend = new DesktopBackendController((onFailure) => {
     const hostInspectPort = developmentHostInspectPort(development)
     const host = new DesktopHostProcess(resources.node, resources.dsh, activeProject,
-      hostInspectPort, { ...hostEnvironment, DSH_CLIENT_VERSION: desktopClientVersion(),
+      hostInspectPort, { ...hostEnvironment, DSH_HOME: home, DSH_CLIENT_VERSION: desktopClientVersion(),
         DSH_DESKTOP_PET_ROOT: development ? join(app.getAppPath(), '.desktop-build', 'pet') : join(process.resourcesPath, 'pet'),
         DSH_PET_ELECTRON_PATH: process.execPath }, onFailure,
       primaryRuntime,

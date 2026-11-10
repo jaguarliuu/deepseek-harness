@@ -84,11 +84,12 @@ export class DesktopWorkshop {
   }
 
   private async command(args: string[]): Promise<void> {
-    const profile = await realpath(this.profile)
+    const home = await realpath(this.home)
+    const profile = join(home, 'profiles', 'desktop')
     const cli = join(this.runtime.dsh, 'node_modules', '@deepseek-ai', 'dsh-desktop-host', 'lib', 'cli.js')
     await promisify(execFile)(this.runtime.node, ['--expose-internals', cli, 'plugin', '--profile', 'desktop', ...args], {
       cwd: profile, windowsHide: true, timeout: 120_000, maxBuffer: 2 * 1024 * 1024,
-      env: { ...desktopNodeEnvironment(this.runtime.node, this.runtime.nodeBin, this.environment), DSH_HOME: dirname(dirname(profile)),
+      env: { ...desktopNodeEnvironment(this.runtime.node, this.runtime.nodeBin, this.environment), DSH_HOME: home,
         DSH_DESKTOP_PNPM_ENTRY: this.runtime.pnpm, DSH_DESKTOP_NODE_BIN: this.runtime.nodeBin },
     })
   }
