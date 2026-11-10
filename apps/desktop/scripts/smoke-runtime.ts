@@ -114,6 +114,40 @@ export function apply(ctx) {
         response.end(inspect(error, { depth: 5 }))
       }
     } }))
+  ctx.effect(() => ctx.webServer.register({ kind: 'exact', path: '/desktop-smoke-sources',
+    async handler(request, response) {
+      try {
+        if (request.method === 'POST') {
+          await ctx.settings.mutate('plugin-manager', [{ op: 'set', path: ['registry'], value: 'https://npm.example.invalid/' }])
+          await ctx.settings.mutate('subprocess', [{ op: 'set', path: ['environment', 'PIP_INDEX_URL'], value: 'https://pip.example.invalid/simple/' }])
+        } else if (request.method === 'DELETE') {
+          await ctx.settings.mutate('plugin-manager', [{ op: 'unset', path: ['registry'] }])
+          await ctx.settings.mutate('subprocess', [{ op: 'unset', path: ['environment', 'PIP_INDEX_URL'] }])
+        }
+        const { registry, fallbackRegistries } = await ctx.pluginManager.registries()
+        const python = ctx.subprocess.spawn({
+          argv: [${JSON.stringify(dependencies.python)}, '-I', '-B', '-c',
+            'import json, os; print(json.dumps([os.environ.get("PIP_INDEX_URL"), os.environ.get("PIP_TRUSTED_HOST")]))'],
+          cwd: ${JSON.stringify(home)},
+          signal: AbortSignal.timeout(15_000),
+          stdio: { stdin: 'ignore', stdout: { maxBytes: 4096 }, stderr: { maxBytes: 4096 } },
+          graceMs: 200,
+        })
+        const result = await python.done
+        await python.waitForExit()
+        if (result.exitCode !== 0) throw new Error('Python environment check failed')
+        const pip = JSON.parse(python.collected.stdout.readFrom(0).text)
+        const settings = ctx.settings.describe({ redactSecrets: true })
+        response.end(JSON.stringify({
+          registry, fallbackRegistries, pip,
+          npmSetting: settings.find(row => row.ns === 'plugin-manager')?.value?.registry,
+          pipSetting: settings.find(row => row.ns === 'subprocess')?.value?.environment?.PIP_INDEX_URL,
+        }))
+      } catch (error) {
+        response.statusCode = 500
+        response.end(inspect(error, { depth: 5 }))
+      }
+    } }))
   ctx.effect(() => ctx.webServer.register({ kind: 'exact', path: '/desktop-smoke-office-cli',
     async handler(_request, response) {
       try {
@@ -160,7 +194,7 @@ export function apply(ctx) {
   }
 }
 `)
-    writeFileSync(join(plugin, 'bundle.yml'), '- insert:\n    - id: desktop-runtime-smoke-plugin\n      name: desktop-runtime-smoke-plugin\n      inject: [webServer, officeToPdf, skills, pluginManager, loader]\n')
+    writeFileSync(join(plugin, 'bundle.yml'), '- insert:\n    - id: desktop-runtime-smoke-plugin\n      name: desktop-runtime-smoke-plugin\n      inject: [webServer, officeToPdf, skills, pluginManager, loader, subprocess, settings]\n')
     cpSync(plugin, join(profile, 'node_modules', pluginName), { recursive: true })
     const manifest = JSON.parse(readFileSync(join(profile, 'package.json'), 'utf8')) as {
       dependencies?: Record<string, string>
@@ -189,6 +223,22 @@ export function apply(ctx) {
     }
     const pluginResponse = await fetch(new URL('/desktop-smoke', ready.url), { headers: { cookie } })
     if (await pluginResponse.text() !== 'plugin route ready') throw new Error('desktop runtime: plugin HTTP route failed')
+    const checkSources = async (method: string, npm: string, pip: string): Promise<void> => {
+      const response = await fetch(new URL('/desktop-smoke-sources', ready.url), {
+        method, headers: { cookie }, signal: AbortSignal.timeout(30_000),
+      })
+      const body = await response.text()
+      const expected = { registry: npm, fallbackRegistries: [], pip: [pip, '25.75.3.1'], npmSetting: npm, pipSetting: pip }
+      if (!response.ok || JSON.stringify(JSON.parse(body)) !== JSON.stringify(expected)) {
+        throw new Error(`desktop runtime: intranet sources ${method} failed: ${body}`)
+      }
+    }
+    const npm = 'https://25.75.3.1/repository/npm/'
+    const pip = 'https://25.75.3.1/repository/pypi/simple'
+    await checkSources('GET', npm, pip)
+    await checkSources('POST', 'https://npm.example.invalid/', 'https://pip.example.invalid/simple/')
+    await checkSources('DELETE', npm, pip)
+    console.log('desktop runtime: intranet package source defaults, overrides and reset passed')
     const installation = await fetch(new URL('/desktop-smoke-install', ready.url), {
       headers: { cookie }, signal: AbortSignal.timeout(120_000),
     })

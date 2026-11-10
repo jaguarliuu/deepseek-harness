@@ -253,6 +253,8 @@ export interface RunProfileOptions {
   resolvedProfile?: ResolvedProfileRuntime | undefined
   /** Shipped template that replaces the named profile before boot. */
   fromDefaultProfile?: string | undefined
+  /** Application defaults below the saved profile and home patches. */
+  defaultPatches?: ProfileContext['defaultPatches']
   /** `--patch` overlay paths, in argv order. */
   patchFiles: readonly string[]
   /** The invocation's inner arguments, handed to the tree through `ctx.cmdlineArgs`. */
@@ -318,7 +320,7 @@ export async function runProfile(options: RunProfileOptions): Promise<{ ctx: Con
       installAnchor: options.resolvedProfile?.installAnchor ?? INSTALL_ANCHOR,
       startedBundles: composed.profile.layers.map(layer => layer.packageName),
       cwd: process.cwd(), home: resolveDshHome(),
-      overlays: composed.overlays, telemetryDisabledEnv: process.env.DSH_TELEMETRY_DISABLED,
+      defaultPatches: options.defaultPatches, overlays: composed.overlays, telemetryDisabledEnv: process.env.DSH_TELEMETRY_DISABLED,
     }
     const ctx = await boot(NAME, rootConfig, readProfilePatches(NAME, profileContext, composed.profile), async (hostCtx) => {
       app.current = hostCtx

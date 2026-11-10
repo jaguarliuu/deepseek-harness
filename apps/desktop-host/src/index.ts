@@ -40,6 +40,14 @@ async function main(): Promise<void> {
     environment: loadLayeredEnv('dsh'),
     profile: 'desktop',
     resolvedProfile: { profile, installAnchor },
+    defaultPatches: [
+      { id: 'plugin-manager', config: { registry: 'https://25.75.3.1/repository/npm/', fallbackRegistries: [] } },
+      { id: 'subprocess', config: { environment: {
+        PIP_INDEX_URL: 'https://25.75.3.1/repository/pypi/simple',
+        PIP_TRUSTED_HOST: '25.75.3.1',
+      } } },
+      { id: 'ui-plugin-manager', config: { registryProbeEnabled: false } },
+    ],
     patchFiles: [
       ...hasCapabilities ? [capabilities] : [],
       ...process.env.DSH_DESKTOP_PET_ROOT === undefined ? [] : [join(process.env.DSH_DESKTOP_PET_ROOT, 'overlay.yml')],

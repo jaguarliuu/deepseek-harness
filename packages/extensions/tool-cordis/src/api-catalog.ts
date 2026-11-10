@@ -2530,6 +2530,11 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
         parameters: [],
       },
       {
+        signature: 'readonly defaultPatches?: readonly PatchOptions[] | undefined',
+        description: 'Application defaults applied after bundles and before saved profile or home configuration.',
+        parameters: [],
+      },
+      {
         signature: 'readonly overlays: readonly PatchOptions[]',
         description: 'Parsed command-line overlays, applied above profile and home patches.',
         parameters: [],

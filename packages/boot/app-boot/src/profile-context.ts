@@ -23,6 +23,8 @@ export interface ProfileContext {
   readonly home: string
   /** Bundle packages used to start this process, before any persisted edits. */
   readonly startedBundles: readonly string[]
+  /** Application defaults applied after bundles and before saved profile or home configuration. */
+  readonly defaultPatches?: readonly PatchOptions[] | undefined
   /** Parsed command-line overlays, applied above profile and home patches. */
   readonly overlays: readonly PatchOptions[]
   /** Launch-time DSH_TELEMETRY_DISABLED value; any non-empty value opts out. */
@@ -54,7 +56,7 @@ export function resolveTelemetryPatch(disabledEnv: string | undefined, hasRow: b
   return { id: TELEMETRY_ROW_ID, disabled: true }
 }
 
-/** Read the selected bundles' patches, which apply before the profile patch file.
+/** Read bundle and application defaults, which apply before the profile patch file.
  * @param binName Diagnostic prefix for malformed or missing configuration.
  * @param context Data supplied by the profile launcher.
  * @param initialProfile Already loaded startup profile; omitted reads the current files.
@@ -62,7 +64,7 @@ export function resolveTelemetryPatch(disabledEnv: string | undefined, hasRow: b
  */
 export function readBundlePatches(binName: string, context: ProfileContext, initialProfile?: Profile): PatchOptions[] {
   const profile = initialProfile ?? loadProfileDirectory(binName, context.dir, context.installAnchor, { userLayer: false })
-  return profile.layers.flatMap(layer => layer.patches)
+  return [...profile.layers.flatMap(layer => layer.patches), ...context.defaultPatches ?? []]
 }
 
 /** Read current bundle and user layers with the launch-time overlays.
