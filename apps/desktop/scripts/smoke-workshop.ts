@@ -109,8 +109,10 @@ export async function smokeWorkshop(
     const lockfile = join(profile, 'pnpm-lock.yaml')
     const previous = await readFile(installedManifest, 'utf8')
     const previousLock = await readFile(lockfile, 'utf8')
-    await assert.rejects(workshop.update(await requestUpdate(broken), lifecycle),
-      /previous version was restored/u)
+    await assert.rejects(workshop.update(await requestUpdate(broken), lifecycle), (error: unknown) => {
+      if (error instanceof Error && /previous version was restored/u.test(error.message)) return true
+      throw error
+    })
     assert.equal(version, upgraded)
     assert.equal(await readFile(installedManifest, 'utf8'), previous)
     assert.equal(await readFile(lockfile, 'utf8'), previousLock)
