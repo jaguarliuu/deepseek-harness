@@ -116,6 +116,8 @@ export async function smokeWorkshop(
     const lockfile = join(profile, 'pnpm-lock.yaml')
     const previous = await readFile(installedManifest, 'utf8')
     const previousLock = await readFile(lockfile, 'utf8')
+    const dependency = (JSON.parse(previous) as { dependencies: Record<string, string> }).dependencies[workshopSeed.name]
+    assert.match(dependency ?? '', /^file:(?:\.\/)?\.workshop\/dsh-asset-hub-0\.3\.5\.tgz$/u)
     await assert.rejects(workshop.update(await requestUpdate(broken), lifecycle), (error: unknown) => {
       if (error instanceof Error && /previous version was restored/u.test(error.message)) return true
       const output = packageOutput(error)

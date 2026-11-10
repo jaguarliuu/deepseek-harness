@@ -84,12 +84,17 @@ export class DesktopWorkshop {
   }
 
   private async command(args: string[]): Promise<void> {
+    const profile = await realpath(this.profile)
     const cli = join(this.runtime.dsh, 'node_modules', '@deepseek-ai', 'dsh-desktop-host', 'lib', 'cli.js')
     await promisify(execFile)(this.runtime.node, ['--expose-internals', cli, 'plugin', '--profile', 'desktop', ...args], {
-      cwd: this.profile, windowsHide: true, timeout: 120_000, maxBuffer: 2 * 1024 * 1024,
-      env: { ...desktopNodeEnvironment(this.runtime.node, this.runtime.nodeBin, this.environment), DSH_HOME: this.home,
+      cwd: profile, windowsHide: true, timeout: 120_000, maxBuffer: 2 * 1024 * 1024,
+      env: { ...desktopNodeEnvironment(this.runtime.node, this.runtime.nodeBin, this.environment), DSH_HOME: dirname(dirname(profile)),
         DSH_DESKTOP_PNPM_ENTRY: this.runtime.pnpm, DSH_DESKTOP_NODE_BIN: this.runtime.nodeBin },
     })
+  }
+
+  private packageSpec(archive: string): string {
+    return 'file:' + relative(this.profile, archive).split(sep).join('/')
   }
 
   private async installed(): Promise<string | undefined> {
@@ -132,7 +137,7 @@ export class DesktopWorkshop {
       await writeFileAtomic(seed, bytes, { mode: 0o600 })
       await this.begin()
       try {
-        await this.command(['add', seed, '--offline', '--ignore-scripts', '--save-exact'])
+        await this.command(['add', this.packageSpec(seed), '--offline', '--ignore-scripts', '--save-exact'])
         if (await this.installed() !== workshopSeed.version) throw new Error('Workshop seed did not install its expected version')
         await rm(this.journal)
       } catch (error) {
@@ -170,7 +175,7 @@ export class DesktopWorkshop {
       await lifecycle.stop()
       try {
         await this.begin()
-        await this.command(['add', staged, '--ignore-scripts', '--save-exact'])
+        await this.command(['add', this.packageSpec(staged), '--ignore-scripts', '--save-exact'])
         if (await this.installed() !== request.version || await lifecycle.start() !== request.version) {
           throw new Error('The new Desktop Host did not activate the requested Workshop version')
         }
