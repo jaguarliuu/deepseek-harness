@@ -887,6 +887,9 @@ importers:
       '@deepseek-ai/dsh-deepseek-account':
         specifier: workspace:*
         version: link:../../packages/credentials/deepseek-account
+      '@deepseek-ai/dsh-home-paths':
+        specifier: workspace:*
+        version: link:../../packages/util/home-paths
       '@deepseek-ai/dsh-host-webserver':
         specifier: workspace:*
         version: link:../../packages/host/webserver
