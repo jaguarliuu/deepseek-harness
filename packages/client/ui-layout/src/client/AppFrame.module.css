@@ -127,11 +127,9 @@
 
 /* macOS Reduce Transparency: the OS flattens the window's vibrancy layer to a
    solid grey, so the thin tint and washes read washed-out over it. Replace
-   them with a 90%-opaque fill of the same token in both themes (the dark
-   selector repeats so this outranks its thinner fill). */
+   them with a 90%-opaque fill of the same token in both themes. */
 @media (prefers-reduced-transparency: reduce) {
-  :global([data-platform='darwin']) .frame:not([data-sidebar-drawer]) .sidebarCol,
-  :global([data-platform='darwin']) :global([data-ds-dark-theme]) .frame:not([data-sidebar-drawer]) .sidebarCol {
+  :global([data-platform='darwin']) .frame:not([data-sidebar-drawer]) .sidebarCol {
     background: color-mix(in srgb, var(--dsw-specific-sidebar-fill) 90%, transparent);
   }
 }

@@ -35,6 +35,7 @@ import type { ProviderRequestId } from './brand.ts'
 import { callConfigEquals } from './call-config.ts'
 import type { ConfigureCall, LlmCallConfig, LlmCallConfigAdapterDefaults } from './call-config.ts'
 import { HarnessError, INVALID_CREDENTIAL_CODE } from './error.ts'
+import type { BuiltinLlmFailureCode } from './error.ts'
 import { normalizeLlmFailure } from './adapter-failure.ts'
 import { normalizeApiKey } from './api-key.ts'
 import {
@@ -93,6 +94,9 @@ export interface LlmErrorOptions extends ErrorOptions {
 /**
  * Typed error for LLM-related failures. Extends {@link HarnessError}, so the
  * `code` string (e.g. `AUTH`, `RATE_LIMIT`, `NO_ADAPTER`) is shared taxonomy.
+ * The constructor takes only a {@link BuiltinLlmFailureCode}; a failure from
+ * another provider, whose code may be any string, is re-raised through
+ * {@link LlmError.fromFailure}.
  */
 export class LlmError extends HarnessError {
   /** Serializable facts retained beside this live Error. */
@@ -100,10 +104,10 @@ export class LlmError extends HarnessError {
 
   /**
    * @param message - non-empty human-readable failure summary.
-   * @param code - non-empty stable provider-neutral machine code.
+   * @param code - built-in stable provider-neutral machine code.
    * @param options - optional cause and validated serializable provider facts.
    */
-  constructor(message: string, code: string, options?: LlmErrorOptions) {
+  constructor(message: string, code: BuiltinLlmFailureCode, options?: LlmErrorOptions) {
     if (typeof message !== 'string' || message.length === 0) throw new Error('LlmError message must be a non-empty string')
     if (typeof code !== 'string' || code.length === 0) throw new Error('LlmError code must be a non-empty string')
     if (options?.status !== undefined
@@ -128,6 +132,17 @@ export class LlmError extends HarnessError {
       ...options?.requestId === undefined ? {} : { requestId: options.requestId },
       ...options?.offloadImages === undefined ? {} : { offloadImages: options.offloadImages },
     })
+  }
+
+  /**
+   * Raise an observed failure again with its own code, which any provider may have chosen.
+   * @param failure - the serializable failure, typically from a stream's terminal chunk.
+   * @param options - optional cause.
+   * @returns an error carrying the failure's message, code, and provider facts.
+   */
+  static fromFailure(failure: LlmFailure, options?: ErrorOptions): LlmError {
+    // The constructor validates the code at runtime; the built-in type constrains only codes raised here.
+    return new LlmError(failure.message, failure.code as BuiltinLlmFailureCode, { ...failure, ...options })
   }
 }
 
@@ -566,7 +581,7 @@ export class LlmRuntime extends TypertRemoteService {
    */
   registerConnectionTest(settingsNs: string, test: (request: LlmConnectionTestRequest, signal: AbortSignal) => Promise<void>): () => void {
     const dispose = this.ctx.effect(function* (this: LlmRuntime) {
-      if (this.connectionTests.has(settingsNs)) throw new LlmError('connection test already registered', 'DUPLICATE_TEST')
+      if (this.connectionTests.has(settingsNs)) throw LlmError.fromFailure({ message: 'connection test already registered', code: 'DUPLICATE_TEST' })
       this.connectionTests.set(settingsNs, test)
       yield () => { this.connectionTests.delete(settingsNs) }
     }.bind(this), 'llm.registerConnectionTest()')
@@ -584,7 +599,7 @@ export class LlmRuntime extends TypertRemoteService {
   async remoteTestConnection(settingsNs: string, request: LlmConnectionTestRequest, signal: AbortSignal): Promise<void> {
     try {
       const test = this.connectionTests.get(settingsNs)
-      if (test === undefined) throw new LlmError('Connection testing is unavailable for this provider', 'NO_TEST')
+      if (test === undefined) throw LlmError.fromFailure({ message: 'Connection testing is unavailable for this provider', code: 'NO_TEST' })
       await test(request, AbortSignal.any([signal, AbortSignal.timeout(30_000)]))
     } catch (error: unknown) {
       throw new RemoteError('llm/connection-test-rejected', error instanceof Error ? error.message : 'Connection failed', { settingsNs })

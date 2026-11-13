@@ -75,8 +75,9 @@ Linux 基础健康采集一秒间隔的 CPU 使用率、基于 MemAvailable 的�
 
 指标变化时工具声明保持稳定。主机列表和指标仅通过主动调用的工具结果进入上下文。
 
-<a id="known-limitations-and-deferred-work"></a>
 ## 已知限制与后续工作
+
+<a id="known-limitations-and-deferred-work"></a>
 
 - 仅支持 Linux，需要 POSIX shell、awk、sleep、df 和可读的 procfs。不提供 Windows 服务器采集、跳板机或远程辅助程序。
 - 不包含自定义脚本、自定义指标、面板布局编辑、告警通知和 HertzBeat YAML 导入。历史按采样点数限制，不提供长期时序数据库。

@@ -70,14 +70,14 @@ def build():
         for manifest_path in stage.rglob('package.json'):
             if 'workspace:' in manifest_path.read_text():
                 raise RuntimeError(f'Unresolved workspace reference: {manifest_path}')
-        zip_path = OUTPUT / 'ops-suite-0.2.2-rc.1.zip'
+        zip_path = OUTPUT / 'ops-suite-0.2.2-rc.2.zip'
         with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as archive:
             for path in sorted(stage.rglob('*')):
                 if path.is_symlink():
                     raise RuntimeError(f'Unexpected symlink: {path}')
                 if path.is_file():
                     archive.write(path, path.relative_to(work))
-        tar_path = OUTPUT / 'ops-suite-0.2.2-rc.1.tgz'
+        tar_path = OUTPUT / 'ops-suite-0.2.2-rc.2.tgz'
         with tarfile.open(tar_path, 'w:gz') as archive:
             archive.add(stage, arcname='package')
         print(f'{len(visited)} bundled runtime packages\n{zip_path}\n{tar_path}')

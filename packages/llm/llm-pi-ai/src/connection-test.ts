@@ -11,11 +11,11 @@ import type { LlmConnectionTestRequest } from '@deepseek-ai/dsh-llm'
  */
 export async function testConnection(request: LlmConnectionTestRequest, signal: AbortSignal, apiKey?: string): Promise<void> {
   let url: URL
-  try { url = new URL(request.baseURL) } catch { throw new LlmError('Invalid API base URL', 'INVALID_TEST') }
+  try { url = new URL(request.baseURL) } catch { throw LlmError.fromFailure({ message: 'Invalid API base URL', code: 'INVALID_TEST' }) }
   if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || url.search || url.hash) {
-    throw new LlmError('Invalid API base URL', 'INVALID_TEST')
+    throw LlmError.fromFailure({ message: 'Invalid API base URL', code: 'INVALID_TEST' })
   }
-  if (!request.model.trim()) throw new LlmError('Model ID is required', 'INVALID_TEST')
+  if (!request.model.trim()) throw LlmError.fromFailure({ message: 'Model ID is required', code: 'INVALID_TEST' })
   const headers = new Headers({ 'content-type': 'application/json' })
   const key = request.noAuth === true ? undefined : apiKey?.trim()
   const base = request.baseURL.replace(/\/+$/, '')
@@ -38,16 +38,16 @@ export async function testConnection(request: LlmConnectionTestRequest, signal: 
       headers.set('anthropic-version', '2023-06-01')
       if (key) headers.set('x-api-key', key)
       break
-    default: throw new LlmError('This protocol does not support connection testing', 'INVALID_TEST')
+    default: throw LlmError.fromFailure({ message: 'This protocol does not support connection testing', code: 'INVALID_TEST' })
   }
   try {
     const response = await fetch(endpoint, { method: 'POST', headers, body: JSON.stringify(payload), signal, redirect: 'error' })
     if (!response.ok) {
       await response.body?.cancel()
-      throw new LlmError(`HTTP ${response.status}`, 'CONNECTION_HTTP')
+      throw LlmError.fromFailure({ message: `HTTP ${response.status}`, code: 'CONNECTION_HTTP' })
     }
     const reader = response.body?.getReader()
-    if (!reader) throw new LlmError('Empty inference response', 'CONNECTION_RESPONSE')
+    if (!reader) throw LlmError.fromFailure({ message: 'Empty inference response', code: 'CONNECTION_RESPONSE' })
     let text = ''
     let size = 0
     const decoder = new TextDecoder()
@@ -56,7 +56,7 @@ export async function testConnection(request: LlmConnectionTestRequest, signal: 
         const chunk = await reader.read()
         if (chunk.done) break
         size += chunk.value.byteLength
-        if (size > 1024 * 1024) throw new LlmError('Inference response too large', 'CONNECTION_RESPONSE')
+        if (size > 1024 * 1024) throw LlmError.fromFailure({ message: 'Inference response too large', code: 'CONNECTION_RESPONSE' })
         text += decoder.decode(chunk.value, { stream: true })
       }
     } finally {
@@ -66,12 +66,12 @@ export async function testConnection(request: LlmConnectionTestRequest, signal: 
     const field = request.api === 'openai-completions' ? 'choices' : request.api === 'openai-responses' ? 'output' : 'content'
     const entries: unknown = typeof body === 'object' && body !== null ? Reflect.get(body, field) : undefined
     if (!Array.isArray(entries) || entries.length === 0) {
-      throw new LlmError('Invalid inference response', 'CONNECTION_RESPONSE')
+      throw LlmError.fromFailure({ message: 'Invalid inference response', code: 'CONNECTION_RESPONSE' })
     }
   } catch (error: unknown) {
-    if (signal.aborted) throw new LlmError('Connection test timed out or was cancelled', 'CONNECTION_TIMEOUT')
+    if (signal.aborted) throw LlmError.fromFailure({ message: 'Connection test timed out or was cancelled', code: 'CONNECTION_TIMEOUT' })
     if (error instanceof LlmError) throw error
     // Do not echo upstream bodies, URLs, or transport errors that may contain secrets.
-    throw new LlmError('Could not reach the model or read its response', 'CONNECTION_FAILED')
+    throw LlmError.fromFailure({ message: 'Could not reach the model or read its response', code: 'CONNECTION_FAILED' })
   }
 }

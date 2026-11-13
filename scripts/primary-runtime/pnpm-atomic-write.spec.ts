@@ -40,7 +40,7 @@ it('keeps a persistent Windows permission failure bounded and preserves its erro
   expect(h.elapsed()).toBe(1000)
 })
 it.each([['darwin', 'EPERM'], ['win32', 'EIO']])('does not retry %s/%s', async (platform, code) => {
-  const h = retryHarness(platform!, Infinity, code!)
+  const h = retryHarness(platform, Infinity, code)
   await expect(h.run()).rejects.toBe(h.failure)
   expect(h.calls()).toBe(1)
   expect(h.elapsed()).toBe(0)
@@ -68,7 +68,7 @@ it('ships both patched atomic writers and installs a local plugin without networ
   expect(manifest.dependencies['local-rename-plugin']).toBeDefined()
   expect(JSON.parse(await readFile(join(project, 'node_modules/local-rename-plugin/package.json'), 'utf8'))).toMatchObject({ name: 'local-rename-plugin' })
   // An altered bundle or a double application must fail rather than silently ship unpatched code.
-  expect(() => patchPnpmAtomicWrites(copied)).toThrow('replacement sites changed')
+  expect(() => { patchPnpmAtomicWrites(copied) }).toThrow('replacement sites changed')
   await writeFile(join(copied, 'package.json'), '{"version":"0.0.0"}')
-  expect(() => patchPnpmAtomicWrites(copied)).toThrow('review the pnpm atomic-write patch')
+  expect(() => { patchPnpmAtomicWrites(copied) }).toThrow('review the pnpm atomic-write patch')
 }, 45000)

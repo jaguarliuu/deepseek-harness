@@ -1,10 +1,13 @@
 // @vitest-environment jsdom
+import type { IpcRendererEvent } from 'electron'
 import { afterEach, expect, it, vi } from 'vitest'
 import { installQuickTask } from '../src/preload-quick-task.ts'
 import { QUICK_TASK_IPC, type QuickTaskView } from '../src/quick-task-api.ts'
 import { resolveDesktopLocale } from '../src/locale.ts'
 
-const ipc = vi.hoisted(() => ({ invoke: vi.fn(), on: vi.fn(), off: vi.fn() }))
+const ipc = vi.hoisted(() => ({
+  invoke: vi.fn(), on: vi.fn<(channel: string, listener: (event: IpcRendererEvent, payload: unknown) => void) => void>(), off: vi.fn(),
+}))
 vi.mock('electron', () => ({ ipcRenderer: ipc }))
 afterEach(() => {
   window.dispatchEvent(new Event('pagehide'))
@@ -34,13 +37,15 @@ it('renders localized compact controls and preserves the existing page', async (
 it('passes bounded selected text to the draft owner without executing it', async () => {
   ipc.invoke.mockResolvedValue({ active: false, messages: resolveDesktopLocale('zh').messages })
   installQuickTask()
-  const listener = vi.fn()
+  const listener = vi.fn<(event: Event) => void>()
   window.addEventListener('dsh-selection-draft', listener)
   const command = ipc.on.mock.calls.find(([channel]) => channel === QUICK_TASK_IPC.command)![1]
-  command({}, { selectionText: '选择的文字' })
-  for (const selectionText of ['', ' ', 123, 'x'.repeat(20001)]) command({}, { selectionText })
+  command({} as IpcRendererEvent, { selectionText: '选择的文字' })
+  for (const selectionText of ['', ' ', 123, 'x'.repeat(20001)]) command({} as IpcRendererEvent, { selectionText })
   expect(listener).toHaveBeenCalledOnce()
-  expect(listener.mock.calls[0]![0].detail).toBe('选择的文字')
+  const event = listener.mock.calls[0]![0]
+  expect(event).toBeInstanceOf(CustomEvent)
+  expect((event as CustomEvent<string>).detail).toBe('选择的文字')
   window.removeEventListener('dsh-selection-draft', listener)
 })
 

@@ -17,16 +17,16 @@ it('creates a task, imports a skill and restores a recycled Session over the rea
     await page.goto(scaffold.authenticatedUrl)
     await page.getByRole('button', { name: 'Automation tasks', exact: true }).click()
     await page.getByRole('button', { name: 'New', exact: true }).click()
-    const dialog = page.getByRole('dialog')
+    const dialog = page.getByRole('complementary', { name: 'Create manually', exact: true })
     await dialog.getByLabel('Automation task name', { exact: true }).fill('Inspect database')
     await dialog.getByLabel('Automation task instruction', { exact: true }).fill('Inspect database health')
-    await dialog.getByRole('combobox').first().selectOption(id)
-    await dialog.getByLabel('Time zone', { exact: true }).fill('Asia/Shanghai')
+    await dialog.getByRole('button', { name: 'Repeat Once', exact: true }).click()
+    await page.getByRole('menuitem', { name: 'Every day', exact: true }).click()
     await compareOrRefreshGolden(
       fileURLToPath(new URL('./expected/zhiwei-task-create.expected.md', import.meta.url)),
-      await captureStableAria(page, '[role="dialog"]', scaffold.workspaceCwd), webSnapshotMode(),
+      await captureStableAria(page, 'aside[aria-label="Create manually"]', scaffold.workspaceCwd), webSnapshotMode(),
     )
-    await dialog.getByRole('button', { name: 'Create task', exact: true }).click()
+    await dialog.getByRole('button', { name: 'Create', exact: true }).click()
     await dialog.waitFor({ state: 'hidden' })
     await page.getByText('Inspect database', { exact: true }).first().waitFor()
     const tasks = await scaffold.ctx.schedule.list()
@@ -41,6 +41,7 @@ it('creates a task, imports a skill and restores a recycled Session over the rea
     })
     await page.getByText('Skill imported. Refresh the catalog to view it.', { exact: true }).waitFor()
     await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click()
+    await page.getByRole('button', { name: 'Refresh skills', exact: true }).click()
     await page.getByText('intranet-report', { exact: true }).waitFor()
 
     const group = page.getByRole('treeitem', { name: 'Ungrouped', exact: true })

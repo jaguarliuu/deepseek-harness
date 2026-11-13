@@ -1,7 +1,7 @@
 {
   "name": "@deepseek-ai/dsh-client-ui-ops-monitor",
   "description": "SSH monitoring templates and operations dashboard",
-  "version": "0.2.2-rc.1",
+  "version": "0.2.2-rc.2",
   "publishConfig": {
     "access": "public"
   },
@@ -94,12 +94,16 @@
     "lib/typert.remote-client.d.ts",
     "cordis.patch.yml",
     "README.md",
-    "README.zh.md"
+    "README.zh.md",
+    "lib/typert.remote-client.d.ts.map",
+    "lib/types/**/*.d.ts.map",
+    "lib/**/*.js.map",
+    "src"
   ],
   "dependencies": {
     "@deepseek-ai/dsh-typert-protocol": "workspace:*",
     "@deepseek-ai/schemastery": "workspace:~",
-    "zod": "4.4.3",
+    "zod": "4.6.6",
     "@deepseek-ai/dsh-storage-domain": "workspace:*"
   }
 }

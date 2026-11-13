@@ -1,22 +1,27 @@
-- dialog "New automation task":
-  - heading "New automation task" [level=2]
-  - button "Close details"
+- complementary "Create manually":
+  - heading "Create manually" [level=2]
+  - button "Close creation form"
   - group:
     - text: Automation task name
-    - textbox "Automation task name": Inspect database
+    - textbox "Automation task name":
+      - /placeholder: E.g. Daily reading digest
+      - text: Inspect database
     - text: Automation task instruction
-    - textbox "Automation task instruction": Inspect database health
-    - text: Linked session
-    - combobox "Linked session":
-      - option "{{cwd}}" [selected]
-    - paragraph: Choose the session whose workspace and model will run this task.
-    - text: Frequency
-    - combobox "Frequency":
-      - option "Once"
-      - option "Daily" [selected]
-      - option "Every N minutes"
-    - text: Execution time
-    - textbox "Execution time": {{clock}}
-    - text: Time zone
-    - textbox "Time zone": Asia/Shanghai
-  - button "Create task"
+    - textbox "Automation task instruction":
+      - /placeholder: "Describe the task and result.\nE.g. Summarize my reading list with source links."
+      - text: Inspect database health
+    - button "Run in Create a session and reuse it"
+    - button "Linked workspace Ungrouped"
+    - region "Run time":
+      - heading "Run time" [level=3]
+      - button "Repeat Every day"
+      - text: Interval
+      - spinbutton "Interval": "1"
+      - button "Increase interval"
+      - button "Decrease interval" [disabled]
+      - text: Time
+      - button "Time": {{clock}}
+      - button "Time zone UTC+{{clock}} · China Standard Time (system)"
+  - text: Unsaved changes
+  - button "Discard"
+  - button "Create"

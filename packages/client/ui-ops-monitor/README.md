@@ -75,8 +75,9 @@ Four tool declarations and requested results add tokens. Background collection a
 
 The declarations remain stable as measurements change. Inventory and measurements enter context only through requested tool results.
 
-<a id="known-limitations-and-deferred-work"></a>
 ## Known Limitations and Deferred Work
+
+<a id="known-limitations-and-deferred-work"></a>
 
 - Linux only; requires POSIX shell, awk, sleep, df and readable procfs. No Windows server collectors, jump hosts or remote helpers are provided.
 - Custom scripts, custom metrics, panel layout editing, alert notifications and HertzBeat YAML import are not included. History is point-bounded and is not a long-term time-series database.

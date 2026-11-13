@@ -17,7 +17,7 @@ it('installs a local plugin with an internal proxy tarball and verifies TLS on o
   const pnpm = join(root, 'pnpm')
   await cp(dirname(createRequire(import.meta.url).resolve('pnpm')), pnpm, { recursive: true })
   patchPnpmIntranetTls(pnpm)
-  expect(() => patchPnpmIntranetTls(pnpm)).toThrow('replacement site changed')
+  expect(() => { patchPnpmIntranetTls(pnpm) }).toThrow('replacement site changed')
 
   const selfsigned = createRequire(new URL('../../packages/host/webserver/package.json', import.meta.url))('selfsigned') as {
     generate(
@@ -43,11 +43,11 @@ it('installs a local plugin with an internal proxy tarball and verifies TLS on o
     redirected = true
     response.end()
   })
-  t.onTestFinished(() => new Promise<void>((resolve) => { other.close(() => resolve()); other.closeAllConnections() }))
+  t.onTestFinished(() => new Promise<void>((resolve) => { other.close(() => { resolve() }); other.closeAllConnections() }))
   await new Promise<void>((resolve, reject) => { other.once('error', reject); other.listen(0, '127.0.0.1', resolve) })
   const otherAddress = other.address()
   if (otherAddress === null || typeof otherAddress === 'string') throw new Error('Redirect fixture did not bind to a TCP port')
-  const otherOrigin = 'https://127.0.0.1:' + otherAddress.port
+  const otherOrigin = `https://127.0.0.1:${otherAddress.port}`
   const server = createServer({ key: pem.private, cert: pem.cert }, (request, response) => {
     const path = request.url ?? ''
     requests.push(path)
@@ -66,11 +66,11 @@ it('installs a local plugin with an internal proxy tarball and verifies TLS on o
       }))
     }
   })
-  t.onTestFinished(() => new Promise<void>((resolve) => { server.close(() => resolve()); server.closeAllConnections() }))
+  t.onTestFinished(() => new Promise<void>((resolve) => { server.close(() => { resolve() }); server.closeAllConnections() }))
   await new Promise<void>((resolve, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolve) })
   const address = server.address()
   if (address === null || typeof address === 'string') throw new Error('HTTPS fixture did not bind to a TCP port')
-  origin = 'https://127.0.0.1:' + address.port
+  origin = `https://127.0.0.1:${address.port}`
 
   const entry = join(pnpm, 'dist/pnpm.mjs')
   const source = await readFile(entry, 'utf8')
@@ -88,7 +88,7 @@ it('installs a local plugin with an internal proxy tarball and verifies TLS on o
     CI: 'true', DSH_ZHIWEI_PLUGIN_PNPM: enabled ? '1' : '0',
   } })
 
-  const tlsError = { stdout: expect.stringMatching(/self.signed certificate/i) }
+  const tlsError = { stdout: expect.stringMatching(/self.signed certificate/i) as string }
   await expect(run('/repository/npm/', ['view', pkg.name, 'version'], false)).rejects.toMatchObject(tlsError)
   await run('/repository/npm/', ['add', pluginArchive, '--ignore-scripts'])
   expect(requests).toContain(packagePath)

@@ -13,7 +13,7 @@ import { newEnglishPage, revealNavigationDrawer } from './support.ts'
 it('loads both features from one archive and configures SSH before collecting charts', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'ops-suite-delivery-'))
   onTestFinished(() => rm(directory, { recursive: true, force: true }))
-  const archive = fileURLToPath(new URL('../../../output/ops-suite/ops-suite-0.2.2-rc.1.zip', import.meta.url))
+  const archive = fileURLToPath(new URL('../../../output/ops-suite/ops-suite-0.2.2-rc.2.zip', import.meta.url))
   execFileSync('unzip', ['-q', archive, '-d', directory])
   const bundle = await realpath(join(directory, 'ops-suite'))
   const scaffold = await launchWebScaffold({ extraInstallAnchors: [join(bundle, 'package.json')], profile: { hmr: false, packages: [], bundles: ['@intranet/dsh-ops-suite'] } })
