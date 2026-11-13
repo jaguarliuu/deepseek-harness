@@ -1,0 +1,8 @@
+version: 1
+scenario: ops-monitor-discovery
+profile: headless
+composition: ops-monitor
+recording: authored
+header:
+  class: ops-monitor
+  pin: true

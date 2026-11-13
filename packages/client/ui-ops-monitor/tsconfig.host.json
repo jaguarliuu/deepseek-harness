@@ -1,0 +1,49 @@
+{
+  "extends": "../../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "lib/types",
+    "tsBuildInfoFile": "lib/tsconfig.host.tsbuildinfo"
+  },
+  "references": [
+    {
+      "path": "../../../vendor/cordis"
+    },
+    {
+      "path": "../../../vendor/schemastery"
+    },
+    {
+      "path": "../../../vendor/cosmokit"
+    },
+    {
+      "path": "../../../vendor/loader"
+    },
+    {
+      "path": "../../typert/protocol"
+    },
+    {
+      "path": "../../credentials/credentials"
+    },
+    {
+      "path": "../../core/tools"
+    },
+    {
+      "path": "../../util/brand"
+    },
+    {
+      "path": "../../interaction/user-approval"
+    },
+    {
+      "path": "../ui-remote-ops/tsconfig.host.json"
+    },
+    {
+      "path": "../../storage/storage-domain"
+    }
+  ],
+  "include": [
+    "src/*.ts"
+  ],
+  "exclude": [
+    "src/css-modules.d.ts"
+  ]
+}

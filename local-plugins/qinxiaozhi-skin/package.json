@@ -1,0 +1,29 @@
+{
+  "name": "@intranet/dsh-skin-qinxiaozhi",
+  "version": "0.2.0",
+  "description": "秦小智皮肤：青绿配色、深灰侧栏与办公欢迎页",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh.md",
+    "assets",
+    "host-source.js",
+    "SCHEMA-LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
+    }
+  }
+}

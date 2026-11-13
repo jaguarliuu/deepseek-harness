@@ -1,0 +1,22 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write local-plugins/qinxiaozhi-skin/README.md
+/qin-xiaozhi-skin:
+  en: bde79e9d2e331631
+  zh: f7a5c13630f63b47
+/qin-xiaozhi-skin/install-or-upgrade:
+  en: 219b064536547266
+  zh: 12d664fd492244b0
+/qin-xiaozhi-skin/skin-console:
+  en: d144bc81a7bd299e
+  zh: b8b0c17d0765c717
+/qin-xiaozhi-skin/compatibility-and-assets:
+  en: addeb74087bd16d1
+  zh: a4a3c0eab4d6884f
+/qin-xiaozhi-skin/model-experience:
+  en: b65bdb1a3af7b0ff
+  zh: a07993b7e560ab0e
+/qin-xiaozhi-skin/model-experience/kv-cache-effect:
+  en: 314d8e0b8b344624
+  zh: 9e235ce075194793

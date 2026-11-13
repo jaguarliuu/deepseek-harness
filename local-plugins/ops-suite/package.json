@@ -1,0 +1,16 @@
+{
+  "name": "@intranet/dsh-ops-suite",
+  "version": "0.2.2-rc.1",
+  "description": "SSH server configuration and monitoring dashboards in one offline bundle",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "exports": {".": "./index.js", "./package.json": "./package.json"},
+  "files": ["index.js", "cordis.patch.yml", "README.md", "README.zh.md"],
+  "dsh": {"bundle": {"patch": "./cordis.patch.yml"}},
+  "dependencies": {
+    "@deepseek-ai/dsh-client-ui-remote-ops": "0.2.2-rc.1",
+    "@deepseek-ai/dsh-client-ui-ops-monitor": "0.2.2-rc.1"
+  },
+  "bundledDependencies": ["@deepseek-ai/dsh-client-ui-remote-ops", "@deepseek-ai/dsh-client-ui-ops-monitor"]
+}

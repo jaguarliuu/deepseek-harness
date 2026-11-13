@@ -2622,6 +2622,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     declaredBy: 'an entry in \'root\' (client-ui-layout), so it exists while that entry is mounted',
     occupants: [
       'client-ui-conversation ConversationPanel key \'conversation\'',
+      'client-ui-ops-monitor MonitorPage',
       'client-ui-plugin-manager PluginManagerPage',
       'client-ui-remote-ops OpsPage',
       'client-ui-schedule TaskManagerPage',
@@ -4260,6 +4261,7 @@ export const CLIENT_SLOT_API: readonly ClientSlotEntry[] = [
     slotInject: '',
     declaredBy: 'factory \'sidebar.panel.icon\' (client-ui-sidebar), so it exists while that definition is registered',
     occupants: [
+      'client-ui-ops-monitor MonitorIcon id \'ops-monitor\'',
       'client-ui-plugin-manager PluginsPanelIcon',
       'client-ui-remote-ops OpsIcon id \'remote-ops\'',
       'client-ui-schedule TaskManagerIcon',

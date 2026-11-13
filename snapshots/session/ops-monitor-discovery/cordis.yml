@@ -1,0 +1,7 @@
+- id: credentials
+  disabled: false
+- insert:
+    - id: ui-remote-ops
+      name: ../../../packages/client/ui-remote-ops/src/index.ts
+    - id: ui-ops-monitor
+      name: ../../../packages/client/ui-ops-monitor/src/index.ts

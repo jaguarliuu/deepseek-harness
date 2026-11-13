@@ -115,6 +115,7 @@ export const SERVICE_PAGE: Record<string, string> = {
   sandboxPolicy: 'sandbox.md',
   ssh: 'ssh.md',
   remoteOps: 'ssh.md',
+  opsMonitor: 'ssh.md',
   sessionPersistence: 'persistence.md',
   sessionQuery: 'session-query.md',
   sessionFileReferences: 'session-reference.md',
@@ -997,6 +998,9 @@ export const FOUNDATION_TYPE_NAMES: ReadonlySet<string> = new Set([
 export const TYPE_LINK_EXEMPTIONS: Readonly<Record<string, string>> = {
   ServerView: 'Remote operations API fields are owned by packages/client/ui-remote-ops/src/types.ts and its package README.',
   ServerInput: 'Remote operations API fields are owned by packages/client/ui-remote-ops/src/types.ts and its package README.',
+  Monitor: 'Monitoring enrollments are documented in packages/client/ui-ops-monitor/README.md and src/types.ts.',
+  TemplateId: 'The monitoring template catalog is owned by packages/client/ui-ops-monitor/src/types.ts and its package README.',
+  Dashboard: 'Monitoring dashboard fields are owned by packages/client/ui-ops-monitor/src/types.ts and its package README.',
   ServerId: 'Remote operations API fields are owned by packages/client/ui-remote-ops/src/types.ts and its package README.',
   TerminalId: 'Remote operations API fields are owned by packages/client/ui-remote-ops/src/types.ts and its package README.',
   TerminalView: 'Remote operations API fields are owned by packages/client/ui-remote-ops/src/types.ts and its package README.',

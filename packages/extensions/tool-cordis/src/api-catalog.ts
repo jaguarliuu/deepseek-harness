@@ -2231,6 +2231,36 @@ export const SERVICE_API: readonly ServiceApiEntry[] = [
     ],
   },
   {
+    key: 'opsMonitor',
+    summary: 'Own enrollment durability, bounded history and background task cancellation.',
+    description: 'Own enrollment durability, bounded history and background task cancellation.',
+    methods: [
+      {
+        signature: '@Remote async enable(serverId: ServerId, selected: TemplateId[], expectedTarget: string): Promise<Monitor>',
+        description: 'Enable fixed collectors on a saved, fingerprint-pinned server. A direct UI call is the user\'s enrollment action.',
+        parameters: [{ name: 'serverId', description: 'existing saved SSH connection.' }, { name: 'selected', description: 'reviewed templates authorized for repeated collection.' }, { name: 'expectedTarget', description: 'connection identity reviewed by the caller before authorization.' }],
+        returns: 'enrollment after durable commit; no collection runs before that commit.',
+      },
+      {
+        signature: '@Remote async disable(serverId: ServerId): Promise<void>',
+        description: 'Stop future collection and retain history. An in-flight read may finish but cannot append after disable commits.',
+        parameters: [{ name: 'serverId', description: 'enrolled server.' }],
+      },
+      {
+        signature: '@Remote async snapshot(): Promise<Dashboard>',
+        description: 'Read saved metadata and bounded metrics, never SSH secrets or raw command output.',
+        parameters: [],
+        returns: 'current dashboard with timestamps and explicit failed attempts.',
+      },
+      {
+        signature: '@Remote({ mode: \'stream\' }) async *follow(signal: AbortSignal): AsyncIterable<Dashboard>',
+        description: 'Stream dashboard snapshots while a browser holds the resource.',
+        parameters: [{ name: 'signal', description: 'subscriber lifetime.' }],
+        returns: 'current state and subsequent refreshes; collection has its own lifetime.',
+      },
+    ],
+  },
+  {
     key: 'otel',
     summary: 'Shared transport provider.',
     description: 'Shared transport provider. Mounting creates no queue, identity, or network connection.',
@@ -6456,6 +6486,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface DailyScheduleRecord {\n    readonly id: ScheduleId;\n    readonly kind: \'daily\';\n    readonly title: string;\n    readonly prompt: string;\n    readonly time: string;\n    readonly timeZone: string;\n    readonly scheduledAt: string;\n}',
   },
   {
+    name: 'Dashboard',
+    declaration: 'export interface Dashboard {\n    now: number;\n    intervalMs: number;\n    failure: \'storage\' | null;\n    monitors: Monitor[];\n    servers: {\n        id: ServerId;\n        name: string;\n        host: string;\n        group: string;\n        target: string;\n    }[];\n    templates: Template[];\n}',
+  },
+  {
     name: 'DeepSeekLlmApiExtensionMap',
     declaration: 'export interface DeepSeekLlmApiExtensionMap {\n}',
   },
@@ -7576,6 +7610,18 @@ export const TYPE_API: readonly TypeApiEntry[] = [
     declaration: 'export interface MessageSourceMap {\n    user: {\n        kind: \'user\';\n    };\n    model: ModelMessageSource;\n    tool: ToolMessageSource;\n    \'system-prompt\': SystemPromptMessageSource;\n}',
   },
   {
+    name: 'Metric',
+    declaration: 'export interface Metric {\n    name: string;\n    value: number | string;\n    unit: string;\n    label: string;\n}',
+  },
+  {
+    name: 'MetricDefinition',
+    declaration: 'export interface MetricDefinition {\n    name: MetricName;\n    group: string;\n    type: \'number\' | \'string\';\n    unit: string;\n    label: \'none\' | \'instance\';\n    maximum?: number;\n}',
+  },
+  {
+    name: 'MetricName',
+    declaration: 'export type MetricName = \'cpu_percent\' | \'memory_percent\' | \'load_1m\' | \'uptime_seconds\' | \'disk_percent\' | \'memory_total_bytes\' | \'memory_used_bytes\' | \'memory_available_bytes\' | \'filesystem_total_bytes\' | \'filesystem_used_bytes\' | \'filesystem_available_bytes\' | \'network_receive_bytes\' | \'network_transmit_bytes\' | \'network_boot_id\' | \'network_receive_rate\' | \'network_transmit_rate\' | \'cpu_process_percent\' | \'cpu_process_name\' | \'memory_process_percent\' | \'memory_process_name\';',
+  },
+  {
     name: 'ModDefinition',
     declaration: 'export interface ModDefinition {\n    readonly name: string;\n    readonly version?: string;\n    readonly root?: string;\n    readonly options?: PluginOptions;\n    readonly register: ModRegister;\n}',
   },
@@ -7638,6 +7684,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'ModTier',
     declaration: 'export type ModTier = \'prepend\' | \'user\' | \'append\' | \'builtin\' | \'core\';',
+  },
+  {
+    name: 'Monitor',
+    declaration: 'export interface Monitor {\n    serverId: ServerId;\n    name: string;\n    target: string;\n    templates: TemplateId[];\n    enabled: boolean;\n    samples: Sample[];\n}',
   },
   {
     name: 'NativeFileApplication',
@@ -7738,6 +7788,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'PaidTranslationSpec',
     declaration: 'export interface PaidTranslationSpec extends TranslationSpecFields {\n    readonly provider: PaidTranslationProvider;\n    readonly sessionId: SessionId;\n}',
+  },
+  {
+    name: 'PanelDefinition',
+    declaration: 'export interface PanelDefinition {\n    metric: MetricName;\n    chart: \'trend\' | \'ranking\';\n    unit: string;\n    maximum?: number;\n    nameMetric?: MetricName;\n    totalMetric?: MetricName;\n}',
   },
   {
     name: 'PaneOpenArgs',
@@ -8338,6 +8392,10 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'RunnerFailureRule',
     declaration: 'export interface RunnerFailureRule {\n    allowedExitCodes?: readonly number[];\n    fatalSignatures: readonly string[];\n    informationalLines?: readonly string[];\n}',
+  },
+  {
+    name: 'Sample',
+    declaration: 'export interface Sample {\n    at: number;\n    status: \'ok\' | \'partial\' | \'connection\' | \'command\' | \'parse\' | \'targetChanged\';\n    metrics: Metric[];\n    failures?: {\n        templateId: TemplateId;\n        status: \'connection\' | \'command\' | \'parse\';\n    }[] | undefined;\n}',
   },
   {
     name: 'SandboxEnforcement',
@@ -9734,6 +9792,14 @@ export const TYPE_API: readonly TypeApiEntry[] = [
   {
     name: 'TeamTaskView',
     declaration: 'export interface TeamTaskView {\n    readonly id: TeamTaskId;\n    readonly revision: number;\n    readonly subject: string;\n    readonly description: string;\n    readonly status: TeamTaskStatus;\n    readonly blockedBy: TeamTaskId[];\n    readonly writeScopes: string[];\n    readonly ownerId?: SessionId;\n    readonly ownerName?: string;\n    readonly ready: boolean;\n    readonly writeScopeWarnings: string[];\n}',
+  },
+  {
+    name: 'Template',
+    declaration: 'export interface Template {\n    id: TemplateId;\n    script: string;\n    metrics: string[];\n    fields: MetricDefinition[];\n    panels: PanelDefinition[];\n    priority: number;\n}',
+  },
+  {
+    name: 'TemplateId',
+    declaration: 'export type TemplateId = \'linux-health\' | \'linux-filesystems\' | \'linux-capacity\' | \'linux-network\' | \'linux-processes\';',
   },
   {
     name: 'TerminalBackend',

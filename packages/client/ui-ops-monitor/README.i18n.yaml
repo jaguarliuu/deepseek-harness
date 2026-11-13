@@ -1,0 +1,43 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write packages/client/ui-ops-monitor/README.md
+/:
+  en: 6b0556d44995ffa6
+  zh: 7378ec77d0ddc0ff
+/deepseek-ai-dsh-client-ui-ops-monitor:
+  en: eeffb8f654433bd6
+  zh: 9f8df98b84dc65c5
+/deepseek-ai-dsh-client-ui-ops-monitor/summary:
+  en: 6c5594b8d5c93c37
+  zh: a9a7ab087e0bf232
+/deepseek-ai-dsh-client-ui-ops-monitor/table-of-contents:
+  en: 122f0d41696980b1
+  zh: 6b7db31f156b1222
+/deepseek-ai-dsh-client-ui-ops-monitor/use-this-package:
+  en: 650f56889fc1e72b
+  zh: 9660df61a1323c0c
+/deepseek-ai-dsh-client-ui-ops-monitor/understand-the-implementation:
+  en: 257a0f2b7e026a02
+  zh: e8aaaed113bca3d3
+/deepseek-ai-dsh-client-ui-ops-monitor/model-experience:
+  en: 215e7ba838619b7b
+  zh: a311da3843709f90
+/deepseek-ai-dsh-client-ui-ops-monitor/model-experience/monitoring-tools:
+  en: 742a1477b8edb9d6
+  zh: f21a7f129418dfca
+/deepseek-ai-dsh-client-ui-ops-monitor/model-experience/monitoring-tools/what-the-model-sees:
+  en: e311201d0b574d8a
+  zh: f147a0d228c03911
+/deepseek-ai-dsh-client-ui-ops-monitor/model-experience/monitoring-tools/token-effect:
+  en: 1aa9150fbf6dfdcc
+  zh: 555d1cf25f32f4a5
+/deepseek-ai-dsh-client-ui-ops-monitor/model-experience/monitoring-tools/kv-cache-effect:
+  en: 0d9f246a7e7594f1
+  zh: e99bee2c5565562e
+/deepseek-ai-dsh-client-ui-ops-monitor/known-limitations-and-deferred-work:
+  en: 1e53ee31dea0e59b
+  zh: ef391ba37c2e8fe3
+/deepseek-ai-dsh-client-ui-ops-monitor/known-limitations-and-deferred-work/dev-note:
+  en: 0a1253c6f7b5e8b9
+  zh: 9f56528562c7c914

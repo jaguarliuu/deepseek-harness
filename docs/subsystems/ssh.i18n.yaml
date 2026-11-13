@@ -3,8 +3,8 @@
 # After editing either side, bring the other along and re-record with:
 #   pnpm run verify-translation-pairing --write docs/subsystems/ssh.md
 /ssh:
-  en: b5f0af8e0c3519cc
-  zh: f7d5f37d6ccb1859
+  en: 818dfc24e86ea5ad
+  zh: acc1d1b5b9e2fc2b
 /ssh/execution-coordinates:
   en: 6dca62a58ecbc1ff
   zh: 1ebb7dbe79927701

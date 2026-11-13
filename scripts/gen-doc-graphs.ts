@@ -155,11 +155,19 @@ const SERVICE_ROLES: ServiceRole[] = [
     note: 'Owns module and exact configuration watchers; application mutations share its queue and automatic reloads await the application file lock.',
   },
   {
+    key: 'opsMonitor',
+    pkg: 'client-ui-ops-monitor',
+    title: 'SSH monitoring and dashboard',
+    mode: 'core',
+    consumers: ['client-ui-ops-monitor'],
+    note: 'Collects reviewed SSH templates into bounded durable history for browser dashboards and approved model enrollment.',
+  },
+  {
     key: 'remoteOps',
     pkg: 'client-ui-remote-ops',
     title: 'Local remote operations workspace',
     mode: 'core',
-    consumers: ['client-ui-remote-ops'],
+    consumers: ['client-ui-remote-ops', 'client-ui-ops-monitor'],
     note: 'Owns local SSH credentials, pinned interactive terminals and commands approved through the existing Session policy.',
   },
   {

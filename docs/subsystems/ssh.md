@@ -6,6 +6,8 @@ The [SSH provider family](../../packages/ssh/README.md) supplies one remote file
 
 The [remote operations workspace](../../packages/client/ui-remote-ops/README.md) connects Windows or POSIX clients to ordinary SSH servers without a remote helper. It owns local connection credentials and interactive consoles; its AI commands use the existing model tools and Session approval service. It does not replace the filesystem/process execution world.
 
+The optional [operations dashboard](../../packages/client/ui-ops-monitor/README.md) collects reviewed Linux templates from saved Remote operations servers. It retains bounded timestamped history independently of conversations and exposes enrollment, pause and query tools to Xiao C. Enrollment requires explicit UI action or session approval; changing a pinned target requires new enrollment.
+
 ## Execution coordinates
 
 Filesystem identities, executable lookup, process cwd, sandbox workspace roots and language-server file URLs refer to the SSH host. Providers canonicalize paths where the files exist, preserving filesystem interpretation of `symlink/..`. The policy resolver carries absolute execution-world spelling without trying to resolve remote paths on the Harness host.
@@ -113,6 +115,44 @@ declare class SshConnection extends Service {
 ## Cordis API
 
 Generated from source by `scripts/gen-cordis-catalog.ts` (verified fresh by `pnpm run verify-cordis-catalog` in doc-sync; regenerate with `pnpm run gen-cordis-catalog`) — the language sides differ only in locale-specific paired document paths. Signature blocks use a `ts cordis-catalog` fence and keep the original source JSDoc; dispatch modes are defined in the [primer](../cordis-primer.md#dispatch-modes), and the framework-inherited `ctx` API lives in [cordis-api/inherited.md](../cordis-api/inherited.md).
+
+<a id="ctxopsmonitor--opsmonitor"></a>
+
+### `ctx.opsMonitor` — `OpsMonitor`
+
+Own enrollment durability, bounded history and background task cancellation.
+
+```ts cordis-catalog
+/**
+ * Enable fixed collectors on a saved, fingerprint-pinned server. A direct UI call is the user's enrollment action.
+ * @param serverId - existing saved SSH connection.
+ * @param selected - reviewed templates authorized for repeated collection.
+ * @param expectedTarget - connection identity reviewed by the caller before authorization.
+ * @returns enrollment after durable commit; no collection runs before that commit.
+ */
+@Remote async enable(serverId: ServerId, selected: TemplateId[], expectedTarget: string): Promise<Monitor>
+
+/**
+ * Stop future collection and retain history. An in-flight read may finish but cannot append after disable commits.
+ * @param serverId - enrolled server.
+ */
+@Remote async disable(serverId: ServerId): Promise<void>
+
+/**
+ * Read saved metadata and bounded metrics, never SSH secrets or raw command output.
+ * @returns current dashboard with timestamps and explicit failed attempts.
+ */
+@Remote async snapshot(): Promise<Dashboard>
+
+/**
+ * Stream dashboard snapshots while a browser holds the resource.
+ * @param signal - subscriber lifetime.
+ * @returns current state and subsequent refreshes; collection has its own lifetime.
+ */
+@Remote({ mode: 'stream' }) async *follow(signal: AbortSignal): AsyncIterable<Dashboard>
+```
+
+Source: [`packages/client/ui-ops-monitor/src/index.ts`](../../packages/client/ui-ops-monitor/src/index.ts)
 
 <a id="ctxremoteops--remoteops"></a>
 

@@ -669,6 +669,31 @@ export interface McpServer {
 ```
 <!-- END GENERATED config-catalog:@deepseek-ai/dsh-client-ui-mcp -->
 
+<!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-client-ui-ops-monitor -->
+<a id="deepseek-aidsh-client-ui-ops-monitor"></a>
+
+## `@deepseek-ai/dsh-client-ui-ops-monitor`
+
+- `inject`: `remoteOps` · `storageDomain` · `tools` · `approval`
+- `source`: [`packages/client/ui-ops-monitor/src/types.ts:45`](../packages/client/ui-ops-monitor/src/types.ts)
+
+```ts config-catalog
+/** Validated deployment limits for background collection and stored history. */
+export interface Config {
+  /** Target time between collection sweeps in milliseconds; sweeps never overlap. */
+  intervalMs: number
+  /** Maximum duration of all templates for one server in milliseconds. */
+  timeoutMs: number
+  /** Maximum stored server enrollments, including paused servers. */
+  maxServers: number
+  /** Maximum retained collection attempts per server. */
+  historyPoints: number
+  /** Time between dashboard stream snapshots in milliseconds. */
+  streamIntervalMs: number
+}
+```
+<!-- END GENERATED config-catalog:@deepseek-ai/dsh-client-ui-ops-monitor -->
+
 <!-- BEGIN GENERATED config-catalog:@deepseek-ai/dsh-client-ui-plugin-manager -->
 <a id="deepseek-aidsh-client-ui-plugin-manager"></a>
 
