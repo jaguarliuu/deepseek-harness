@@ -61,13 +61,13 @@ export function CapabilityCenter({ catalog = [], catalogStatus, useSessions, use
   const filterId = useId()
   const sessions = useSessions(state => state)
   const [selection, setSelection] = useState('')
-  const [refreshKey, setRefreshKey] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0)
   const [query, setQuery] = useState('')
   const [kind, setKind] = useState('all')
   const [officeOnly, setOfficeOnly] = useState(false)
   const [detailId, setDetailId] = useState<string | null>(null)
   const sessionId = sessions.ids.find(id => id === selection) ?? sessions.ids[0]
-  const skills = useResource<'skillcatalog'>(sessionId ? `dsh-resource://skillcatalog/${sessionId}?refresh=${refreshKey ? 1 : 0}` : '')
+  const skills = useResource<'skillcatalog'>(sessionId ? `dsh-resource://skillcatalog/${sessionId}?refresh=${refreshKey}` : '')
   const skillEntries: Entry[] = (skills.value?.skills ?? []).map((skill) => {
     const titleKey = Object.entries(OFFICE_SKILL_TITLES).find(([name]) => name === skill.name)?.[1]
     return { id: `skill:${skill.name}`, name: skill.name, title: titleKey ? t(titleKey) : skill.name, description: skill.description,
@@ -100,7 +100,7 @@ export function CapabilityCenter({ catalog = [], catalogStatus, useSessions, use
           </option>)}
         </select>
       </label>
-      <SkillImport sessionId={sessionId} onImportSkill={onImportSkill} onImported={() => { setRefreshKey(value => !value) }} t={t} />
+      <SkillImport sessionId={sessionId} onImportSkill={onImportSkill} onImported={() => { setRefreshKey(value => value + 1) }} t={t} />
     </div>
     <div className={css.filters}>
       <SegmentedTabs label={t('center.browse')} value={kind} onChange={setKind} items={[
@@ -111,7 +111,7 @@ export function CapabilityCenter({ catalog = [], catalogStatus, useSessions, use
       <button className={css.facet} aria-pressed={officeOnly} onClick={() => { setOfficeOnly(value => !value) }}>{t('center.office')}</button>
       <span className={css.count}>{t('center.summary', { plugins: String(pluginEntries.length), skills: String(skillEntries.length) })}</span>
       <Button size="sm" disabled={!sessionId || skills.status === 'loading'}
-        onClick={() => { setRefreshKey(value => !value) }}>{t('center.refresh')}</Button>
+        onClick={() => { setRefreshKey(value => value + 1) }}>{t('center.refresh')}</Button>
     </div>
     {(catalogStatus === 'error' || catalogStatus === 'unavailable') && <p role="alert">{t('center.pluginError')}</p>}
     {(skills.status === 'failed' || skills.value?.unavailable) && <p role="alert">{t('center.skillError')}</p>}

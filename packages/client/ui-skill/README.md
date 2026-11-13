@@ -7,7 +7,7 @@ kind: "package-reference"
 
 English | [中文](README.zh.md)
 
-The Skills settings and capability center expose one Import skill action. Its dialog offers an instruction file or a complete skill folder, shows format requirements and import results, and installs into the selected Session workspace. Imports accept up to 256 files and 10 MiB, preserve nested resources, and refuse existing skill names.
+The Skills settings and capability center expose one Import skill action. Its dialog offers an instruction file or a complete skill folder, shows format requirements and import results, and installs into the selected Session workspace. Imports accept up to 256 files and 10 MiB, preserve nested resources, and refuse existing skill names. Each catalog refresh requests a new resource so repeated refreshes do not restore an older cached list.
 
 ## Summary
 

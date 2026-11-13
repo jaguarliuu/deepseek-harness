@@ -43,6 +43,8 @@ it('creates a task, imports a skill and restores a recycled Session over the rea
     await page.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click()
     await page.getByRole('button', { name: 'Refresh skills', exact: true }).click()
     await page.getByText('intranet-report', { exact: true }).waitFor()
+    await page.getByRole('button', { name: 'Refresh skills', exact: true }).click()
+    await page.getByText('intranet-report', { exact: true }).waitFor()
 
     const group = page.getByRole('treeitem', { name: 'Ungrouped', exact: true })
     if (await group.getAttribute('aria-expanded') !== 'true') await group.click()
