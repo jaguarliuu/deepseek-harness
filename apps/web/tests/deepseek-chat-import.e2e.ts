@@ -124,6 +124,7 @@ it('continues a Session imported from a DeepSeek chat export with one model turn
     expect(fixtureUserPrompts(await readFile(await selectedSessionFixture(FIXTURE), 'utf8')).at(-1)).toBe(PROMPT)
   }
   const scaffold = await launchWebScaffold({
+    extraOverlayPath: fileURLToPath(new URL('./deepseek-chat-import.overlay.yml', import.meta.url)),
     profile: { packages: [{ dir: BUNDLE_DIR, enabled: true }] },
     ...(MODE === 'record' ? {} : { replayFixture: FIXTURE, compareReplaySession: true }),
   })

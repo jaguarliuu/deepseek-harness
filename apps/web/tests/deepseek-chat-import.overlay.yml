@@ -1,0 +1,15 @@
+# Keep imported-session replay independent of Small C's bundled prompt and tool extensions.
+- id: genui
+  disabled: true
+- id: knowledge-base
+  disabled: true
+- id: knowledge-base-web
+  disabled: true
+- id: orderg-x-pages
+  disabled: true
+- id: ui-intranet-ai
+  disabled: true
+- id: ui-remote-ops
+  disabled: true
+- id: univer
+  disabled: true
