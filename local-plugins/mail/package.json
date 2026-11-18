@@ -1,0 +1,46 @@
+{
+  "name": "@intranet/dsh-mail",
+  "version": "0.2.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json",
+    "./client": "./client.js"
+  },
+  "files": [
+    "*.js",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  },
+  "dependencies": {
+    "mailparser": "3.14.5",
+    "node-pop3": "0.15.5",
+    "nodemailer": "10.6.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "smtp-server": "3.21.6"
+  },
+  "engines": {
+    "node": ">=24.9.0"
+  },
+  "bundledDependencies": [
+    "mailparser",
+    "node-pop3",
+    "nodemailer",
+    "zod"
+  ]
+}

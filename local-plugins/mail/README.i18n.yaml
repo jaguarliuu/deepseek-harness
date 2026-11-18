@@ -1,0 +1,19 @@
+# Bilingual-pair consistency record for README.md (docs/i18n/README.md): per heading
+# section, a hash of its English and Chinese blocks outside code blocks and generated regions.
+# After editing either side, bring the other along and re-record with:
+#   pnpm run verify-translation-pairing --write local-plugins/mail/README.md
+/intranet-mail:
+  en: 6c076f442412b8d7
+  zh: a0e1bf59d4922506
+/intranet-mail/connect-a-mailbox:
+  en: a6686b5a4d0c1c6a
+  zh: 86f2c652281b6d79
+/intranet-mail/deployment-configuration:
+  en: 66b218a7d50afe4e
+  zh: aa976922f0cfb6fb
+/intranet-mail/model-experience:
+  en: 806ca51c4d3ea5ac
+  zh: d0689bf723c87ea1
+/intranet-mail/verify-locally:
+  en: c57fdaef8809858c
+  zh: e8c7574e9f137138

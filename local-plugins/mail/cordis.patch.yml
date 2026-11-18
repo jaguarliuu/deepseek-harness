@@ -1,0 +1,3 @@
+- insert:
+    - id: intranet-mail
+      name: '@intranet/dsh-mail'

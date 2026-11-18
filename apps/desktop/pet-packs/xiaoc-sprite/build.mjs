@@ -65,6 +65,20 @@ await writeFile(join(helper, 'events.js'), source('runtime/electron-helper/event
   .replace('const rotating = !terminal', "if (this.pet.id === 'xiaoc' && !stateChanged && (terminal || S.poolIncludes([slot], this.anim))) return;\n  const rotating = !terminal")
   .replace('applyMenuLeaf(s.sections ? s.sections.menu : null);',
     "applyMenuLeaf(s.sections ? s.sections.menu : null);\n      const workLeaf = s.sections?.workStatus;\n      if (workLeaf?.data?.state && !['success', 'error'].includes(workLeaf.data.state)) applyWorkStatusLeaf(workLeaf);"));
+await writeFile(join(plugin, 'src/host/mail-reminder.ts'),
+  (await readFile(join(here, 'mail-reminder.ts'), 'utf8')).replaceAll('../../../../vendor/dsh-pet/src/host/', './'));
+const hostEntry = source('src/host/index.ts');
+const reminderHook = '  // 路由就绪后拉起桌面 Helper';
+if (!hostEntry.includes(reminderHook)) throw new Error('Small C mail reminder registration point is missing');
+await writeFile(join(plugin, 'src/host/index.ts'),
+  "import { registerMailReminder } from './mail-reminder.ts';\n" + hostEntry.replace(reminderHook, `  registerMailReminder(ctx, {
+    state,
+    ready: () => state.waiterCount() > 0 && !lock.locked('xiaoc') && !sleep.sleeping('xiaoc')
+      && !workStatus.snapshot().state
+      && effectivePetList().some(pet => pet.id === 'xiaoc' && ['desktop', 'both'].includes(String(pet.display))),
+  });
+
+${reminderHook}`));
 await writeFile(join(plugin, 'src/host/plugin/session-watch.ts'), source('src/host/plugin/session-watch.ts')
   .replace("if (outcome?.keepWorking) next = 'working';", "if (outcome?.keepWorking && next !== 'waiting') next = 'working';"));
 await writeFile(join(plugin, 'src/host/routes/sleep.ts'), source('src/host/routes/sleep.ts')
