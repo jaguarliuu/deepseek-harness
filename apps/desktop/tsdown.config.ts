@@ -51,7 +51,8 @@ export default defineConfig([
     dts: false,
     clean: false,
     codeSplitting: false,
-    deps: { alwaysBundle: ['@deepseek-ai/dsh-atomic-write'] },
+    // The standalone worker has no node_modules; inline even production dependencies.
+    deps: { alwaysBundle: ['@deepseek-ai/dsh-atomic-write', '@deepseek-ai/dsh-error'] },
   },
   {
     entry: { main: 'lib/types/desktop-entry.js' },

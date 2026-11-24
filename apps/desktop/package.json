@@ -1,7 +1,7 @@
 {
   "name": "@deepseek-ai/dsh-desktop",
   "description": "Electron desktop shell for a bundled dsh runtime and external plugins",
-  "version": "0.2.2-rc.3",
+  "version": "0.2.3-alpha.2",
   "private": true,
   "license": "MIT",
   "author": {
@@ -52,11 +52,16 @@
     "semver": "^7.8.5",
     "ws": "^8.21.3",
     "@deepseek-ai/dsh-api-gateway": "workspace:*",
+    "@deepseek-ai/dsh-error": "workspace:*",
     "@deepseek-ai/cordis": "workspace:~",
     "selection-hook": "2.1.2"
   },
   "devDependencies": {
+    "@deepseek-ai/dsh-brand": "workspace:*",
     "@deepseek-ai/dsh-app-boot": "workspace:*",
+    "@deepseek-ai/dsh-client-connection": "workspace:*",
+    "@deepseek-ai/dsh-host-authentication-desktop": "workspace:*",
+    "@deepseek-ai/dsh-host-webserver": "workspace:*",
     "@deepseek-ai/dsh-client-ui-settings-general": "workspace:*",
     "@deepseek-ai/dsh-client-ui-sidebar-browser": "workspace:*",
     "@deepseek-ai/dsh-home-paths": "workspace:*",
@@ -69,8 +74,7 @@
     "@types/semver": "^7.8.0",
     "app-builder-lib": "26.17.0",
     "cos-nodejs-sdk-v5": "3.0.0",
-    "dsh-context": "0.83.0",
-    "electron": "^44.7.0",
+    "electron": "^44.11.5",
     "electron-builder": "^26.17.0",
     "extract-zip": "^2.0.1",
     "js-yaml": "^4.3.2",
@@ -92,10 +96,12 @@
     "zod": "4.6.6",
     "@deepseek-ai/dsh-util-file-drag": "workspace:*",
     "@deepseek-ai/dsh-client-ui-file-actions": "workspace:*",
-    "tar": "^7.5.22",
     "tencentcloud-sdk-nodejs-teo": "4.1.330",
+    "@deepseek-ai/dsh-desktop-publisher": "workspace:*",
+    "dsh-context": "0.83.0",
+    "tar": "^7.5.22",
     "@deepseek-ai/dsh-session": "workspace:*",
     "fflate": "^0.8.3"
   },
-  "productName": "智维小 C"
+  "productName": "\u667a\u7ef4\u5c0f C"
 }

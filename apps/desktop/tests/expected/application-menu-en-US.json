@@ -7,10 +7,12 @@
     "type": "separator"
   },
   {
-    "label": "Ask 智维小 C"
+    "id": "dsh-settings-open",
+    "label": "Settings…",
+    "enabled": false
   },
   {
-    "label": "Use copied text"
+    "type": "separator"
   },
   {
     "label": "Check for Updates…"

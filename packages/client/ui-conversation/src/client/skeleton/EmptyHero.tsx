@@ -66,6 +66,8 @@ export interface HeroShellProps {
   t: HeroTranslate
   /** Authorized renderer for the hero brand-mark slot. */
   renderSlot: ConversationContentProps['renderSlot']
+  /** Text shown instead of the default headline and preview badge. */
+  headline?: string | undefined
   /** Overlay content after the stack (modals). */
   children?: ReactNode
 }
@@ -75,7 +77,7 @@ export interface HeroShellProps {
  * @param props - Locale, brand slot, and optional overlays.
  * @returns the workspace welcome header.
  */
-export function HeroShell({ t, renderSlot, children }: HeroShellProps) {
+export function HeroShell({ t, renderSlot, headline, children }: HeroShellProps) {
   return (
     <div className={css.root}>
       <div className={css.stack}>
@@ -86,10 +88,14 @@ export function HeroShell({ t, renderSlot, children }: HeroShellProps) {
               fallback: <FishLogo size={64} />,
             })}
           </span>
-          <div className={css.titleGroup}>
-            <h1 className={css.title}>{t('hero.headline')}</h1>
-            <p className={css.subtitle}>{t('home.subtitle')}</p>
-          </div>
+          <span className={css.titleGroup}>
+            {/* Own element: keeps the headline text addressable apart from the badge. */}
+            <span>{headline ?? t('hero.headline')}</span>
+            {headline === undefined && <span className={css.previewBadge}>{t('hero.preview')}</span>}
+          </span>
+        </div>
+        <div className={css.body}>
+          {/* The composer remains mounted outside this component. */}
         </div>
         <p className={css.description}>{t('home.description')}</p>
       </div>

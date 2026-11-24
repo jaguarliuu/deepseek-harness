@@ -7,10 +7,12 @@
     "type": "separator"
   },
   {
-    "label": "交给小 C"
+    "id": "dsh-settings-open",
+    "label": "设置…",
+    "enabled": false
   },
   {
-    "label": "将已复制文字交给小 C"
+    "type": "separator"
   },
   {
     "label": "检查更新…"

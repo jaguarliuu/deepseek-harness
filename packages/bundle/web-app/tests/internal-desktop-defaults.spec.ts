@@ -5,6 +5,7 @@ import Loader, { type EntryOptions } from '@deepseek-ai/cordis-plugin-loader'
 import { applyEntryPatches } from '@deepseek-ai/cordis-plugin-include'
 import { loadOverlayPatches } from '@deepseek-ai/dsh-app-boot'
 import { expect, it, onTestFinished, vi } from 'vitest'
+import SessionProjections from '@deepseek-ai/dsh-session-projection'
 import SystemPrompt, { renderPrompt } from '@deepseek-ai/dsh-system-prompt'
 
 it.each(['desktop', 'web'])('resolves account, coding and upload defaults for %s', async (profile) => {
@@ -19,7 +20,7 @@ it.each(['desktop', 'web'])('resolves account, coding and upload defaults for %s
   onTestFinished(() => ctx.fiber.dispose())
   ctx.provide('profileContext', {
     name: profile, dir: '/profile', patchPath: '/profile/cordis.patch.yml', installAnchor: '/profile/package.json',
-    cwd: '/workspace', home: '/home', startedBundles: [], overlays: [], telemetryDisabledEnv: undefined,
+    cwd: '/workspace', home: '/home', startedBundles: [], overlayPaths: [], telemetryDisabledEnv: undefined,
   })
   ctx.baseUrl = 'file:///'
   await ctx.plugin(Loader).await()
@@ -38,7 +39,7 @@ it.each(['desktop', 'web'])('resolves account, coding and upload defaults for %s
   const configured = applyEntryPatches(entries, [
     { id: 'ui-settings', config: { enabled: true } },
     { id: 'session-log-deepseek', config: { enabled: true } },
-  ], (message) => { throw new Error(message) })
+  ], (message) => { throw new Error(message) }).data
   await ctx.loader.root.update(configured)
   await ctx.loader.await()
   expect(configurations.get('ui-settings')).toMatchObject({ enabled: true })
@@ -49,14 +50,14 @@ it('starts GUI profiles without public model defaults or credential onboarding',
   const base = loadOverlayPatches('base', fileURLToPath(new URL('../../base/cordis.patch.yml', import.meta.url)))
     .flatMap(patch => patch.insert ?? [])
   const patches = loadOverlayPatches('web', fileURLToPath(new URL('../cordis.patch.yml', import.meta.url)))
-  const rows = applyEntryPatches(base, patches, (message) => { throw new Error(message) })
+  const rows = applyEntryPatches(base, patches, (message) => { throw new Error(message) }).data
   const row = (id: string) => rows.find(entry => entry.id === id)
   expect(row('llm-deepseek')?.disabled).toBe(true)
   expect(row('llm-deepseek-account')?.disabled).toBe(true)
   expect(row('agent-default-model')?.config).toEqual({ provider: '', model: '' })
   expect(row('ui-settings-models')?.config).toEqual({ credentialOnboarding: false })
   const saved = applyEntryPatches(rows, [{ id: 'agent-default-model', config: { provider: 'intranet', model: 'private-model' } }],
-    (message) => { throw new Error(message) })
+    (message) => { throw new Error(message) }).data
   expect(saved.find(entry => entry.id === 'agent-default-model')?.config).toEqual({ provider: 'intranet', model: 'private-model' })
 })
 
@@ -65,16 +66,17 @@ it.each(['desktop', 'web'])('assembles the product identity for %s through the s
   const base = loadOverlayPatches('base', fileURLToPath(new URL('../../base/cordis.patch.yml', import.meta.url)))
     .flatMap(patch => patch.insert ?? [])
   const patches = loadOverlayPatches('web', fileURLToPath(new URL('../cordis.patch.yml', import.meta.url)))
-  const rows = applyEntryPatches(base, patches, (message) => { throw new Error(message) })
+  const rows = applyEntryPatches(base, patches, (message) => { throw new Error(message) }).data
     .filter(row => ['system-prompt', 'harness-dev-context'].includes(row.id))
   const ctx = new Context()
   onTestFinished(() => ctx.fiber.dispose())
   ctx.provide('profileContext', {
     name: profile, dir: '/profile', patchPath: '/profile/cordis.patch.yml', installAnchor: '/profile/package.json',
-    cwd: '/workspace', home: '/home', startedBundles: [], overlays: [], telemetryDisabledEnv: undefined,
+    cwd: '/workspace', home: '/home', startedBundles: [], overlayPaths: [], telemetryDisabledEnv: undefined,
   })
   ctx.baseUrl = 'file:///'
   await ctx.plugin(Loader).await()
+  await ctx.plugin(SessionProjections)
   ctx.loader.builtins['system-prompt'] = SystemPrompt
   const devContext = vi.fn()
   ctx.loader.builtins['harness-dev-context'] = { apply: devContext }

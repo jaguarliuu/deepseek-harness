@@ -34,7 +34,7 @@
       "path": "../ui-layout"
     },
     {
-      "path": "../ui-workspace"
+      "path": "../ui-workspace/tsconfig.client.json"
     },
     {
       "path": "../resources"

@@ -8,9 +8,8 @@ import z from '@deepseek-ai/schemastery'
 import { BUNDLED_SKILL_RANK, type SkillCandidate } from '@deepseek-ai/dsh-skill'
 import { parse as parseYaml } from 'yaml'
 
-const SKILL_NAMES = ['office', 'office-docx', 'office-pptx', 'office-xlsx', 'office-pdf'] as const
+const SKILL_NAMES = ['office'] as const
 const WORKPLACE_SKILL_NAMES = ['gov-doc-writing', 'meeting-recap', 'work-report-writer', 'dataset-health-audit', 'data-viz-gen'] as const
-const PYTHON_SKILLS: readonly string[] = ['office-docx', 'office-pptx', 'office-xlsx', 'office-pdf']
 
 /**
  * Python source for Office scripts: `'workspace-dependencies'` directs the model to the bundled interpreter and libraries
@@ -25,17 +24,17 @@ const PYTHON_ENVIRONMENT_SECTIONS: Readonly<Record<PythonEnvironment, string>> =
 
 /** Office skill resources and Python environment. */
 export interface Config {
-  /** Absolute assets directory containing skill folders; defaults to packaged assets. */
-  assetRoot?: string
-  /** Include the bundled workplace writing and analysis workflows. Defaults to true. */
+  /** Include bundled workplace writing and analysis workflows. */
   includeWorkplaceSkills?: boolean
-  /** Python environment named in the Python authoring and verification skills. @default 'workspace-dependencies' */
+  /** Absolute assets directory containing the `office` skill folder; defaults to packaged assets. */
+  assetRoot?: string
+  /** Python environment named at the end of the `office` skill. @default 'workspace-dependencies' */
   pythonEnvironment?: PythonEnvironment
 }
 
 /** Configuration after schema defaults apply. */
 export interface ResolvedConfig extends Config {
-  /** Python environment named in the Python authoring and verification skills. */
+  /** Python environment named at the end of the `office` skill. */
   pythonEnvironment: PythonEnvironment
 }
 
@@ -73,10 +72,10 @@ function persistentReadFailure(error: unknown): boolean {
 }
 
 /**
- * Register Office skills whose `SKILL.md` files the Host reads from `assetRoot`.
- * Skill files are read during catalog discovery and loading, and each distinct failure is reported once. A missing
- * or invalid skill is omitted from a complete catalog, and its failed load returns `undefined` and invalidates the
- * catalog. Any other read error leaves discovery incomplete, so the registry retries it, and rejects a load.
+ * Register the `office` skill whose `office/SKILL.md` the provider reads from `assetRoot` during catalog discovery and
+ * loading; each distinct failure is reported once as a warning. A missing or invalid skill file omits the skill from a
+ * complete catalog, and its failed load returns `undefined` and invalidates the catalog. Any other read error leaves
+ * discovery incomplete, so the registry retries it, and rejects a load.
  * @param ctx - Context carrying the skill registry.
  * @param config - Resolved configuration; `assetRoot` falls back to the packaged assets.
  * @throws When `assetRoot` is not absolute.
@@ -138,8 +137,7 @@ export function apply(ctx: Context, config: ResolvedConfig): void {
         control.invalidate()
         return undefined
       }
-      const content = read.content
-        + (PYTHON_SKILLS.includes(candidate.name) ? `\n\n## Python environment\n\n${PYTHON_ENVIRONMENT_SECTIONS[config.pythonEnvironment]}` : '')
+      const content = `${read.content}\n\n## Python environment\n\n${PYTHON_ENVIRONMENT_SECTIONS[config.pythonEnvironment]}`
       return { ...summary, content }
     },
   }))

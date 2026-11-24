@@ -1,6 +1,7 @@
 /** Electron Node-mode child lifecycle for the shared Web application. */
 
 import { spawn, type ChildProcess } from 'node:child_process'
+import { DesktopParentAuthentication } from './parent-authentication.ts'
 import { join } from 'node:path'
 import { z } from 'zod'
 import type { PlatformSession } from '@deepseek-ai/dsh-deepseek-account'
@@ -65,6 +66,18 @@ export const QUIT_INSPECTION_DEADLINE_MS = 2_000
 const MAX_HOST_DIAGNOSTIC_CHARS = 64 * 1024
 const runIdSchema = z.uuid()
 
+function isOwnedHostUrl(value: unknown): value is string {
+  if (typeof value !== 'string') return false
+  try {
+    const url = new URL(value)
+    return (url.protocol === 'http:' || url.protocol === 'https:')
+      && url.hostname === '127.0.0.1' && url.username === '' && url.password === ''
+      && url.pathname === '/' && url.search === '' && url.hash === ''
+  } catch (_invalidUrl) {
+    return false
+  }
+}
+
 function isDesktopHostEvent(message: unknown): message is DesktopHostEvent {
   if (typeof message !== 'object' || message === null || !('type' in message)) return false
   const candidate = message as Record<string, unknown>
@@ -78,7 +91,7 @@ function isDesktopHostEvent(message: unknown): message is DesktopHostEvent {
     case 'shutdown-complete':
       return true
     case 'ready':
-      return typeof candidate.url === 'string' && (candidate.workshopVersion === undefined || typeof candidate.workshopVersion === 'string')
+      return isOwnedHostUrl(candidate.url) && (candidate.workshopVersion === undefined || typeof candidate.workshopVersion === 'string')
     case 'workshop-update':
       return ['archive', 'version', 'assetId'].every(key => typeof candidate[key] === 'string' && candidate[key].length <= 4096)
     case 'platform-session': {
@@ -133,11 +146,13 @@ async function exitsWithin(exit: Promise<void>, milliseconds: number): Promise<b
   }
 }
 
-/** Browser authentication URL reported by the running Web application. */
+/** Host readiness plus the parent-owned credential used only by the main process. */
 export interface DesktopHostReady {
   readonly url: string
   readonly injections?: readonly unknown[] | undefined
   readonly workshopVersion?: string | undefined
+  /** Cookie header for the owned Host; synthesized locally and never received from the renderer. */
+  readonly authenticationCookie: string
 }
 
 /** The child has exited, but task teardown did not finish successfully. */
@@ -167,6 +182,7 @@ export class DesktopHostFatalError extends Error {
 
 /** One Web backend running under the Electron executable in Node mode. */
 export class DesktopHostProcess {
+  readonly #authentication = new DesktopParentAuthentication()
   private runId: PluginOperationRunId | undefined
   private child: ChildProcess | undefined
   private readyResolve!: (ready: DesktopHostReady) => void
@@ -258,10 +274,29 @@ export class DesktopHostProcess {
         child.kill('SIGTERM')
         return
       }
-      if (message.type === 'starting') this.runId = message.runId
+      if (message.type === 'starting') {
+        if (this.runId === undefined && !this.failureReported && !this.stopping) {
+          this.runId = message.runId
+          void this.#authentication.deliver(child).catch((error: unknown) => {
+            this.fail(error instanceof Error ? error : new Error(String(error)))
+            child.kill('SIGTERM')
+          })
+        }
+      }
+      else if (message.type === 'ready') {
+        void this.#authentication.readyCookie().then((authenticationCookie) => {
+          if (this.failureReported || this.stopping) return
+          this.readyResolve({
+            url: message.url, injections: message.injections, authenticationCookie, workshopVersion: message.workshopVersion,
+          })
+        }, (error: unknown) => {
+          this.fail(error instanceof Error ? error : new Error(String(error)))
+          child.kill('SIGTERM')
+        })
+      }
+
       else if (message.type === 'task-result') { if (!this.stopping) this.onTaskResult?.(message) }
       else if (message.type === 'workshop-update') { if (!this.stopping) this.onWorkshopUpdate?.(message) }
-      else if (message.type === 'ready') this.readyResolve({ url: message.url, injections: message.injections, workshopVersion: message.workshopVersion })
       else if (message.type === 'platform-session') this.onPlatformSession?.(message.session)
       else if (message.type === 'shutdown-complete') {
         if (this.stopping) this.shutdownCompleted = true
