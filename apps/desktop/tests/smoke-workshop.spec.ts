@@ -6,12 +6,37 @@ import { Context } from '@deepseek-ai/cordis'
 import WebServer from '@deepseek-ai/dsh-host-webserver'
 import * as Connection from '@deepseek-ai/dsh-client-connection'
 import * as DesktopAuthentication from '@deepseek-ai/dsh-host-authentication-desktop'
-import { create } from 'tar'
+import { create, extract } from 'tar'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import { expect, it, onTestFinished, vi } from 'vitest'
 import { smokeWorkshop } from '../scripts/smoke-workshop.ts'
 import { DesktopHostProcess } from '../src/host-process.ts'
 import { DesktopWorkshop, type WorkshopUpdateRequest } from '../src/workshop.ts'
 import { workshopSeed } from '../src/workshop-seed.ts'
+
+it('admits the shipped Workshop HTTP handler through its declared Connection dependency', async () => {
+  const home = await mkdtemp(join(tmpdir(), 'workshop-seed-auth-'))
+  onTestFinished(async () => { await rm(home, { recursive: true, force: true }) })
+  const ctx = new Context()
+  onTestFinished(async () => { await ctx.fiber.dispose() })
+  const secret = Buffer.alloc(32, 7).toString('base64url')
+  const cookie = `dsh-desktop-session=${secret}`
+  await ctx.plugin(WebServer, { host: '127.0.0.1', port: 0 }).await()
+  await ctx.plugin(Connection).await()
+  await ctx.plugin(DesktopAuthentication, { readSecret: () => secret }).await()
+  await extract({ file: fileURLToPath(new URL(`../resources/workshop/${workshopSeed.filename}`, import.meta.url)), cwd: home })
+  const plugin: { inject: string[]; apply(ctx: Context): void } = await import(pathToFileURL(join(home, 'package/index.js')).href)
+  await ctx.plugin(plugin).await()
+  const request = (credential?: string) => fetch(new URL('/assets-hub/rpc', ctx.webServer.getOrigin()), {
+    method: 'POST', headers: { 'content-type': 'application/json', ...(credential === undefined ? {} : { cookie: credential }) },
+    body: '{}',
+  })
+  expect((await request()).status).toBe(401)
+  expect((await request('dsh-desktop-session=invalid')).status).toBe(401)
+  const response = await request(cookie)
+  expect(response.status).toBe(404)
+  expect(await response.json()).toMatchObject({ error: { code: 'UNKNOWN_METHOD' } })
+})
 
 it('authenticates Workshop updates with the readiness Cookie without a URL login', async () => {
   const home = await mkdtemp(join(tmpdir(), 'workshop-smoke-auth-'))

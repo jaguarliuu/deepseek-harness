@@ -4,6 +4,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { HostConnectionService } from '../src/rpc-host.ts'
 import { ConnectionAuthentication } from '../src/authentication.ts'
 import { Peer } from '../src/peer.ts'
+import * as Connection from '../src/index.ts'
 
 const roots: Context[] = []
 afterEach(async () => { for (const root of roots.splice(0)) await root.fiber.dispose() })
@@ -14,6 +15,20 @@ function setup(): { ctx: Context; connection: HostConnectionService; authenticat
   return { ctx, connection: new HostConnectionService(ctx, []), authentication }
 }
 const request = { headers: { host: 'localhost' } }
+
+it('admits a request from a consumer that injects Connection without its authentication registry', async () => {
+  const ctx = new Context()
+  roots.push(ctx)
+  await ctx.plugin(Connection).await()
+  const peer = ctx.connection.createPeer({ principal: { kind: 'owner' } })
+  ctx.connection.authentication.register({ authenticate: () => peer })
+  const admitted = vi.fn()
+  await ctx.plugin({
+    inject: ['connection'],
+    apply(scope: Context) { admitted(scope.connection.admit(request)) },
+  }).await()
+  expect(admitted).toHaveBeenCalledWith({ peer })
+})
 
 it('requires a WebServer for a physical RPC channel', () => {
   const { connection } = setup()
