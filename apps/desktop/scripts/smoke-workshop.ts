@@ -16,7 +16,7 @@ function packageOutput(error: unknown): string {
   return packageOutput(error.cause)
 }
 
-/** Verify offline bootstrap, a stopped-Host upgrade, rollback, and retention of an existing profile.
+/** Verify offline bootstrap, a stopped-Host upgrade, rollback, and profile retention with the readiness Cookie.
  * @param home - Isolated Harness home.
  * @param profile - Isolated Desktop profile.
  * @param seed - Workshop tarball shipped by the installer.
@@ -75,6 +75,7 @@ export async function smokeWorkshop(
   const newHost = () => createHost((request) => { requests.emit('update', request) })
   let host = newHost()
   let hostUrl: string
+  let cookie: string
   let version: string | undefined
   let timer: ReturnType<typeof setTimeout> | undefined
   const start = async (): Promise<string | undefined> => {
@@ -82,6 +83,7 @@ export async function smokeWorkshop(
       timer = setTimeout(() => { reject(new Error('Workshop smoke: Host readiness exceeded 120 seconds')) }, 120_000)
     })]).finally(() => { clearTimeout(timer) })
     hostUrl = ready.url
+    cookie = ready.authenticationCookie
     version = ready.workshopVersion
     return version
   }
@@ -92,8 +94,6 @@ export async function smokeWorkshop(
   }
   const requestUpdate = async (target: string): Promise<WorkshopUpdateRequest> => {
     offeredVersion = target
-    const login = await fetch(hostUrl, { redirect: 'manual', signal: AbortSignal.timeout(15_000) })
-    const cookie = login.headers.getSetCookie().map(value => value.split(';')[0]).join('; ')
     const [response, [request]] = await Promise.all([fetch(new URL('/assets-hub/rpc', hostUrl), {
       method: 'POST', headers: { cookie, 'content-type': 'application/json' },
       body: JSON.stringify({ method: 'install', params: { kind: 'plugin', id: assetId } }),
