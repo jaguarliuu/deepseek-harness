@@ -65,13 +65,13 @@ await writeFile(join(helper, 'events.js'), source('runtime/electron-helper/event
   .replace('const rotating = !terminal', "if (this.pet.id === 'xiaoc' && !stateChanged && (terminal || S.poolIncludes([slot], this.anim))) return;\n  const rotating = !terminal")
   .replace('applyMenuLeaf(s.sections ? s.sections.menu : null);',
     "applyMenuLeaf(s.sections ? s.sections.menu : null);\n      const workLeaf = s.sections?.workStatus;\n      if (workLeaf?.data?.state && !['success', 'error'].includes(workLeaf.data.state)) applyWorkStatusLeaf(workLeaf);"));
-await writeFile(join(plugin, 'src/host/mail-reminder.ts'),
-  (await readFile(join(here, 'mail-reminder.ts'), 'utf8')).replaceAll('../../../../vendor/dsh-pet/src/host/', './'));
+await writeFile(join(plugin, 'src/host/pet-notification.ts'),
+  (await readFile(join(here, 'pet-notification.ts'), 'utf8')).replaceAll('../../../../vendor/dsh-pet/src/host/', './'));
 const hostEntry = source('src/host/index.ts');
 const reminderHook = '  // 路由就绪后拉起桌面 Helper';
-if (!hostEntry.includes(reminderHook)) throw new Error('Small C mail reminder registration point is missing');
+if (!hostEntry.includes(reminderHook)) throw new Error('Small C plugin notification registration point is missing');
 await writeFile(join(plugin, 'src/host/index.ts'),
-  "import { registerMailReminder } from './mail-reminder.ts';\n" + hostEntry.replace(reminderHook, `  registerMailReminder(ctx, {
+  "import { registerPetNotification } from './pet-notification.ts';\n" + hostEntry.replace(reminderHook, `  registerPetNotification(ctx, {
     state,
     ready: () => state.waiterCount() > 0 && !lock.locked('xiaoc') && !sleep.sleeping('xiaoc')
       && !workStatus.snapshot().state

@@ -175,7 +175,10 @@ function mountRuntime(ctx, config, passwords) {
     }
     let accepted
     try {
-      accepted = ctx.bail('intranet-mail/pet-reminder', batch.count, config.locale)
+      accepted = ctx.bail('xiaoc/notification', {
+        text: config.locale === 'zh' ? `收到 ${batch.count} 封新邮件` : `${batch.count} new emails`,
+        animation: '招手',
+      })
     } catch {
       log.warn(messages.reminder)
       return

@@ -10,7 +10,7 @@ import { test } from 'node:test'
 import { SMTPServer } from 'smtp-server'
 import { apply } from './index.js'
 import { withPop3 } from './pop3.js'
-import { registerMailReminder } from '../../apps/desktop/pet-packs/xiaoc-sprite/mail-reminder.ts'
+import { registerPetNotification } from '../../apps/desktop/pet-packs/xiaoc-sprite/pet-notification.ts'
 
 const EOL = '\r\n'
 const bytes = [
@@ -99,9 +99,9 @@ test('POP3 baseline, retry, TOP fallback, indexed reads and approved SMTP submis
     inject() {},
     approval: { request: async () => decision },
     logger: () => ({ warn() {} }),
-    bail: (_event, count) => {
+    bail: (_event, notification) => {
       if (!canDeliver) return
-      reminders.push(count)
+      reminders.push(Number(notification.text.match(/\d+/)[0]))
       return true
     },
   }
@@ -241,17 +241,17 @@ test('Small C queues a count-only bubble and wave when its surface is available'
   let handler
   let ready = false
   const writes = []
-  registerMailReminder({ on(event, callback) {
-    assert.equal(event, 'intranet-mail/pet-reminder')
+  registerPetNotification({ on(event, callback) {
+    assert.equal(event, 'xiaoc/notification')
     handler = callback
   } }, {
     ready: () => ready,
     state: { writePet: (...entry) => writes.push(entry) },
   })
-  assert.equal(handler(2, 'zh'), undefined)
+  assert.equal(handler({ text: '收到 2 封新邮件', animation: '招手' }), undefined)
   assert.deepEqual(writes, [])
   ready = true
-  assert.equal(handler(2, 'zh'), true)
+  assert.equal(handler({ text: '收到 2 封新邮件', animation: '招手' }), true)
   assert.deepEqual(writes, [
     ['xiaoc', 'say', { text: '收到 2 封新邮件', anim: false }],
     ['xiaoc', 'anim', { name: '招手' }],

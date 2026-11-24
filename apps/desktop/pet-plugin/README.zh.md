@@ -10,7 +10,7 @@ kind: reference
 
 [build.mjs](../pet-packs/xiaoc-sprite/build.mjs) 从原始快照应用本地适配：小 C 精灵图槽、方向行走不镜像、菜单位置稳定、工作状态恢复与取消、审批等待、工作时禁止入睡、角色人设及说话动作。桌面默认关闭语音、模型自动碎碎念（含梦话）、余额查询和生成配图。设置保存在 `$DSH_HOME/zhiwei-xiaoc-pet`。运行时下载器明确报错，辅助程序复用应用的 Electron 和固定的打包入口标记。Cordis 卸载等待辅助进程退出。宿主产物打入模型辅助代码及 Zod，可选语音后端保持关闭。
 
-小 C Host 接收[内网邮件插件](../../../local-plugins/mail/README.zh.md)发来的数量提醒。桌宠已连接、醒着且可展示提醒时，会招手并显示新邮件数量。
+插件通过 `xiaoc/notification` 提交展示文本和可选动画。桌宠已连接、醒着且可展示时，接收通知并返回 `true`；否则由调用方保留通知，稍后重试。
 
 桌面构建将插件放到 `apps/desktop/.desktop-build/pet`。`artifact.json` 记录每个随包文件的 SHA256；构建检查必要脚本和所有图集，打包钩子验证复制后的 `resources/pet`。相对路径 overlay 支持安装位置变化。插件经 Desktop profile 加载，辅助进程随 Host 结束。已安装可执行文件仅将 `--zhiwei-pet-helper` 分流到固定的内置入口，不执行调用方提供的脚本。快捷任务和划词交办仍由桌面壳负责。
 
